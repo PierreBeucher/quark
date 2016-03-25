@@ -19,7 +19,7 @@ public abstract class AbstractHelperResult<E> implements HelperResult<E>{
 		this.actionOutput = actionOutput;
 	}
 
-	public Boolean isSuccess() {
+	public boolean isSuccess() {
 		return success;
 	}
 

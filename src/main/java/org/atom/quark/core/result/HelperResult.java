@@ -29,7 +29,7 @@ public interface HelperResult<E> {
 	 * Whether this result failed of succeed 
 	 * @return true on success, false on failure
 	 */
-	Boolean isSuccess();
+	boolean isSuccess();
 	
 	/**
 	 * 

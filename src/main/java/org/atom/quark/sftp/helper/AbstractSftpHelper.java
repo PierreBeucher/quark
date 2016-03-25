@@ -19,30 +19,36 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		return sftpContext;
 	}
 
-	public void context(SftpContext context) {
+	public SftpHelper context(SftpContext context) {
 		this.sftpContext = context;
+		return this;
 	}
 
-	public void host(String host) {
+	public SftpHelper host(String host) {
 		sftpContext.setHost(host);
+		return this;
 		
 	}
 
-	public void port(int port) {
+	public SftpHelper port(int port) {
 		sftpContext.setPort(port);
+		return this;
 	}
 
-	public void login(String login) {
+	public SftpHelper login(String login) {
 		sftpContext.getAuthContext().setLogin(login);
+		return this;
 	}
 
-	public void password(String password) {
+	public SftpHelper password(String password) {
 		sftpContext.getAuthContext().setPassword(password);
+		return this;
 		
 	}
 
-	public void privateKey(String privateKey) {
+	public SftpHelper privateKey(String privateKey) {
 		sftpContext.getAuthContext().setPrivateKey(privateKey);
+		return this;
 	}
 	
 	/**
@@ -55,8 +61,9 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 				&& !StringUtils.isEmpty(getContext().getAuthContext().getLogin());
 	}
 
-	public void privateKeyPassword(String privateKeyPassword) {
+	public SftpHelper privateKeyPassword(String privateKeyPassword) {
 		getContext().getAuthContext().setPrivateKeyPassword(privateKeyPassword);
+		return this;
 	}
 	
 	

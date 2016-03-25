@@ -33,43 +33,44 @@ public interface SftpHelper extends Helper<SftpContext> {
 	 * Set the context to be used by this Helper. Overwrite previosuly defined context.
 	 * @param context context to use
 	 */
-	public void context(SftpContext context);
+	public SftpHelper context(SftpContext context);
 	
 	/**
 	 * Set the host to be used by this Helper. Overwrit any previously defined host.
 	 * @param host
+	 * @return 
 	 */
-	public void host(String host);
+	public SftpHelper host(String host);
 	
 	/**
 	 * Set the port to be used by this Helper. Overwrite any previously defined port.
 	 * @param port
 	 */
-	public void port(int port);
+	public SftpHelper port(int port);
 	
 	/**
 	 * Set the login to be used by this Helper.  Overwrite any previously defined login.
 	 * @param login
 	 */
-	public void login(String login);
+	public SftpHelper login(String login);
 	
 	/**
 	 * Set the password to be used by this Helper.  Overwrite any previously defined password.
 	 * @param password
 	 */
-	public void password(String password);
+	public SftpHelper password(String password);
 	
 	/**
 	 * Set the privateKey file to be used by this Helper.  Overwrite any previously defined privateKey.
 	 * @param privateKey
 	 */
-	public void privateKey(String privateKey);
+	public SftpHelper privateKey(String privateKey);
 	
 	/**
 	 * Set the private key password to be used by this Helper.  Overwrite any previously defined private key password.
 	 * @param privateKeyPassword
 	 */
-	public void privateKeyPassword(String privateKeyPassword);
+	public SftpHelper privateKeyPassword(String privateKeyPassword);
 	
 	/**
 	 * Connect to the SFTP server using the available context. Return result as

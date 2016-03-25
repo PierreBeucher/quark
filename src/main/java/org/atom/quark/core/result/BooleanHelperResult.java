@@ -27,7 +27,7 @@ public class BooleanHelperResult implements HelperResult<Boolean> {
 		this.success = success;
 	}
 
-	public Boolean isSuccess() {
+	public boolean isSuccess() {
 		return success;
 	}
 

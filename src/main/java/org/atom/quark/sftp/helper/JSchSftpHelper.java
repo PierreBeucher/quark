@@ -40,6 +40,7 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 				getContext().getHost(),
 				getContext().getPort()
 				);
+		client.connect();
 		
 		return ResultBuilder.success();
 	}
