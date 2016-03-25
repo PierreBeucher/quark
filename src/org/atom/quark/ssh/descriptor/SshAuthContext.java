@@ -1,0 +1,72 @@
+package org.atom.quark.ssh.descriptor;
+
+import org.atom.quark.core.context.authentication.LoginAuthContext;
+
+/**
+ * This Descriptor represent various ways of login using the SSH protocol.
+ * SSH protocol can be used with login/password and public key authentication.
+ * @author Pierre Beucher
+ *
+ */
+public class SshAuthContext extends LoginAuthContext{
+
+	private String password;
+	
+	private String privateKey;
+	
+	private String privateKeyPassword;
+	
+	/**
+	 * Empty constructor. Use setters to define context.
+	 */
+	public SshAuthContext() {
+		super();
+	}
+
+	/**
+	 * Constructor for a SshAuthDescriptor using password authentication.
+	 * @param login
+	 * @param password
+	 */
+	public SshAuthContext(String login, String password) {
+		super(login);
+		this.password = password;
+	}
+
+	/**
+	 * Constructor for a SshAuthDescriptor using public key authentication.
+	 * @param login
+	 * @param privateKey
+	 */
+	public SshAuthContext(String login, String privateKey, String privateKeyPassword) {
+		super(login);
+		this.privateKey = privateKey;
+		this.privateKeyPassword = privateKeyPassword;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getPrivateKey() {
+		return privateKey;
+	}
+
+	public void setPrivateKey(String privateKey) {
+		this.privateKey = privateKey;
+	}
+
+	public String getPrivateKeyPassword() {
+		return privateKeyPassword;
+	}
+
+	public void setPrivateKeyPassword(String privateKeyPassword) {
+		this.privateKeyPassword = privateKeyPassword;
+	}
+	
+
+}
