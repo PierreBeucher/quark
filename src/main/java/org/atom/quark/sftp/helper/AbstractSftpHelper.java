@@ -1,6 +1,12 @@
 package org.atom.quark.sftp.helper;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
 import org.apache.commons.lang3.StringUtils;
+import org.atom.quark.core.result.HelperResult;
 import org.atom.quark.sftp.context.SftpContext;
 
 public abstract class AbstractSftpHelper implements SftpHelper {
@@ -68,6 +74,28 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 	public SftpHelper privateKeyPassword(String privateKeyPassword) {
 		getContext().getAuthContext().setPrivateKeyPassword(privateKeyPassword);
 		return this;
+	}
+	
+	/**
+	 * Generate an InputStream for the given file. Used when uploading stream.
+	 * @param f
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	protected InputStream streamFile(File f) throws FileNotFoundException{
+		return new FileInputStream(f);
+	}
+
+	public HelperResult<String> upload(File file, String dest) throws Exception {
+		return upload(streamFile(file), dest, SftpHelper.MODE_OVERWRITE);
+	}
+
+	public HelperResult<String> upload(File file, String dest, int mode) throws Exception {
+		return upload(streamFile(file), dest, mode);
+	}
+
+	public HelperResult<String> upload(InputStream stream, String dest) throws Exception {
+		return upload(stream, dest, SftpHelper.MODE_OVERWRITE);
 	}
 
 }

@@ -1,6 +1,8 @@
 package org.atom.quark.sftp.helper;
 
 import java.io.File;
+import java.io.InputStream;
+
 import org.atom.quark.core.helper.Helper;
 import org.atom.quark.core.result.HelperResult;
 import org.atom.quark.sftp.context.SftpContext;
@@ -97,24 +99,40 @@ public interface SftpHelper extends Helper<SftpContext> {
 	public HelperResult<String> disconnect() throws Exception;
 	
 	/**
-	 * Upload a file on the server in the specified directory, using the default client upload mode.
-	 * Return result as the final filename being uploaded.
+	 * Upload content using a file
 	 * @param f
 	 * @param dest
-	 * @return Result as filename uploaded
+	 * @return result as filename uploaded
 	 * @throws Exception 
 	 */
 	public HelperResult<String> upload(File file, String dest) throws Exception;
 	
 	/**
-	 * Upload a file on the server in the specified directory, using the specified upload mode.
-	 * Return result as the final filename being uploaded.
+	 * Upload content using a file. 
 	 * @param f
 	 * @param dest
 	 * @param mode
-	 * @return Result as filename uploaded
+	 * @return result as filename uploaded
 	 * @throws Exception
 	 */
 	public HelperResult<String> upload(File file, String dest, int mode) throws Exception;
+	
+	/**
+	 * Upload content using a stream.
+	 * @param stream streamed data to upload
+	 * @param dest path to the destination
+	 * @param mode writing mode, either APPEND, OVERWRITE or RESUME
+	 * @return result as filename uploaded
+	 * @throws Exception 
+	 */
+	public HelperResult<String> upload(InputStream stream, String dest, int mode) throws Exception;
+	
+	/**
+	 * Upload content using a stream, overwriting existing destination.
+	 * @param stream streamed data to upload
+	 * @param dest path to the destination
+	 * @return result as filename uploaded
+	 */
+	public HelperResult<String> upload(InputStream stream, String dest) throws Exception;
 
 }

@@ -12,7 +12,6 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Logger;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
@@ -21,7 +20,7 @@ import com.jcraft.jsch.SftpException;
  * SFTP client interface wrapping a JSch instance.
  * 
  * @author Pierre Beucher
- *
+ * @deprecated
  */
 public class JSchSftpClient {
 	
