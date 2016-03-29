@@ -6,6 +6,8 @@ import org.atom.quark.core.helper.HelperException;
 import org.atom.quark.core.result.HelperResult;
 import org.atom.quark.core.result.ResultBuilder;
 import org.atom.quark.sftp.context.SftpContext;
+import org.atom.quark.utils.sftp.DebugLogger;
+
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -32,38 +34,22 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 	private static final String CHANNEL_SFTP = "sftp";
 	
 	/**
-	 * JSch instance used to SFTP. Instanciated once for the entire lifecycle
-	 * of this helper.
-	 */
-	private JSch jsch;
-	
-	/**
-	 * Session created when connecting. A new session
-	 * is created each time this Helper connects.
-	 */
-	private Session session;
-	
-	/**
 	 * The SFTP channel created once connected. 
 	 */
 	private ChannelSftp channelSftp;
 	
-//	private JSchSftpClient client;
-	
 	/**
 	 * Timeout for session connection
 	 */
-	private int sessionConnectTimeout;
+	private int sessionConnectTimeout = DEFAULT_SESSION_CONNECT_TIMEOUT;
 
 	/**
 	 * timeout for channel creation
 	 */
-	private int channelConnectTimeout;
+	private int channelConnectTimeout = DEFAULT_CHANNEL_CONNECT_TIMEOUT;
 	
 	public JSchSftpHelper() {
-		this.jsch = new JSch();
-		this.channelConnectTimeout = DEFAULT_CHANNEL_CONNECT_TIMEOUT;
-		this.sessionConnectTimeout = DEFAULT_SESSION_CONNECT_TIMEOUT;
+		super();
 	}
 
 	public JSchSftpHelper(SftpContext sftpContext) {
@@ -74,7 +60,21 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 		disconnect();
 		try{
 		
-			session = jsch.getSession(getContext().getAuthContext().getLogin(),
+			JSch jsch = new JSch();
+			JSch.setLogger(new DebugLogger());
+			
+			//add private key if existing
+			if(getContext().getAuthContext().getPrivateKey() != null){
+				if(getContext().getAuthContext().getPrivateKeyPassword() != null){
+					jsch.addIdentity(getContext().getAuthContext().getPrivateKey(), 
+							getContext().getAuthContext().getPrivateKeyPassword());
+				} else {
+					jsch.addIdentity(getContext().getAuthContext().getPrivateKey());
+				}
+			}
+			
+			
+			Session session = jsch.getSession(getContext().getAuthContext().getLogin(),
 					getContext().getHost(), getContext().getPort());
 			session.setPassword(getContext().getAuthContext().getPassword());
 			session.setConfig(getContext().getOptions());
@@ -94,21 +94,10 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 	}
 	
 	public HelperResult<String> disconnect(){		
-		disconnectChannel();
-		disconnectSession();
-		return ResultBuilder.success("Disconnected.");
-	}
-	
-	private void disconnectChannel(){
 		if(this.channelSftp != null){
 			this.channelSftp.disconnect();
 		}
-	}
-	
-	private void disconnectSession(){
-		if(this.session != null){
-			session.disconnect();
-		}
+		return ResultBuilder.success("Disconnected.");
 	}
 	
 	public HelperResult<String> upload(InputStream stream, String dest, int mode) throws Exception {
