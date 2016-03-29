@@ -73,6 +73,13 @@ public interface SftpHelper extends Helper<SftpContext> {
 	public SftpHelper privateKeyPassword(String privateKeyPassword);
 	
 	/**
+	 * Set an option to be used by this Helper's ssh client
+	 * @param option
+	 * @return
+	 */
+	public SftpHelper addOption(String option, Object value);
+	
+	/**
 	 * Connect to the SFTP server using the available context. Return result as
 	 * success or failure.
 	 * @return result as success or failure

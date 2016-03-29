@@ -43,11 +43,15 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 	public SftpHelper password(String password) {
 		sftpContext.getAuthContext().setPassword(password);
 		return this;
-		
 	}
 
 	public SftpHelper privateKey(String privateKey) {
 		sftpContext.getAuthContext().setPrivateKey(privateKey);
+		return this;
+	}
+	
+	public SftpHelper addOption(String option, Object value){
+		sftpContext.getOptions().put(option, value);
 		return this;
 	}
 	
@@ -65,7 +69,5 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		getContext().getAuthContext().setPrivateKeyPassword(privateKeyPassword);
 		return this;
 	}
-	
-	
 
 }

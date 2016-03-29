@@ -40,6 +40,8 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 				getContext().getHost(),
 				getContext().getPort()
 				);
+		client.setOptions(getContext().getOptions());
+		client.setPassword(getContext().getAuthContext().getPassword());
 		client.connect();
 		
 		return ResultBuilder.success();
@@ -85,5 +87,7 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 	private HelperResult<String> buildSuccessUploadResult(String dest){
 		return ResultBuilder.success(new File(dest).getName());
 	}
+	
+	
 
 }

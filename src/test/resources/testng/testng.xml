@@ -1,0 +1,16 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+  
+<suite name="integration-suite" verbose="1" >
+<parameter name="sftp-host" value="192.168.100.42" />
+  	<parameter name="sftp-port" value="2222" />
+  	<parameter name="sftp-login" value="quark" />
+  	<parameter name="sftp-password" value="password" />
+  	<parameter name="sftp-key" value="src/test/resources/ssh/id_rsa" />
+  	<parameter name="sftp-key-passphrase" value="quark" />
+  	<parameter name="sftp-filepath" value="src/test/resources/file.xml" />
+  <test name="SftpHelperTest">
+    <classes>
+      <class name="org.atom.quark.sftp.helper.JSchSftpHelperIT"/>
+    </classes>
+  </test>
+</suite>

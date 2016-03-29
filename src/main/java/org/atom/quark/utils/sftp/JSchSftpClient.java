@@ -5,12 +5,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Vector;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Logger;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
@@ -52,6 +54,7 @@ public class JSchSftpClient {
 	private JSch jsch;
 	private Session session;
 	private ChannelSftp channelSftp;
+	private Properties options;
 	
 	/**
 	 * Default constructor using port 22.
@@ -81,6 +84,9 @@ public class JSchSftpClient {
 		this.host = host;
 		this.port = port;
 		this.jsch = new JSch();
+		this.options = new Properties();
+		
+		JSch.setLogger(new DebugLogger());
 		
 		this.channelConnectTimeout = DEFAULT_CHANNEL_CONNECT_TIMEOUT;
 		this.sessionConnectTimeout = DEFAULT_SESSION_CONNECT_TIMEOUT;
@@ -113,6 +119,23 @@ public class JSchSftpClient {
 	public void addIdentity(String privateKeyFile, String privateKeyPassphrase) throws JSchException{
 		jsch.addIdentity(privateKeyFile, privateKeyPassphrase);
 	}
+	
+	/**
+	 * Add a new configuration setting to the configuration which will
+	 * be used to connect. Setting a new property on an already connected
+	 * client has no effect, connecting the client again is required.
+	 */
+	public void addConfig(String conf, Object value){
+		this.options.put(conf, value);
+	}
+	
+	/**
+	 * 
+	 * @return currently used configuration
+	 */
+	public Properties getConfig(){
+		return this.options;
+	}
 
 	/**
 	 * <p>Connect and open an SFTP channel. Uses the password and key defined previously.</p>
@@ -135,11 +158,15 @@ public class JSchSftpClient {
 		if(session != null && session.isConnected()){
 			session.disconnect();
 		}
+		System.out.println("Using login:" + login);
+		
 		session = jsch.getSession(login, host, port);
+		session.setPassword(password);
+		session.setConfig(options);
 	}
 	
 	private void connectCurrentSession() throws JSchException{
-		session.setPassword(password);
+		System.out.println("Using password: " + password);
 		session.connect(sessionConnectTimeout);
 	}
 	
@@ -333,5 +360,15 @@ public class JSchSftpClient {
 	public JSch getJsch() {
 		return jsch;
 	}
+
+	public Properties getOptions() {
+		return options;
+	}
+
+	public void setOptions(Properties options) {
+		this.options = options;
+	}
+	
+	
 
 }

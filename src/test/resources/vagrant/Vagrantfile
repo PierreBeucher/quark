@@ -13,6 +13,9 @@ Vagrant.configure(2) do |config|
     vb.memory = "2048"
   end
   
+  # Mount shared resources
+  config.vm.synced_folder "../ssh/", "/vagrant/ssh", create:true
+  
   config.vm.provision "docker" do |d|
     
 	# Pull required Docker images
@@ -25,7 +28,7 @@ Vagrant.configure(2) do |config|
 	# SFTP container, with user 'quark' and password 'password'
 	d.run "atmoz/sftp",
       cmd: "quark:password",
-      args: "-p 2222:22"
+      args: "-p 2222:22  -v /vagrant/ssh/id_rsa.pub:/home/quark/.ssh/keys/id_rsa.pub:ro"
   end
   
   config.vm.provision "docker" do |d|
