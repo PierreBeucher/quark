@@ -12,4 +12,5 @@ buildNumber.properties
 .project
 .settings
 **/.vagrant
+**/.vagrant/*
 test-output

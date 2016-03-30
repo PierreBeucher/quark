@@ -7,24 +7,64 @@ package org.atom.quark.core.result;
  */
 public class ResultBuilder {
 
-	public static <E> HelperResult<E> success(E result){
-		return new SimpleHelperResult<E>(true, result);
-	}
-	
-	public static HelperResult<Boolean> success(){
+	/**
+	 * Build a success result, without specific output data
+	 * @return
+	 */
+	public static BooleanHelperResult success(){
 		return new BooleanHelperResult(true);
 	}
 	
-	public static HelperResult<Boolean> failure(){
+	/**
+	 * Build a failure result, without specific output data
+	 * @return
+	 */
+	public static BooleanHelperResult failure(){
 		return new BooleanHelperResult(false);
 	}
 	
 	/**
-	 * Create a failure Result using the given String as action output
-	 * @param desc failure action output
-	 * @return failure result with a String action output
+	 * Build a new result, the expected data being identical to the obtained one.
+	 * @param output the obtained and expected data 
+	 * @return
 	 */
-	public static <E> HelperResult<E> failure(E actionOutput){
-		return new SimpleHelperResult<E>(false, actionOutput);
+	public static <E> TypedHelperResult<E, E> success(E output){
+		return new SimpleHelperResult<E>(true, output, output);
+	}
+	
+	/**
+	 * Create a failure with the expected and obtained output.
+	 * @param expected the expected output
+	 * @param obtained the obtained output
+	 * @return failure result
+	 */
+	public static <E, O> TypedHelperResult<E, O> failure(E expected, O obtained){
+		return new TypedHelperResult<E, O>(false, expected, obtained);
+	}
+	
+	/**
+	 * Create a success with the expected and obtained output.
+	 * @param expected the expected output
+	 * @param obtained the obtained output
+	 * @return success result
+	 */
+	public static <E, O> TypedHelperResult<E, O> success(E expected, O obtained){
+		return new TypedHelperResult<E, O>(true, expected, obtained);
+	}
+	
+	public static <E> SimpleHelperResult<E> successSimple(E expected, E obtained){
+		return resultSimple(true, expected, obtained);
+	}
+	
+	public static <E> SimpleHelperResult<E> failureSimple(E expected, E obtained){
+		return resultSimple(false, expected, obtained);
+	}
+	
+	public static <E> SimpleHelperResult<E> resultSimple(boolean success, E expected, E obtained){
+		return new SimpleHelperResult<E>(success, expected, obtained);
+	}
+	
+	public static <E, O> TypedHelperResult<E, O> result(boolean success, E expected, O obtained) {
+		return new TypedHelperResult<E, O>(success, expected, obtained);
 	}
 }

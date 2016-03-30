@@ -3,11 +3,21 @@ package org.atom.quark.sftp.helper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.Vector;
+import java.util.regex.Pattern;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.atom.quark.core.result.HelperResult;
+import org.atom.quark.core.result.ResultBuilder;
+import org.atom.quark.core.result.SimpleHelperResult;
+import org.atom.quark.core.result.TypedHelperResult;
 import org.atom.quark.sftp.context.SftpContext;
+
+import com.jcraft.jsch.SftpException;
+import com.jcraft.jsch.ChannelSftp.LsEntry;
 
 public abstract class AbstractSftpHelper implements SftpHelper {
 
@@ -86,16 +96,109 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		return new FileInputStream(f);
 	}
 
-	public HelperResult<String> upload(File file, String dest) throws Exception {
+	public boolean upload(File file, String dest) throws Exception {
 		return upload(streamFile(file), dest, SftpHelper.MODE_OVERWRITE);
 	}
 
-	public HelperResult<String> upload(File file, String dest, int mode) throws Exception {
+	public boolean upload(File file, String dest, int mode) throws Exception {
 		return upload(streamFile(file), dest, mode);
 	}
 
-	public HelperResult<String> upload(InputStream stream, String dest) throws Exception {
+	public boolean upload(InputStream stream, String dest) throws Exception {
 		return upload(stream, dest, SftpHelper.MODE_OVERWRITE);
 	}
+	
+	public Vector<LsEntry> listFiles(String dir) throws SftpException{
+		Vector<LsEntry> baseResult = list(dir);
+		Vector<LsEntry> filteredResult = new Vector<LsEntry>();
+		for(LsEntry entry : baseResult){
+			if(!entry.getAttrs().isDir()){
+				filteredResult.add(entry);
+			}
+		}
+		return filteredResult;
+	}
+	
+	public Vector<LsEntry> listFilesMatching(String dir, Pattern pattern) throws SftpException{
+		Vector<LsEntry> ls = list(dir);
+		Vector<LsEntry> result = new Vector<LsEntry>();
+		for(LsEntry entry : ls){
+			if(pattern.matcher(entry.getFilename()).matches()){
+				result.add(entry);
+			}
+		}
+		return result;
+	}
+	
+	public Vector<LsEntry> listDirectories(String dir) throws SftpException{
+		Vector<LsEntry> baseResult = list(dir);
+		Vector<LsEntry> filteredResult = new Vector<LsEntry>();
+		for(LsEntry entry : baseResult){
+			if(entry.getAttrs().isDir()){
+				filteredResult.add(entry);
+			}
+		}
+		return filteredResult;
+	}
+	
+	public Vector<LsEntry> listDirectoriesMatching(String dir, Pattern pattern) throws SftpException{
+		Vector<LsEntry> baseResult = list(dir);
+		Vector<LsEntry> filteredResult = new Vector<LsEntry>();
+		for(LsEntry entry : baseResult){
+			if(entry.getAttrs().isDir()){
+				filteredResult.add(entry);
+			}
+		}
+		return filteredResult;
+	}
+
+	public SimpleHelperResult<String> compareChecksum(InputStream src, String dest) throws IOException, SftpException {
+		String digesta = DigestUtils.md5Hex(src);
+		String digestb = DigestUtils.md5Hex(getInputStream(dest));
+		
+		return ResultBuilder.resultSimple(digesta.equals(digestb), digesta, digestb);
+	}
+
+	public SimpleHelperResult<String> compareChecksum(File src, String dest)
+			throws NoSuchAlgorithmException, IOException, SftpException {
+		return compareChecksum(streamFile(src), dest);
+	}
+	
+	public boolean containsFile(String dir, String filename) throws SftpException {
+		Vector<LsEntry> ls = list(dir);
+		for(LsEntry entry : ls){
+			if(entry.getFilename().equals(filename)){
+				return true;
+			}
+		}
+		return false;
+		
+	}
+
+	public TypedHelperResult<Pattern, Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException {
+		Vector<LsEntry> result = listFilesMatching(dir, pattern);
+		return ResultBuilder.result(!result.isEmpty(), pattern, result);
+	}
+	
+	public TypedHelperResult<Pattern, Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count)
+			throws SftpException {
+		Vector<LsEntry> result = listFilesMatching(dir, pattern);
+		return ResultBuilder.result(result.size() == count, pattern, result);
+	}
+
+	public boolean containsDirectory(String parentdir, String dirname) throws SftpException {
+		Vector<LsEntry> ls = listDirectories(parentdir);
+		for(LsEntry entry : ls){
+			if(entry.getAttrs().isDir() && entry.getFilename().equals(dirname)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	
+	
+	
 
 }

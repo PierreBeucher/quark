@@ -1,32 +1,16 @@
 package org.atom.quark.core.result;
 
 /**
- * A HelperResult using a simple result description
+ * The SimpleHelperResult is a HelperResult with an expected and actual
+ * value using the same type. 
+ * 
  * @author Pierre Beucher
  *
  * @param <E>
  */
-public class SimpleHelperResult<E> extends AbstractHelperResult<E>{
+public class SimpleHelperResult<E> extends TypedHelperResult<E, E>{
 
-	public SimpleHelperResult(boolean success, E actionOutput) {
-		super(success, actionOutput);
+	public SimpleHelperResult(boolean success, E expected, E actual) {
+		super(success, expected, actual);
 	}
-
-	/**
-	 * @return this Helper result as <i>"success|failure:actionOutput"</i>
-	 * such as <i>"success:[Banana, Apple, Pear]"</i>
-	 */
-	public String getResultDescription() {
-		
-		StringBuffer buf = new StringBuffer(isSuccess() ? SUCCESS : FAILURE)
-				.append(":");
-		
-		if(getActionOutput() != null){
-			buf.append(this.getActionOutput().toString());
-		} else {
-			buf.append("null");
-		}
-		return buf.toString();
-	}
-
 }

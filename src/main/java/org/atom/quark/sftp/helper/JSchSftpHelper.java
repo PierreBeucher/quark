@@ -1,18 +1,17 @@
 package org.atom.quark.sftp.helper;
 
-import java.io.File;
 import java.io.InputStream;
-import org.atom.quark.core.helper.HelperException;
-import org.atom.quark.core.result.HelperResult;
-import org.atom.quark.core.result.ResultBuilder;
-import org.atom.quark.sftp.context.SftpContext;
-import org.atom.quark.utils.sftp.DebugLogger;
+import java.util.Vector;
 
+import org.atom.quark.core.helper.HelperException;
+import org.atom.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
 
 /**
  * A SFTP Helper using JSch.
@@ -56,12 +55,12 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 		super(sftpContext);
 	}
 
-	public HelperResult<Boolean> connect() throws JSchException {
+	public boolean connect() throws JSchException {
 		disconnect();
 		try{
 		
 			JSch jsch = new JSch();
-			JSch.setLogger(new DebugLogger());
+			//JSch.setLogger(new DebugLogger());
 			
 			//add private key if existing
 			if(getContext().getAuthContext().getPrivateKey() != null){
@@ -84,7 +83,7 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 			channel.connect(channelConnectTimeout);
 			channelSftp = (ChannelSftp) channel;
 			
-			return ResultBuilder.success();
+			return true;
 		} catch (JSchException e){
 			
 			//disconnect safely upon error and rethrow
@@ -93,14 +92,14 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 		}
 	}
 	
-	public HelperResult<String> disconnect(){		
+	public boolean disconnect(){		
 		if(this.channelSftp != null){
 			this.channelSftp.disconnect();
 		}
-		return ResultBuilder.success("Disconnected.");
+		return true;
 	}
 	
-	public HelperResult<String> upload(InputStream stream, String dest, int mode) throws Exception {
+	public boolean upload(InputStream stream, String dest, int mode) throws Exception {
 		int jschMode = 0;
 		switch(mode){
 			case SftpHelper.MODE_APPEND:
@@ -118,13 +117,16 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 		
 		channelSftp.put(stream, dest, jschMode);
 
-		return buildSuccessUploadResult(dest);
+		return true;
 	}
 
-	private HelperResult<String> buildSuccessUploadResult(String dest){
-		return ResultBuilder.success(new File(dest).getName());
+	@SuppressWarnings("unchecked")
+	public Vector<LsEntry> list(String dir) throws SftpException {
+		return (Vector<LsEntry>) channelSftp.ls(dir);
 	}
-	
-	
+
+	public InputStream getInputStream(String dest) throws SftpException {
+		return channelSftp.get(dest);
+	}
 
 }

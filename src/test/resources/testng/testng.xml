@@ -7,7 +7,8 @@
   	<parameter name="sftp-password" value="password" />
   	<parameter name="sftp-key" value="src/test/resources/ssh/id_rsa" />
   	<parameter name="sftp-key-passphrase" value="quark" />
-  	<parameter name="sftp-filepath" value="src/test/resources/file.xml" />
+  	<parameter name="sftp-filepath" value="src/test/resources/files/file.xml" />
+  	<parameter name="sftp-testdir" value="/files" />
   <test name="SftpHelperTest">
     <classes>
       <class name="org.atom.quark.sftp.helper.JSchSftpHelperIT"/>
