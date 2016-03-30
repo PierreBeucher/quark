@@ -19,6 +19,11 @@ import org.atom.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 
+/**
+ * 
+ * @author Pierre Beucher
+ *
+ */
 public abstract class AbstractSftpHelper implements SftpHelper {
 
 	private SftpContext sftpContext;
@@ -119,7 +124,7 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		return filteredResult;
 	}
 	
-	public Vector<LsEntry> listFilesMatching(String dir, Pattern pattern) throws SftpException{
+	public Vector<LsEntry> listFiles(String dir, Pattern pattern) throws SftpException{
 		Vector<LsEntry> ls = list(dir);
 		Vector<LsEntry> result = new Vector<LsEntry>();
 		for(LsEntry entry : ls){
@@ -151,10 +156,14 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		}
 		return filteredResult;
 	}
+	
+	public String getChecksum(String dest) throws IOException, SftpException {
+		return DigestUtils.md5Hex(getInputStream(dest));
+	}
 
 	public SimpleHelperResult<String> compareChecksum(InputStream src, String dest) throws IOException, SftpException {
 		String digesta = DigestUtils.md5Hex(src);
-		String digestb = DigestUtils.md5Hex(getInputStream(dest));
+		String digestb = getChecksum(dest);
 		
 		return ResultBuilder.resultSimple(digesta.equals(digestb), digesta, digestb);
 	}
@@ -176,13 +185,13 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 	}
 
 	public TypedHelperResult<Pattern, Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException {
-		Vector<LsEntry> result = listFilesMatching(dir, pattern);
+		Vector<LsEntry> result = listFiles(dir, pattern);
 		return ResultBuilder.result(!result.isEmpty(), pattern, result);
 	}
 	
 	public TypedHelperResult<Pattern, Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count)
 			throws SftpException {
-		Vector<LsEntry> result = listFilesMatching(dir, pattern);
+		Vector<LsEntry> result = listFiles(dir, pattern);
 		return ResultBuilder.result(result.size() == count, pattern, result);
 	}
 

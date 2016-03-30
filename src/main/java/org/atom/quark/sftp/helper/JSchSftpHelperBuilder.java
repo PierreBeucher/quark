@@ -4,6 +4,11 @@ import java.util.Map.Entry;
 
 import org.atom.quark.sftp.context.SftpContext;
 
+/**
+ * 
+ * @author Pierre Beucher
+ *
+ */
 public class JSchSftpHelperBuilder extends SftpHelperBuilder {
 
 	public JSchSftpHelperBuilder(SftpContext baseContext) {

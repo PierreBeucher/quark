@@ -173,7 +173,7 @@ public interface SftpHelper extends Helper<SftpContext> {
 	 * @return
 	 * @throws SftpException
 	 */
-	public Vector<LsEntry> listFilesMatching(String dir, Pattern pattern) throws SftpException;
+	public Vector<LsEntry> listFiles(String dir, Pattern pattern) throws SftpException;
 	
 	/**
 	 * List both files and directories from the given directory (except .. and .)
@@ -233,6 +233,15 @@ public interface SftpHelper extends Helper<SftpContext> {
 	 * @throws SftpException 
 	 */
 	public TypedHelperResult<Pattern, Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count) throws SftpException;
+	
+	/**
+	 * Retrieve the MD5 checksum for the given file on SFTP server. 
+	 * @param dest file for which checksum is to be calculated
+	 * @return checksum as String
+	 * @throws SftpException 
+	 * @throws IOException 
+	 */
+	public String getChecksum(String dest) throws IOException, SftpException;
 	
 	/**
 	 * Compare checksum of the given source and destination to ensure they correspond.

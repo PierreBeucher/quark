@@ -1,7 +1,10 @@
 package org.atom.quark.sftp.helper;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 import org.atom.quark.core.result.HelperResult;
 import org.atom.quark.sftp.context.SftpAuthContext;
@@ -19,6 +22,11 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
  *
  */
 public class SftpHelperFilesIT {
+	
+	/**
+	 * Checksum for src/test/resources/files/file.xml
+	 */
+	private static final String TESTFILE_CHECKSUM = "79f0583f98948d3587b33bbb6183c6ae";
 	
 	private SftpHelperBuilder builder;
 	
@@ -104,8 +112,31 @@ public class SftpHelperFilesIT {
 		Assert.assertEquals(ls.size(), 0, ls.toString());
 	}
 	
+	@Test
+	public void listFilesMatching() throws Exception{
+		SftpHelper helper = buildNonStrictHostCheckingHelper();
+		Vector<LsEntry> result = helper.listFiles(testDir + "/containsMultipleFiles", Pattern.compile(".*\\.log"));
+		boolean success = result.size() == 1 && result.get(0).getFilename().equals("file2.log");
+		Assert.assertEquals(success, true, "Result: " + result + " does not contains expected file matching.");
+	}
+	
+	@Test
+	public void getChecksum() throws Exception{
+		SftpHelper helper = buildNonStrictHostCheckingHelper();
+		String checksum = helper.getChecksum(testDir + "/file.xml");
+		Assert.assertEquals(checksum, TESTFILE_CHECKSUM, "Checksum for SFTP test file and original file does not match.");
+	}
+	
 	@Test 
-	public void compareFileChecksum() throws Exception{
+	public void compareChecksumStream() throws Exception{
+		SftpHelper helper = buildNonStrictHostCheckingHelper();
+		InputStream stream = new FileInputStream(testFile);
+		HelperResult result = helper.compareChecksum(stream, testDir + "/file.xml");
+		Assert.assertEquals(result.isSuccess(), true, "Checksum does not match: expected=" + result.getExpected() + ", actual=" + result.getActual());
+	}
+	
+	@Test 
+	public void compareChecksumFile() throws Exception{
 		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		HelperResult result = helper.compareChecksum(testFile, testDir + "/file.xml");
 		Assert.assertEquals(result.isSuccess(), true, "Checksum does not match: expected=" + result.getExpected() + ", actual=" + result.getActual());
@@ -138,4 +169,5 @@ public class SftpHelperFilesIT {
 		boolean result = helper.upload(testFile, testDir + "/" + uploadAs, SftpHelper.MODE_OVERWRITE);
 		Assert.assertEquals(result, true, "File upload failed.");
 	}
+	
 }
