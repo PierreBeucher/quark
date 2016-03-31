@@ -16,7 +16,14 @@
 	
 	<test name="SftpHelperTest">
 		<classes>
-			<class name="org.atom.quark.sftp.helper.JSchSftpHelperIT"/>
+			<class name="org.atom.quark.sftp.helper.SftpHelperFilesIT"/>
+			<class name="org.atom.quark.sftp.helper.SftpHelperAuthIT"/>
+		</classes>
+	</test>
+	
+	<test name="FileHelperTest">
+		<classes>
+			<class name="org.atom.quark.file.helper.FileHelperIT"/>
 		</classes>
 	</test>
 </suite>
