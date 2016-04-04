@@ -19,10 +19,11 @@ public class FileContext implements HelperContext {
 	private Charset charset;
 
 	/**
-	 * Empty constructor. Requires setters to be called for setup.
+	 * Empty constructor. Will use default Charset and null file.
+	 * Requires setters to be called for setup.
 	 */
 	public FileContext() {
-		super();
+		this(null);
 	}
 	
 	/**

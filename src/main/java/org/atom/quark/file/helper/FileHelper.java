@@ -54,7 +54,7 @@ public class FileHelper extends AbstractHelper<FileContext> implements Helper<Fi
 	 * Create a FileHelper with a null file and the default charset.
 	 */
 	public FileHelper() {
-		super(new FileContext(null, Charset.defaultCharset()));
+		super(new FileContext());
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class FileHelper extends AbstractHelper<FileContext> implements Helper<Fi
 	 * A FileHelper is ready if its File context defines a non-null file.
 	 */
 	public boolean isReady() {
-		return context != null && context.getFile() == null;
+		return context != null && context.getFile() != null;
 	}
 	
 	/**
