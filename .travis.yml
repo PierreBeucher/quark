@@ -1,0 +1,14 @@
+sudo: required
+
+language: java
+
+services:
+  - docker
+
+before_install:
+- docker pull atmoz/sftp
+- docker run -p 2022:22 -v /$(pwd)/src/test/resources/files:/home/quark/files:rw -v /$(pwd)/src/test/resources/ssh/id_rsa.pub:/home/quark/.ssh/keys/id_rsa.pub:ro -d atmoz/sftp quark:password:$(id -u):$(id -g)
+- docker ps -a
+
+script:
+- mvn test

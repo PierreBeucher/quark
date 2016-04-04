@@ -1,3 +1,0 @@
-<quark>
-	<content>bla</content>
-</quark>

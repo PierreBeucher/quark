@@ -2,8 +2,8 @@
 
 <suite name="integration-suite" verbose="1" >
 	
-	<parameter name="sftp-host" value="192.168.100.42" />
-	<parameter name="sftp-port" value="2222" />
+	<parameter name="sftp-host" value="localhost" />
+	<parameter name="sftp-port" value="2022" />
 	<parameter name="sftp-login" value="quark" />
 	<parameter name="sftp-password" value="password" />
 	<parameter name="sftp-key" value="src/test/resources/ssh/id_rsa" />
