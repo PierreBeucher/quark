@@ -1,8 +1,11 @@
 package org.atom.quark.sftp.context;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.atom.quark.core.context.server.ServerContext;
 
 /**
@@ -77,6 +80,58 @@ public class SftpContext extends ServerContext {
 	public void addOption(String key, Object value){
 		this.options.put(key, value);
 	}
-	
+
+	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder();
+		
+		try {
+			buf.append(toUri().toString());
+		} catch (URISyntaxException e) {
+			//TODO try to build manually with warning?
+			e.printStackTrace();
+			buf.append("[URISyntaxException]");
+		}
+		
+		buf.append(" (");
+		if(StringUtils.isEmpty(getAuthContext().getPassword())
+				&& StringUtils.isEmpty(getAuthContext().getPrivateKey())){
+			buf.append("anonymous");
+		} else {
+			buf.append("password:");
+			buf.append(StringUtils.isEmpty(getAuthContext().getPassword()) ? "no" : "yes");
+			buf.append(",key:");
+			if(!StringUtils.isEmpty(getAuthContext().getPrivateKey())){
+				buf.append("yes");
+				if(StringUtils.isEmpty(getAuthContext().getPrivateKeyPassword())){
+					buf.append("(no passphrase)");
+				}
+			} else {
+				buf.append("no");
+			}
+			
+		}
+		buf.append(")");
+		
+//		.append(StringUtils.isNotEmpty(getAuthContext().getPassword()))
+//		.append(",key:")
+//		.append(getAuthContext().getPrivateKey())
+//		.append(",keyPassphrase:")
+//		.append(StringUtils.isNotEmpty(getAuthContext().getPrivateKeyPassword()))
+//		.append(")");
+		
+		return buf.toString();
+	}
+
+	@Override
+	public URI toUri() throws URISyntaxException {
+		return new URI("sftp", 
+				getAuthContext().getLogin(),
+				getHost(),
+				getPort(),
+				null,
+				null,
+				null);
+	}
 
 }

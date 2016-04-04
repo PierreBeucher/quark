@@ -1,10 +1,15 @@
 package org.atom.quark.sftp.helper;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Vector;
 
+import org.apache.commons.lang3.StringUtils;
 import org.atom.quark.core.helper.HelperException;
 import org.atom.quark.sftp.context.SftpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
@@ -19,6 +24,8 @@ import com.jcraft.jsch.SftpException;
  *
  */
 public class JSchSftpHelper extends AbstractSftpHelper {
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	/**
 	 * Default timeout used when connecting a session
@@ -54,9 +61,24 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 	public JSchSftpHelper(SftpContext sftpContext) {
 		super(sftpContext);
 	}
+	
+	/**
+	 * Check the authentication context is sane, and print warning when inconsistency are found
+	 */
+	private void checkAuthContextSanity(){
+		if(StringUtils.isNotEmpty(getContext().getAuthContext().getPrivateKey())){
+			File key = new File(getContext().getAuthContext().getPrivateKey());
+			if(!key.isFile() || !key.canRead()){
+				logger.warn("Key {} does not exists or cannot be read", key.getPath());
+			}
+		}
+	}
 
 	public boolean connect() throws JSchException {
 		disconnect();
+		
+		checkAuthContextSanity();
+		
 		try{
 		
 			JSch jsch = new JSch();

@@ -2,6 +2,8 @@ package org.atom.quark.sftp.helper;
 
 import org.atom.quark.sftp.context.SftpAuthContext;
 import org.atom.quark.sftp.context.SftpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
@@ -13,6 +15,8 @@ import org.testng.annotations.Test;
  *
  */
 public class SftpHelperAuthIT {
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private SftpHelperBuilder builder;
 
@@ -41,6 +45,9 @@ public class SftpHelperAuthIT {
 	
 	private SftpHelper buildNonStrictHostCheckingHelper() throws Exception{
 		SftpHelper helper = builder.build().addOption("StrictHostKeyChecking", "no");
+		
+		logger.info("Connect {}", helper);
+		
 		helper.connect();
 		return helper;
 	}

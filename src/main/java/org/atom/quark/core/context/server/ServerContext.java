@@ -1,5 +1,8 @@
 package org.atom.quark.core.context.server;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.atom.quark.core.context.base.HelperContext;
 
 /**
@@ -8,7 +11,7 @@ import org.atom.quark.core.context.base.HelperContext;
  * @author Pierre Beucher
  *
  */
-public class ServerContext implements HelperContext{
+public abstract class ServerContext implements HelperContext{
 
 	private String host;
 	
@@ -47,5 +50,7 @@ public class ServerContext implements HelperContext{
 	public void setPort(int port) {
 		this.port = port;
 	}
+	
+	public abstract URI toUri() throws URISyntaxException;
 	
 }

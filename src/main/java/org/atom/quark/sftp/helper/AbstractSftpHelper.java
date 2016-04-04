@@ -76,6 +76,11 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		return this;
 	}
 	
+	@Override
+	public String toString() {
+		return getContext().toString();
+	}
+
 	/**
 	 * The SftpHelper is ready if its Context is properly 
 	 * configured with at least a host and a login. Other values

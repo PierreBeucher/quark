@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 import org.atom.quark.core.result.HelperResult;
 import org.atom.quark.sftp.context.SftpAuthContext;
 import org.atom.quark.sftp.context.SftpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
@@ -22,6 +24,8 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
  *
  */
 public class SftpHelperFilesIT {
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	/**
 	 * Checksum for src/test/resources/files/file.xml
@@ -62,6 +66,9 @@ public class SftpHelperFilesIT {
 	
 	private SftpHelper buildNonStrictHostCheckingHelper() throws Exception{
 		SftpHelper helper = builder.build().addOption("StrictHostKeyChecking", "no");
+		
+		logger.info("Connect {}", helper);
+		
 		helper.connect();
 		return helper;
 	}
@@ -147,12 +154,16 @@ public class SftpHelperFilesIT {
 		String uploadAs = "simpleUpload.txt";
 		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		helper.connect();
+				
 		helper.upload(testFile, testDir + "/" + uploadAs);
 		
 		Vector<LsEntry> ls = helper.list(testDir);
 		boolean success = false;
 		for(LsEntry entry : ls){
-			success = entry.getFilename().equals(uploadAs);
+			if(entry.getFilename().equals(uploadAs)){
+				success = true;
+				break;
+			}
 		}
 		
 		Assert.assertEquals(success, true, "Cannot find file " + uploadAs + " after upload");
@@ -160,7 +171,7 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void uploadOverwrite() throws Exception{
-		String uploadAs = "simpleUpload.txt";
+		String uploadAs = "simpleUploadOverwrite.txt";
 		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		helper.connect();
 		
