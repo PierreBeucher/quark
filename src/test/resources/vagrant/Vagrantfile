@@ -7,6 +7,9 @@ Vagrant.configure(2) do |config|
   
   # Use private network
   config.vm.network "private_network", ip: "192.168.100.42"
+  
+  # Map host 2222 to guest 2222, port used by Docker SFTP
+  config.vm.network "forwarded_port", guest: 2222, host: 2222
 
   # Define memory
   config.vm.provider "virtualbox" do |vb|
@@ -26,7 +29,7 @@ Vagrant.configure(2) do |config|
 	# Launch required Docker containers
 	#
 	
-	# SFTP container, with user 'quark' and password 'password'
+	# SFTP container, with user 'quark' and password 'password' and port 2222
 	d.run "atmoz/sftp",
       cmd: "quark:password",
       args: "-p 2222:22  \
