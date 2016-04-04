@@ -20,7 +20,8 @@ import org.atom.quark.core.context.base.HelperContext;
  * @author Pierre Beucher
  *
  */
-public abstract class AbstractHelperBuilder<C extends HelperContext, H extends Helper<C>> {
+public abstract class AbstractHelperBuilder<C extends HelperContext, H extends Helper<C>>
+		implements HelperBuilder{
 
 	protected C baseContext;
 	
@@ -36,8 +37,7 @@ public abstract class AbstractHelperBuilder<C extends HelperContext, H extends H
 	 * @return a fresh empty Helper
 	 */
 	protected abstract H buildBaseHelper();
-
-
+	
 	public C getBaseContext() {
 		return baseContext;
 	}
