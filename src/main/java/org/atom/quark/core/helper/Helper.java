@@ -5,17 +5,18 @@ import org.atom.quark.core.context.base.HelperContext;
 /**
  * Test Helper interface. All test Helpers inherit this class.
  * 
- * A Test Helper is used to perform test actions in a defined environment. 
+ * A Test Helper is used to perform test actions in a defined environment.
+ * TODO should not be parameterized with generic, and use Object instead 
  * @author Pierre Beucher
  *
  */
-public interface Helper<D extends HelperContext> {
+public interface Helper {
 	
 	/**
 	 * 
 	 * @return The Descriptor representing this Helper context
 	 */
-	D getContext();
+	HelperContext getContext();
 	
 	/**
 	 * Check whether or not this Helper is ready for work.

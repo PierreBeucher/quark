@@ -2,7 +2,7 @@ package org.atom.quark.core.helper;
 
 import org.atom.quark.core.context.base.HelperContext;
 
-public abstract class AbstractHelper<E extends HelperContext> implements Helper<E> {
+public abstract class AbstractHelper<E extends HelperContext> implements Helper {
 
 	/**
 	 * Context managed by this helper

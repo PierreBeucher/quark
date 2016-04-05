@@ -20,7 +20,7 @@ import com.jcraft.jsch.SftpException;
  * @author Pierre Beucher
  *
  */
-public interface SftpHelper extends Helper<SftpContext> {
+public interface SftpHelper extends Helper {
 
 	/**
 	 * Defautl checksum algorithm used when comparing files

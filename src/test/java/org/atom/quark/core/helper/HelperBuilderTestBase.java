@@ -15,7 +15,7 @@ public class HelperBuilderTestBase {
 	 * @param helper
 	 */
 	protected void testNoReuseBaseContext(AbstractHelperBuilder<?, ?> builder){
-		Helper<?> helper = builder.buildBaseHelper();
+		Helper helper = builder.buildBaseHelper();
 		Assert.assertNotEquals(
 				helper.getContext().hashCode(),
 				builder.getBaseContext().hashCode(),

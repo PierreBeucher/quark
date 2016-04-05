@@ -9,7 +9,7 @@ public class AbstractHelperTest {
 	@Test
 	public void AbstractHelper() {
 		EmptyContext ctx = new EmptyContext();
-		Helper<EmptyContext> helper = new AbstractHelper<EmptyContext>(ctx){
+		Helper helper = new AbstractHelper<EmptyContext>(ctx){
 			@Override
 			public boolean isReady() {
 				return true;

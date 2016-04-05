@@ -27,7 +27,7 @@ import org.atom.quark.file.context.FileContext;
  * @author Pierre Beucher
  *
  */
-public class FileHelper extends AbstractHelper<FileContext> implements Helper<FileContext> {
+public class FileHelper extends AbstractHelper<FileContext> implements Helper {
 	
 	/**
 	 * Facility function creating an instance of FileHelper for the given file

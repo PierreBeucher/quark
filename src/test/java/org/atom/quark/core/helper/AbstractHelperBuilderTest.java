@@ -9,10 +9,10 @@ public class AbstractHelperBuilderTest {
 	@Test
 	public void AbstractHelperBuilder() {
 		final EmptyContext ctx = EmptyContext.context();
-		AbstractHelperBuilder<EmptyContext, Helper<EmptyContext>> builder 
-				= new AbstractHelperBuilder<EmptyContext, Helper<EmptyContext>>(ctx){
+		AbstractHelperBuilder<EmptyContext, Helper> builder 
+				= new AbstractHelperBuilder<EmptyContext, Helper>(ctx){
 			@Override
-			protected Helper<EmptyContext> buildBaseHelper() {
+			protected Helper buildBaseHelper() {
 				return new AbstractHelper<EmptyContext>(ctx){
 					@Override
 					public boolean isReady() {
