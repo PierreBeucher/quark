@@ -8,6 +8,7 @@ services:
 before_install:
 - docker pull atmoz/sftp
 - docker run -p 2022:22 -v /$(pwd)/src/test/resources/files:/home/quark/files:rw -v /$(pwd)/src/test/resources/ssh/id_rsa.pub:/home/quark/.ssh/keys/id_rsa.pub:ro -d atmoz/sftp quark:password:$(id -u):$(id -g)
+- docker run -p 3336:3306 -e MYSQL_ROOT_PASSWORD=password -d mysql
 - docker ps -a
 
 script:

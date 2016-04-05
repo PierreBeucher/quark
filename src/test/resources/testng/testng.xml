@@ -14,6 +14,11 @@
 	<parameter name="file-utf-8" value="src/test/resources/data/file/file-utf-8.txt" />
 	<parameter name="file-iso-8859-1" value="src/test/resources/data/file/file-iso-8859-1.txt" />
 	
+	<parameter name="db-host" value="localhost" />
+	<parameter name="db-port" value="3336" />
+	<parameter name="db-login" value="root" />
+	<parameter name="db-password" value="password" />
+	
 	<test name="SftpHelperTest">
 		<classes>
 			<class name="org.atom.quark.sftp.helper.SftpHelperFilesIT"/>
@@ -24,6 +29,12 @@
 	<test name="FileHelperTest">
 		<classes>
 			<class name="org.atom.quark.file.helper.FileHelperIT"/>
+		</classes>
+	</test>
+	
+	<test name="JdbcHelperTest">
+		<classes>
+			<class name="org.atom.quark.jdbc.helper.JdbcHelperIT"/>
 		</classes>
 	</test>
 </suite>
