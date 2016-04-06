@@ -19,6 +19,11 @@ public class FileHelperIT {
 	private static final String REPEAT_STRING = "Repeat";
 	
 	/*
+	 * Number of times the REPEAT_STRING is repeated in test file
+	 */
+	private static final int REPEAT_STRING_COUNT = 3;
+	
+	/*
 	 * File used to perform basic testing
 	 */
 	private File baseFile;
@@ -71,17 +76,19 @@ public class FileHelperIT {
 	}
 
 	@Test
-	public void containsStringint() throws IOException {
+	public void containsStringintPositive() throws IOException {
 		FileHelper helper = createHelper();
 		HelperResult result = helper.contains(REPEAT_STRING, 3);
-		Assert.assertEquals(result.isSuccess(), true, "'Repeat' should be found n times with success.");
+		Assert.assertEquals(result.isSuccess(), true, "File contains 'Repeat' " + REPEAT_STRING_COUNT + " times"
+				+ " but checking for this count fails");
 	}
 	
 	@Test
 	public void containsStringintNegative() throws IOException {
 		FileHelper helper = createHelper();
 		HelperResult result = helper.contains(REPEAT_STRING, 78);
-		Assert.assertEquals(result.isSuccess(), false, "'Repeat' should not be found n times with success.");
+		Assert.assertEquals(result.isSuccess(), false, "File contains 'Repeat' " + REPEAT_STRING_COUNT + " times"
+				+ " but checking for a different count returns success.");
 	}
 
 	@Test

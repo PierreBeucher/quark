@@ -8,21 +8,15 @@ import org.testng.annotations.Test;
 
 public class TypedHelperResultTest {
 	
-	private static final String  EXPECTED = "test";
 	private static final List<Object> ACTUAL = new ArrayList<Object>();
 
 	private HelperResult buildResult(){
-		return new TypedHelperResult<String, List<Object>>(true, EXPECTED, ACTUAL);
+		return new TypedHelperResult<List<Object>>(true, ACTUAL);
 	}
 
 	@Test
 	public void getActual() {
 		Assert.assertEquals(buildResult().getActual(), ACTUAL);
-	}
-
-	@Test
-	public void getExpected() {
-		Assert.assertEquals(buildResult().getExpected(), EXPECTED);
 	}
 
 	@Test

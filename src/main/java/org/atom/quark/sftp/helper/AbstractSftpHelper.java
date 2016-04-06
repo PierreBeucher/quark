@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.atom.quark.core.result.ResultBuilder;
-import org.atom.quark.core.result.SimpleHelperResult;
+import org.atom.quark.core.result.TypedExpectingHelperResult;
 import org.atom.quark.core.result.TypedHelperResult;
 import org.atom.quark.sftp.context.SftpContext;
 
@@ -166,14 +166,14 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		return DigestUtils.md5Hex(getInputStream(dest));
 	}
 
-	public SimpleHelperResult<String> compareChecksum(InputStream src, String dest) throws IOException, SftpException {
-		String digesta = DigestUtils.md5Hex(src);
-		String digestb = getChecksum(dest);
+	public TypedExpectingHelperResult<String, String> compareChecksum(InputStream src, String dest) throws IOException, SftpException {
+		String expected = DigestUtils.md5Hex(src);
+		String actual = getChecksum(dest);
 		
-		return ResultBuilder.resultSimple(digesta.equals(digestb), digesta, digestb);
+		return ResultBuilder.result(expected.equals(actual), actual, expected);
 	}
 
-	public SimpleHelperResult<String> compareChecksum(File src, String dest)
+	public TypedExpectingHelperResult<String, String> compareChecksum(File src, String dest)
 			throws NoSuchAlgorithmException, IOException, SftpException {
 		return compareChecksum(streamFile(src), dest);
 	}
@@ -189,15 +189,15 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		
 	}
 
-	public TypedHelperResult<Pattern, Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException {
+	public TypedHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException {
 		Vector<LsEntry> result = listFiles(dir, pattern);
-		return ResultBuilder.result(!result.isEmpty(), pattern, result);
+		return ResultBuilder.result(!result.isEmpty(), result);
 	}
 	
-	public TypedHelperResult<Pattern, Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count)
+	public TypedHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count)
 			throws SftpException {
 		Vector<LsEntry> result = listFiles(dir, pattern);
-		return ResultBuilder.result(result.size() == count, pattern, result);
+		return ResultBuilder.result(result.size() == count, result);
 	}
 
 	public boolean containsDirectory(String parentdir, String dirname) throws SftpException {

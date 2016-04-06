@@ -8,7 +8,7 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.atom.quark.core.helper.Helper;
-import org.atom.quark.core.result.SimpleHelperResult;
+import org.atom.quark.core.result.TypedExpectingHelperResult;
 import org.atom.quark.core.result.TypedHelperResult;
 import org.atom.quark.sftp.context.SftpContext;
 
@@ -220,7 +220,7 @@ public interface SftpHelper extends Helper {
 	 * @return result as list of found filenames
 	 * @throws SftpException 
 	 */
-	public TypedHelperResult<Pattern, Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException;
+	public TypedHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException;
 	
 	/**
 	 * Check whether a directory contains files matching the given pattern. 
@@ -232,7 +232,7 @@ public interface SftpHelper extends Helper {
 	 * @return result as list of found filenames
 	 * @throws SftpException 
 	 */
-	public TypedHelperResult<Pattern, Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count) throws SftpException;
+	public TypedHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count) throws SftpException;
 	
 	/**
 	 * Retrieve the MD5 checksum for the given file on SFTP server. 
@@ -249,22 +249,22 @@ public interface SftpHelper extends Helper {
 	 * checksum as String. 
 	 * @param src data which will be digested to produce expected value
 	 * @param dest data which will be digested as actual value
-	 * @return result digested String 
+	 * @return result as expected and actual digested String 
 	 * @throws SftpException 
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException 
 	 */
-	public SimpleHelperResult<String> compareChecksum(InputStream src, String dest) throws NoSuchAlgorithmException, IOException, SftpException;
+	public TypedExpectingHelperResult<String, String> compareChecksum(InputStream src, String dest) throws NoSuchAlgorithmException, IOException, SftpException;
 	
 	/**
 	 * Compare checksum of the given source and destination to ensure they correspond.
 	 * @param src source file to digest
 	 * @param dest destination file to digest
-	 * @return result as destination Digest String
+	 * @return result as expected and actual digest String
 	 * @throws SftpException 
 	 * @throws IOException 
 	 * @throws NoSuchAlgorithmException 
 	 */
-	public SimpleHelperResult<String> compareChecksum(File src, String dest) throws NoSuchAlgorithmException, IOException, SftpException;
+	public  TypedExpectingHelperResult<String, String> compareChecksum(File src, String dest) throws NoSuchAlgorithmException, IOException, SftpException;
 
 }

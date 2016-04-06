@@ -35,12 +35,6 @@ public interface HelperResult {
 	boolean isSuccess();
 	
 	/**
-	 * Get the expected output for this HelperResult.
-	 * @return the expected output
-	 */
-	Object getExpected();
-	
-	/**
 	 * Get the obtained output for this HelperResult. The obtained result
 	 * does not necessarily match the Expected output type, as it may represent
 	 * an incorrect result, or a set of data in which the expected result

@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.atom.quark.core.helper.AbstractHelper;
 import org.atom.quark.core.helper.Helper;
 import org.atom.quark.core.result.ResultBuilder;
-import org.atom.quark.core.result.SimpleHelperResult;
+import org.atom.quark.core.result.TypedHelperResult;
 import org.atom.quark.file.context.FileContext;
 
 /**
@@ -133,9 +133,9 @@ public class FileHelper extends AbstractHelper<FileContext> implements Helper {
 	 * @return result as number of occurrence found
 	 * @throws IOException 
 	 */
-	public SimpleHelperResult<Integer> contains(String str, int count) throws IOException{
+	public TypedHelperResult<Integer> contains(String str, int count) throws IOException{
 		int result = countMatches(str, count);
-		return ResultBuilder.resultSimple(count == result, count, result);
+		return ResultBuilder.result(count == result, result);
 	}
 	
 	/**

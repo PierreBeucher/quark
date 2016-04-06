@@ -8,26 +8,20 @@ package org.atom.quark.core.result;
  * @param <E>
  * @param <A>
  */
-public class TypedHelperResult<E, A> implements HelperResult {
+public class TypedHelperResult<A> implements HelperResult {
 
 	private boolean success;
 	
 	private A actual;
 	
-	private E expected;
 	
-	public TypedHelperResult(boolean success, E expected, A actual) {
+	public TypedHelperResult(boolean success, A actual) {
 		this.success = success;
-		this.expected = expected;
 		this.actual = actual;
 	}
 
 	public boolean isSuccess() {
 		return success;
-	}
-
-	public E getExpected() {
-		return expected;
 	}
 
 	public A getActual() {
@@ -37,11 +31,8 @@ public class TypedHelperResult<E, A> implements HelperResult {
 	public String getResultDescription() {
 		
 		StringBuffer buf = new StringBuffer(isSuccess() ? SUCCESS : FAILURE)
-				.append(":{")
-				.append(getExpected())
-				.append("}-{")
-				.append(getActual())
-				.append("}");
+				.append(":")
+				.append(getActual());
 		return buf.toString();
 	}
 

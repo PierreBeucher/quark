@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
-import org.atom.quark.core.result.HelperResult;
+import org.atom.quark.core.result.ExpectingHelperResult;
 import org.atom.quark.sftp.context.SftpAuthContext;
 import org.atom.quark.sftp.context.SftpContext;
 import org.slf4j.Logger;
@@ -138,15 +138,15 @@ public class SftpHelperFilesIT {
 	public void compareChecksumStream() throws Exception{
 		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		InputStream stream = new FileInputStream(testFile);
-		HelperResult result = helper.compareChecksum(stream, testDir + "/file.xml");
-		Assert.assertEquals(result.isSuccess(), true, "Checksum does not match: expected=" + result.getExpected() + ", actual=" + result.getActual());
+		ExpectingHelperResult result = helper.compareChecksum(stream, testDir + "/file.xml");
+		Assert.assertEquals(result.isSuccess(), true, "Checksum does not match, actual:" + result.getActual() + ", expected:" + result.getExpected());
 	}
 	
 	@Test 
 	public void compareChecksumFile() throws Exception{
 		SftpHelper helper = buildNonStrictHostCheckingHelper();
-		HelperResult result = helper.compareChecksum(testFile, testDir + "/file.xml");
-		Assert.assertEquals(result.isSuccess(), true, "Checksum does not match: expected=" + result.getExpected() + ", actual=" + result.getActual());
+		ExpectingHelperResult result = helper.compareChecksum(testFile, testDir + "/file.xml");
+		Assert.assertEquals(result.isSuccess(), true, "Checksum does not match, actual:" + result.getActual() + ", expected:" + result.getExpected());
 	}
 	
 	@Test
