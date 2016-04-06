@@ -7,6 +7,7 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.atom.quark.core.result.ExpectingHelperResult;
+import org.atom.quark.core.result.TypedHelperResult;
 import org.atom.quark.sftp.context.SftpAuthContext;
 import org.atom.quark.sftp.context.SftpContext;
 import org.slf4j.Logger;
@@ -179,6 +180,77 @@ public class SftpHelperFilesIT {
 		helper.upload(testFile, testDir + "/" + uploadAs);
 		boolean result = helper.upload(testFile, testDir + "/" + uploadAs, SftpHelper.MODE_OVERWRITE);
 		Assert.assertEquals(result, true, "File upload failed.");
+	}
+	
+	@Test
+	public void waitForContainsFile() throws Exception{
+		final SftpHelper helper = buildNonStrictHostCheckingHelper();
+		final String uploadAs = "simpleWaitedUpload.txt";
+		
+		
+		//upload the file in a different thread
+		Thread t = new Thread(){
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(5000);
+					helper.upload(testFile, testDir + "/" + uploadAs);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		//launch the thread and check for file
+		t.start();
+		Pattern pattern = Pattern.compile(uploadAs);
+		TypedHelperResult<Vector<LsEntry>> result = helper.waitForContainsFile(testDir, pattern, 10000, 1000);
+		
+		Assert.assertEquals(result.getActual().size(), 1);
+		Assert.assertEquals(result.getActual().get(0).getFilename(), uploadAs);
+	}
+	
+	@Test
+	public void waitForContainsFileNegative() throws Exception{
+		final SftpHelper helper = buildNonStrictHostCheckingHelper();
+		
+		Pattern pattern = Pattern.compile("NonExistingFile.txt");
+		TypedHelperResult<Vector<LsEntry>> result = helper.waitForContainsFile(testDir, pattern, 3000, 500);
+		
+		Assert.assertEquals(result.getActual().size(), 0);
+		Assert.assertEquals(result.isSuccess(), false);
+	}
+	
+	@Test
+	public void waitForContainsFileCount() throws Exception{
+		final SftpHelper helper = buildNonStrictHostCheckingHelper();
+		final String uploadAs1 = "simpleWaitedUpload1.txt";
+		final String uploadAs2 = "simpleWaitedUpload2.txt";
+		final String uploadAs3 = "simpleWaitedUpload3.txt";
+		String uploadAsPattern = "simpleWaitedUpload[0-9].txt";
+		
+		
+		//upload the file in a different thread
+		Thread t = new Thread(){
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(5000);
+					helper.upload(testFile, testDir + "/" + uploadAs1);
+					helper.upload(testFile, testDir + "/" + uploadAs2);
+					helper.upload(testFile, testDir + "/" + uploadAs3);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		//launch the thread and check for file
+		t.start();
+		Pattern pattern = Pattern.compile(uploadAsPattern);
+		TypedHelperResult<Vector<LsEntry>> result = helper.waitForContainsFile(testDir, pattern, 10000, 1000);
+		
+		Assert.assertEquals(result.getActual().size(), 3);
 	}
 	
 }

@@ -223,6 +223,21 @@ public interface SftpHelper extends Helper {
 	public TypedHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException;
 	
 	/**
+	 * Waiter version for the containsFile() function. Check whether a directory contains files matching the given pattern.
+	 * The check is perform periodically until the given timeout is reached. Success if one or more file matching the given pattern is found. The
+	 * result returned contains a Vector of entry of files found matching
+	 * the pattern.
+	 * @param dir
+	 * @param pattern
+	 * @param timeout waiter check timeout
+	 * @param period waiter check period
+	 * @return result as list of found filenames
+	 * @throws Exception 
+	 * @throws SftpException 
+	 */
+	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(String dir, Pattern pattern, long timeout, int period) throws Exception;
+	
+	/**
 	 * Check whether a directory contains files matching the given pattern. 
 	 * Success if the specified number of file matching the given pattern is found. The
 	 * result returned contains a Vector of entry of files found matching
@@ -233,6 +248,21 @@ public interface SftpHelper extends Helper {
 	 * @throws SftpException 
 	 */
 	public TypedHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count) throws SftpException;
+	
+	/**
+	 * Waiter version of containsFile(). Check whether a directory contains files matching the given pattern. 
+	 * The check is perform periodically until the given timeout is reached. 
+	 * Success if the specified number of file matching the given pattern is found. The
+	 * result returned contains a Vector of entry of files found matching the pattern.
+	 * @param dir
+	 * @param pattern
+	 * @param timeout waiter check timeout
+	 * @param period waiter check period
+	 * @return result as list of found filenames
+	 * @throws SftpException 
+	 */
+	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(String dir, Pattern pattern, int count,
+			long timeout, int period) throws Exception;
 	
 	/**
 	 * Retrieve the MD5 checksum for the given file on SFTP server. 

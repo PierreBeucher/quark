@@ -14,8 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.atom.quark.core.result.ResultBuilder;
 import org.atom.quark.core.result.TypedExpectingHelperResult;
 import org.atom.quark.core.result.TypedHelperResult;
+import org.atom.quark.core.waiter.Waiter;
 import org.atom.quark.sftp.context.SftpContext;
-
 import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 
@@ -210,7 +210,29 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		return false;
 	}
 
+	@Override
+	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(final String dir, final Pattern pattern, long timeout,
+			int period) throws Exception {
+		Waiter<TypedHelperResult<Vector<LsEntry>>> waiter = new Waiter<TypedHelperResult<Vector<LsEntry>>>(timeout, period){
+			@Override
+			public TypedHelperResult<Vector<LsEntry>> check() throws Exception {
+				return containsFile(dir, pattern);
+			}
+		};
+		return waiter.call();
+	}
 
+	@Override
+	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(final String dir, final Pattern pattern, final int count,
+			long timeout, int period) throws Exception {
+		Waiter<TypedHelperResult<Vector<LsEntry>>> waiter = new Waiter<TypedHelperResult<Vector<LsEntry>>>(timeout, period){
+			@Override
+			public TypedHelperResult<Vector<LsEntry>> check() throws Exception {
+				return containsFile(dir, pattern, count);
+			}
+		};
+		return waiter.call();
+	}
 	
 	
 	
