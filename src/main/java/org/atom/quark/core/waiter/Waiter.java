@@ -1,7 +1,6 @@
 package org.atom.quark.core.waiter;
 
 import java.util.concurrent.Callable;
-
 import org.atom.quark.core.result.HelperResult;
 
 /**
@@ -45,22 +44,19 @@ import org.atom.quark.core.result.HelperResult;
  */
 public abstract class Waiter<E extends HelperResult> implements Callable<E> {
 	
-	private long timeout;
-	private int period;
+	protected E latestResult;
 	
 	/**
 	 * Create a new Waiter using the provide timeout (milliseconds) and period (milliseconds)
-	 * @param timeout timeout in ms
-	 * @param period period in ms
 	 */
-	public Waiter(long timeout, int period) {
+	public Waiter() {
 		super();
-		this.timeout = timeout;
-		this.period = period;
+		this.latestResult = null;
 	}
 	
 	/**
 	 * This method is called prior to any check() call. Does nothing unless overriden.
+	 * On Waiter startup, null will be passed as parameter as there is not any result yet.
 	 * @param latestResult the result returned from the latest check() call
 	 */
 	public void beforeCheck(E latestResult){
@@ -82,37 +78,50 @@ public abstract class Waiter<E extends HelperResult> implements Callable<E> {
 	 * @return the verification result, either success or failure
 	 * @throws Exception
 	 */
-	public abstract E check() throws Exception;
+	public abstract E performCheck(E latestResult) throws Exception;
 	
 	/**
-	 * Will call <i>doAction</i> every <i>period</i> ms, until a successful attempt is made or
-	 * <i>timeout</i> ms is reached. On success, return the successful result. On failure, return
-	 * failure(). 
-	 * @param timeout 
-	 * @param period
-	 * @return the first successful action result if any, or failure(item), where item is the latest failed action result
+	 * This method will call in the following order beforeCheck(), performCheck() and afterCheck().
+	 * It should be used by the concrete implementation of call() to perform
+	 * our check actions periodically. It can be overridden to behave differently. 
+	 * @return 
 	 * @throws Exception 
 	 */
-	public E call() throws Exception {
-		long tStart = System.currentTimeMillis();
-		long tCurrent = System.currentTimeMillis();
-		long tEnd = tStart + timeout;
-		
-		E latestResult = null;
-		do {
-			beforeCheck(latestResult);
-			latestResult = check();
-			afterCheck(latestResult);
-			if(latestResult.isSuccess()){
-				return latestResult;
-			}
-			
-			Thread.sleep(period);
-			tCurrent = System.currentTimeMillis();
-		}while(tCurrent < tEnd);
-		
-		//after timeout, fail with the latest item
+	protected E check() throws Exception{
+		beforeCheck(latestResult);
+		latestResult = performCheck(latestResult);
+		afterCheck(latestResult);
 		return latestResult;
 	}
+	
+	/**
+	 * Will call <i>check</i> every <i>period</i>, until a successful attempt is made or
+	 * <i>timeout</i> is reached. On success, return the successful result. On failure, return
+	 * the latest failed result. 
+	 * @return the first successful action result if any, or the latest failed item
+	 * @throws Exception 
+	 */
+	public abstract E call() throws Exception;
+//	public E call() throws Exception {
+//		long tStart = System.currentTimeMillis();
+//		long tCurrent = System.currentTimeMillis();
+//		long tEnd = tStart + timeout;
+//		
+//		E latestResult = null;
+//		do {
+//			beforeCheck(latestResult);
+//			latestResult = check();
+//			afterCheck(latestResult);
+//			if(latestResult.isSuccess()){
+//				return latestResult;
+//			}
+//			
+//			Thread.sleep(period);
+//			tCurrent = System.currentTimeMillis();
+//		}while(tCurrent < tEnd);
+//		
+//		//after timeout, fail with the latest item
+//		return latestResult;
+//	}
 
 }

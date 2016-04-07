@@ -235,7 +235,7 @@ public interface SftpHelper extends Helper {
 	 * @throws Exception 
 	 * @throws SftpException 
 	 */
-	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(String dir, Pattern pattern, long timeout, int period) throws Exception;
+	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(String dir, Pattern pattern, long timeout, long period) throws Exception;
 	
 	/**
 	 * Check whether a directory contains files matching the given pattern. 
@@ -262,7 +262,7 @@ public interface SftpHelper extends Helper {
 	 * @throws SftpException 
 	 */
 	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(String dir, Pattern pattern, int count,
-			long timeout, int period) throws Exception;
+			long timeout, long period) throws Exception;
 	
 	/**
 	 * Retrieve the MD5 checksum for the given file on SFTP server. 

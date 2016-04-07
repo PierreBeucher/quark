@@ -38,12 +38,12 @@ public class WaiterTest {
 		//margin when calculating our period is respected
 		int margin = 25;
 		
-		Waiter<HelperResult> waiter = new Waiter<HelperResult>(timeout, period){
+		Waiter<HelperResult> waiter = new SimpleWaiter<HelperResult>(timeout, period){
 			
 			int checkCount = 0;
 			
 			@Override
-			public HelperResult check() throws Exception {
+			public HelperResult performCheck(HelperResult latestResult) throws Exception {
 				checkCount++;
 				return ResultBuilder.result(checkCount >= totalCheckCount, checkCount);
 			}
@@ -75,16 +75,16 @@ public class WaiterTest {
 	public void callTimeout() throws Exception{
 		
 		final HelperResult failure = ResultBuilder.failure("fail");
-		Waiter<HelperResult> waiter = new Waiter<HelperResult>(1000, 100){
+		Waiter<HelperResult> waiter = new SimpleWaiter<HelperResult>(1000, 100){
 			@Override
-			public HelperResult check() throws Exception {
+			public HelperResult performCheck(HelperResult latestResult) throws Exception {
 				return failure;
 			}
 		};
 		
 		//not throwing an exception indicates that the timeout worked
 		HelperResult result = callWaiterSecureTimeout(waiter, 10000);
-		Assert.assertEquals(result, failure, "The Waiter should returnth expected failure after timeout");
+		Assert.assertEquals(result, failure, "The Waiter should return the expected failure after timeout");
 	}
 	
 	/**
@@ -100,10 +100,10 @@ public class WaiterTest {
 		final HelperResult success = ResultBuilder.success("success");
 		
 		//first call will always return failure, second call returns success
-		Waiter<HelperResult> waiter = new Waiter<HelperResult>(1000, 100){
+		Waiter<HelperResult> waiter = new SimpleWaiter<HelperResult>(1000, 100){
 			boolean shouldSuccess = false;
 			@Override
-			public HelperResult check() throws Exception {
+			public HelperResult performCheck(HelperResult latestResult) throws Exception {
 				if(!shouldSuccess){
 					shouldSuccess = true;
 					return failure;
