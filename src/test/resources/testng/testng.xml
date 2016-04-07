@@ -19,6 +19,11 @@
 	<parameter name="db-login" value="root" />
 	<parameter name="db-password" value="password" />
 	
+	<parameter name="mantisbt-url" value="http://localhost:8080/api/soap/mantisconnect.php" />
+	<parameter name="mantisbt-username" value="administrator" />
+	<parameter name="mantisbt-password" value="root" />
+	<parameter name="mantisbt-project" value="QuarkProject" />
+	
 	<test name="SftpHelperTest">
 		<classes>
 			<class name="org.atom.quark.sftp.helper.SftpHelperFilesIT"/>
@@ -35,6 +40,12 @@
 	<test name="JdbcHelperTest">
 		<classes>
 			<class name="org.atom.quark.jdbc.helper.JdbcHelperIT"/>
+		</classes>
+	</test>
+	
+	<test name="MantisBTHelperTest">
+		<classes>
+			<class name="org.atom.quark.mantisbt.utils.MantisBTClientIT"/>
 		</classes>
 	</test>
 </suite>
