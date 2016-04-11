@@ -33,6 +33,7 @@ import biz.futureware.mantis.rpc.soap.client.UserData;
  *
  */
 public class MantisBTClient {
+	
 	public static final BigInteger NULL_PROJECT_ID = BigInteger.valueOf(0);
 
 	/**
@@ -44,7 +45,32 @@ public class MantisBTClient {
 	public static boolean isNullProject(BigInteger id){
 		return NULL_PROJECT_ID.equals(id);
 	}
-
+	
+	/**
+	 * Issue status per ID
+	 * @author Pierre Beucher
+	 *
+	 */
+	public enum IssueStatus {
+		NEW(10),
+		FEEDBACK(20),
+		ACKNOWLEDGED(30),
+		CONFIRMED(40),
+		ASSIGNED(50),
+		RESOLVED(80),
+		CLOSED(90);	
+		
+		private Integer statusId;
+		
+		IssueStatus(Integer statusId){
+			this.statusId = statusId;
+		}
+		
+		public BigInteger getId(){
+			return BigInteger.valueOf(statusId);
+		}
+	}
+	
 	/*
 	 * Remote representing the MantisBT server
 	 */
