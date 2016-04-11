@@ -54,7 +54,7 @@ Vagrant.configure(2) do |config|
 	    -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=bugtracker \
 		-e MYSQL_USER=mantisbt -e MYSQL_PASSWORD=mantisbt"
 		
-    d.run "mymantis",
+    d.run "vimagick/mantisbt",
 	  args: "--name mantisbt -p 8080:80 --link mysql-mantisbt:mysql-mantisbt \
 	    -v /vagrant/mantisbt/config_inc.php:/var/www/html/config_inc.php:rw"
   end
