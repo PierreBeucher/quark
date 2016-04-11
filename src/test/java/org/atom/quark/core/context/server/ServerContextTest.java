@@ -25,7 +25,7 @@ public class ServerContextTest {
 		ServerContext ctx = buidEmptyServerContext();
 
 		Assert.assertEquals(ctx.getHost(), null);
-		Assert.assertEquals(ctx.getPort(), 0);
+		Assert.assertEquals(ctx.getPort(), -1);
 	}
 	
 	@Test

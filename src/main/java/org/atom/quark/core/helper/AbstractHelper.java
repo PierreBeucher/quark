@@ -17,7 +17,14 @@ public abstract class AbstractHelper<E extends HelperContext> implements Helper 
 		return context;
 	}
 
-	public void setContext(E context) {
+	/**
+	 * Set the context to be used by this Helper. As changing the context
+	 * may cause come helper to re-initialize some component, an Exception
+	 * may be thrown if said context is not properly configured.
+	 * @param context
+	 * @throws Exception
+	 */
+	public void setContext(E context) throws Exception {
 		this.context = context;
 	}
 }

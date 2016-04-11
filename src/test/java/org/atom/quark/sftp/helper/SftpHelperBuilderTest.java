@@ -28,7 +28,7 @@ public class SftpHelperBuilderTest {
 		SftpHelper helper = builder.build();
 		Assert.assertNotNull(helper.getContext());
 		Assert.assertNull(helper.getContext().getHost());
-		Assert.assertEquals(helper.getContext().getPort(), 0);
+		Assert.assertEquals(helper.getContext().getPort(), -1);
 	}
 
 	@Test

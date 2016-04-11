@@ -21,7 +21,7 @@ public class SftpContextTest {
 		Assert.assertNotNull(ctx.getAuthContext());
 		Assert.assertNotNull(ctx.getOptions());
 		Assert.assertNull(ctx.getHost());
-		Assert.assertEquals(ctx.getPort(), 0);
+		Assert.assertEquals(ctx.getPort(), -1);
 	}
 
 	@Test

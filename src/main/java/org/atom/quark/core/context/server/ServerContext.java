@@ -18,10 +18,11 @@ public abstract class ServerContext implements HelperContext{
 	private int port;
 	
 	/**
-	 * Empty constructor. Use setters to define context.
+	 * Empty constructor. Use setters to define context. Port is set to -1.
 	 */
 	public ServerContext() {
 		super();
+		this.port = -1;
 	}
 
 	/**

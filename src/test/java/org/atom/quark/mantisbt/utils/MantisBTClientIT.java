@@ -48,6 +48,7 @@ public class MantisBTClientIT {
 		client.setUsername(username);
 		client.setPassword(password);
 		client.setUrl(url);
+		client.init();
 		UserData data = client.mc_login();
 		Assert.assertEquals(data.getAccount_data().getName(), username);
 	}
