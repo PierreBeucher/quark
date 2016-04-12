@@ -48,6 +48,7 @@
 		<classes>
 			<class name="org.atom.quark.mantisbt.utils.MantisBTClientIT"/>
 			<class name="org.atom.quark.mantisbt.helper.MantisBTHelperIT"/>
+			<class name="org.atom.quark.mantisbt.helper.MantisBTHelperBuilderIT"/>
 		</classes>
 	</test>
 	

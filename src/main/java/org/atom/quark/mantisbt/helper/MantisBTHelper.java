@@ -1,6 +1,7 @@
 package org.atom.quark.mantisbt.helper;
 
 import java.math.BigInteger;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Set;
@@ -62,6 +63,63 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		init();
 	}
 	
+	/**
+	 * Update the URL managed by this helper.
+	 * It is required to call init() after a call to this function
+	 * to ensure the Helper get initialized using the newly configured parameters.
+	 * @param url
+	 * @return 
+	 * @throws ServiceException 
+	 * @throws RemoteException 
+	 */
+	public MantisBTHelper url(URL url){
+		getContext().setUrl(url);
+		return this;
+	}
+	
+	/**
+	 * Update the username managed by this helper. It is required to call init() after a call to this function
+	 * to ensure the Helper get initialized using the newly configured parameters.
+	 * @param username
+	 * @throws ServiceException 
+	 * @throws RemoteException
+	 * @return  
+	 */
+	public MantisBTHelper username(String username){
+		getContext().getAuthContext().setLogin(username);
+		return this;
+	}
+	
+	/**
+	 * Update the password managed by this helper. It is required to call init() after a call to this function
+	 * to ensure the Helper get initialized using the newly configured parameters.
+	 * @param password
+	 * @throws ServiceException 
+	 * @throws RemoteException
+	 * @return 
+	 */
+	public MantisBTHelper password(String password){
+		getContext().getAuthContext().setPassword(password);
+		return this;
+	}
+	
+	/**
+	 * Update the project managed by this helper.
+	 * @param projectName
+	 * @throws RemoteException 
+	 * @return
+	 */
+	public MantisBTHelper project(String projectName){
+		getContext().setProjectName(projectName);
+		return this;
+	}
+	
+	@Override
+	public MantisBTHelper init() throws ServiceException, RemoteException {
+		super.init();
+		return this;
+	}
+
 	private Set<IssueData> _getIssuesForProject() throws RemoteException{
 		Set<IssueData> result = new HashSet<IssueData>();		
 		

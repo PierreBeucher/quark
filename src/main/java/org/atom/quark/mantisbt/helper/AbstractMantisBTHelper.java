@@ -30,9 +30,10 @@ public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> impl
 	 * @throws ServiceException 
 	 * @throws RemoteException 
 	 */
-	public void init() throws ServiceException, RemoteException{
+	public AbstractMantisBTHelper init() throws ServiceException, RemoteException{
 		this.client = buildClient();
 		this.projectId = initProjectId();
+		return this;
 	}
 	
 	/**
@@ -40,7 +41,7 @@ public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> impl
 	 * @return a new client
 	 * @throws ServiceException 
 	 */
-	private MantisBTClient buildClient() throws ServiceException{
+	protected MantisBTClient buildClient() throws ServiceException{
 		if(isReady()){
 			return new MantisBTClient(context.getUrl(),
 					context.getAuthContext().getLogin(),
@@ -50,7 +51,7 @@ public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> impl
 		}
 	}
 	
-	private BigInteger initProjectId() throws RemoteException{
+	protected BigInteger initProjectId() throws RemoteException{
 		return this.client.mc_project_get_id_from_name(context.getProjectName());
 	}
 
