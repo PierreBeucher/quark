@@ -19,8 +19,7 @@
 	<parameter name="db-login" value="root" />
 	<parameter name="db-password" value="password" />
 	
-	<!-- Using port 8042 for manual testing, otherwise port 8080 should be used for Docker -->
-	<parameter name="mantisbt-url" value="http://localhost:8042/api/soap/mantisconnect.php" />
+	<parameter name="mantisbt-url" value="http://localhost:8080/api/soap/mantisconnect.php" />
 	<parameter name="mantisbt-username" value="administrator" />
 	<parameter name="mantisbt-password" value="root" />
 	<parameter name="mantisbt-project" value="QuarkProject" />
@@ -44,13 +43,11 @@
 		</classes>
 	</test>
 	
-	<!-- MantisBT IT are ignored for now, until https://github.com/vimagick/dockerfiles/issues/14 is solved -->
-	<!-- The Docker container cannot be used for SOAP calls (server error), test are done manually for now -->
-	<!-- 
 	<test name="MantisBTHelperTest">
 		<classes>
 			<class name="org.atom.quark.mantisbt.utils.MantisBTClientIT"/>
+			<class name="org.atom.quark.mantisbt.helper.MantisBTHelperIT"/>
 		</classes>
 	</test>
-	-->
+	
 </suite>
