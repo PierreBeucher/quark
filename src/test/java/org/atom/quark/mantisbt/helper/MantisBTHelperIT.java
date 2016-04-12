@@ -1,6 +1,5 @@
 package org.atom.quark.mantisbt.helper;
 
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
@@ -10,8 +9,8 @@ import java.util.regex.Pattern;
 import javax.xml.rpc.ServiceException;
 
 import org.atom.quark.core.helper.CleaningHelper.CleaningMethod;
+import org.atom.quark.core.result.TypedHelperResult;
 import org.atom.quark.mantisbt.context.MantisBTContext;
-import org.atom.quark.mantisbt.utils.MantisBTClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -20,7 +19,6 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import biz.futureware.mantis.rpc.soap.client.IssueData;
-import biz.futureware.mantis.rpc.soap.client.ObjectRef;
 
 public class MantisBTHelperIT {
 	
@@ -29,60 +27,33 @@ public class MantisBTHelperIT {
 	private URL url;
 	private String username;
 	private String password;
-	private String project;
-	
-	/*
-	 * ObjectRef of the test project
-	 */
-	private ObjectRef projectRef;
-	
-	/*
-	 * Test category for dummy issues
-	 */
-	private String category;
+	private String standardProject;
+	private String projectCleanHard;
 
-	@Parameters({ "mantisbt-url", "mantisbt-username", "mantisbt-password", "mantisbt-project" })
+	@Parameters({ "mantisbt-url", "mantisbt-username", "mantisbt-password", "mantisbt-project", "mantisbt-project-clean-hard" })
 	@BeforeClass
-	public void beforeClass(String url, String username, String password, String project)
+	public void beforeClass(String url, String username, String password, String project, String projectCleanHard)
 			throws MalformedURLException, ServiceException, RemoteException {
 		this.url = new URL(url);
 		this.username = username;
 		this.password = password;
-		this.project = project;
-		
-		//retrieve test ObjectRefs from configured instance
-		MantisBTClient client = buildClient();
-		BigInteger projectId = client.mc_project_get_id_from_name(project);
-		projectRef = new ObjectRef(projectId, project);
-		category = client.mc_project_get_categories(projectId)[0]; //any category will do
+		this.standardProject = project;
+		this.projectCleanHard = projectCleanHard;
 	}
 	
-	private MantisBTClient buildClient() throws ServiceException{
-		return new MantisBTClient(url, username, password);
-	}
-	
-	private MantisBTHelper buildHelper() throws RemoteException, ServiceException{
+	/**
+	 * Create a Helper for the given project
+	 * @param project
+	 * @return
+	 * @throws RemoteException
+	 * @throws ServiceException
+	 */
+	private MantisBTHelper buildHelper(String project) throws RemoteException, ServiceException{
 		return new MantisBTHelper(buildContext());
 	}
 	
 	private MantisBTContext buildContext(){
-		return new MantisBTContext(url, username, password, project);
-	}
-	
-	private IssueData buildDummyIssue(){
-		IssueData issue = new IssueData();
-		issue.setDescription("Dummy issue create for test purpose at [" + System.currentTimeMillis() + "]");
-		issue.setSummary("Dummy issue [" + System.currentTimeMillis() + "]");
-		issue.setProject(projectRef);
-		issue.setCategory(category);
-		return issue;
-	}
-	
-	private BigInteger addDummyIssue(String issueSummary) throws RemoteException, ServiceException{
-		MantisBTClient client = buildClient();
-		IssueData issue = buildDummyIssue();
-		issue.setSummary(issueSummary);
-		return client.mc_issue_add(issue);
+		return new MantisBTContext(url, username, password, standardProject);
 	}
 	
 	@Test
@@ -106,19 +77,25 @@ public class MantisBTHelperIT {
 		helper.setContext(buildContext());
 		Assert.assertTrue(helper.isReady());
 	}
+	
+	@Test
+	public void addDummyIssue() throws RemoteException, ServiceException{
+		MantisBTHelper helper = buildHelper(standardProject);
+		IssueData created = helper.addDummyIssue();
+		
+		Assert.assertNotNull(created, "Created issue should not be null");
+	}
 
 	@Test
 	public void getIssueWithAttachment() throws RemoteException, ServiceException {
 		
 		//create a dummy issue with attachment
 		String attachment = "file.txt";
-		MantisBTClient client = buildClient();
-		IssueData issue = buildDummyIssue();
-		BigInteger issueId = client.mc_issue_add(issue);
-		client.mc_issue_attachment_add(issueId, attachment, "txt", "Test content".getBytes());
+		MantisBTHelper helper = buildHelper(standardProject);
+		IssueData issue = helper.addDummyIssue();
+		helper.getClient().mc_issue_attachment_add(issue.getId(), attachment, "txt", "Test content".getBytes());
 		
 		//check the issue is found
-		MantisBTHelper helper = buildHelper();
 		Pattern pattern = Pattern.compile(attachment);
 		Set<IssueData> result = helper.getIssuesWithAttachment(pattern);
 		
@@ -126,34 +103,70 @@ public class MantisBTHelperIT {
 	}
 	
 	@Test
+	public void waitForIssueWithAttachment() throws Exception{
+		
+		final String attachment = "fileWithWait.txt";
+		final MantisBTHelper helper = buildHelper(standardProject);
+		Thread issueCreatorThread = new Thread(){
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(2000);
+					
+					//create a dummy issue with attachment
+					IssueData issue = helper.addDummyIssue();
+					helper.getClient().mc_issue_attachment_add(issue.getId(), attachment, "txt", "Test content".getBytes());
+				} catch (Exception e) {
+					logger.error("Error on issue creator thread: {}", e);
+				}
+			}
+		};
+		
+		issueCreatorThread.start();
+		
+		//check the issue is found
+		Pattern pattern = Pattern.compile(attachment);
+		TypedHelperResult<Set<IssueData>> result = helper.waitForIssueWithAttachment(pattern, 5000, 250);
+		
+		logger.info("result after wait for issue with attachment: " + result);
+		
+		Assert.assertTrue(result.isSuccess(), "Result after waiting for issue with attachent" + attachment + "' should be success");
+		Assert.assertEquals(result.getActual().size(), 1, "Only 1 issue should be found after waiting for issue with attachment");
+		
+	}
+	
+	@Test
 	public void cleanSoft() throws Exception{
-		MantisBTHelper helper = buildHelper();
+		MantisBTHelper helper = buildHelper(standardProject);
 		
 		//clean a first time, ensure no issues are present, create dummy and re-clean
 		helper.clean();
 		Assert.assertEquals(helper.getProjectIssues().size(), 0, "Issues can still be retrieved after cleaning.");
 		
-		String issueSummary = "TestCleanSoftIssue-" + System.currentTimeMillis();
-		BigInteger issueId = addDummyIssue(issueSummary);
+		IssueData issue = helper.addDummyIssue();
 		helper.clean();
 		Assert.assertEquals(helper.getProjectIssues().size(), 0, "Issues can still be retrieved after cleaning.");
 		
 		//soft cleaning should not completely delete issue
-		IssueData afterCleanIssue = helper.getClient().mc_issue_get(issueId);
+		IssueData afterCleanIssue = helper.getClient().mc_issue_get(issue.getId());
 		Assert.assertNotNull(afterCleanIssue, "Issue should still be retrievable by ID after soft cleaning");
-		Assert.assertEquals(afterCleanIssue.getSummary(), issueSummary, "Issue summary is not the same after soft cleaning");
+		Assert.assertEquals(afterCleanIssue.getSummary(), issue.getSummary(), "Issue summary is not the same after soft cleaning");
 	}
 	
+	/**
+	 * Test the clean hard functions. This test does not use the other test parameters,
+	 * it has its own 
+	 * @throws Exception
+	 */
 	@Test
 	public void cleanHard() throws Exception{
-		final MantisBTHelper helper = buildHelper();
+		final MantisBTHelper helper = buildHelper(projectCleanHard);
 		
 		//clean a first time, ensure no issues are present, create dummy and re-clean
 		helper.clean(CleaningMethod.HARD);
 		Assert.assertEquals(helper.getProjectIssues().size(), 0, "Issues can still be retrieved after cleaning.");
 		
-		String issueSummary = "TestCleanHardIssue-" + System.currentTimeMillis();
-		final BigInteger issueId = addDummyIssue(issueSummary);
+		final IssueData issue = helper.addDummyIssue();
 		helper.clean(CleaningMethod.HARD);
 		Assert.assertEquals(helper.getProjectIssues().size(), 0, "Issues can still be retrieved after cleaning.");
 		
@@ -161,7 +174,7 @@ public class MantisBTHelperIT {
 		Assert.ThrowingRunnable throwingRunnable = new Assert.ThrowingRunnable() {
 			@Override
 			public void run() throws RemoteException {
-				helper.getClient().mc_issue_get(issueId);
+				helper.getClient().mc_issue_get(issue.getId());
 			}
 		};
 		

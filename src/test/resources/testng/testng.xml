@@ -23,6 +23,7 @@
 	<parameter name="mantisbt-username" value="administrator" />
 	<parameter name="mantisbt-password" value="root" />
 	<parameter name="mantisbt-project" value="QuarkProject" />
+	<parameter name="mantisbt-project-clean-hard" value="QuarkProjectCleanHard" />
 	
 	<test name="SftpHelperTest">
 		<classes>

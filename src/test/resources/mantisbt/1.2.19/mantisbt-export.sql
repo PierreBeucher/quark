@@ -38,7 +38,7 @@ CREATE TABLE `mantis_bug_file_table` (
   PRIMARY KEY (`id`),
   KEY `idx_bug_file_bug_id` (`bug_id`),
   KEY `idx_diskfile` (`diskfile`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,7 +69,7 @@ CREATE TABLE `mantis_bug_history_table` (
   PRIMARY KEY (`id`),
   KEY `idx_bug_history_bug_id` (`bug_id`),
   KEY `idx_history_user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=70 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -78,7 +78,7 @@ CREATE TABLE `mantis_bug_history_table` (
 
 LOCK TABLES `mantis_bug_history_table` WRITE;
 /*!40000 ALTER TABLE `mantis_bug_history_table` DISABLE KEYS */;
-INSERT INTO `mantis_bug_history_table` VALUES (1,1,1,'','','',1,1460025084),(2,1,1,'status','10','50',0,1460025084),(3,1,1,'handler_id','0','1',0,1460025084);
+INSERT INTO `mantis_bug_history_table` VALUES (55,1,19,'','','',1,1460450800);
 /*!40000 ALTER TABLE `mantis_bug_history_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -204,7 +204,7 @@ CREATE TABLE `mantis_bug_table` (
   KEY `idx_bug_fixed_in_version` (`fixed_in_version`),
   KEY `idx_bug_status` (`status`),
   KEY `idx_project` (`project_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -213,7 +213,7 @@ CREATE TABLE `mantis_bug_table` (
 
 LOCK TABLES `mantis_bug_table` WRITE;
 /*!40000 ALTER TABLE `mantis_bug_table` DISABLE KEYS */;
-INSERT INTO `mantis_bug_table` VALUES (1,1,1,1,0,30,50,70,50,10,10,10,1,'','','','','','',0,10,'TestIssue001',0,0,'',1,1460025084,1,1460025084);
+INSERT INTO `mantis_bug_table` VALUES (19,2,1,0,0,30,50,70,10,10,10,10,19,'','','','','','',0,10,'Issue Deleted When Testing',0,0,'',1,1460450800,1,1460450800);
 /*!40000 ALTER TABLE `mantis_bug_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -256,7 +256,7 @@ CREATE TABLE `mantis_bug_text_table` (
   `steps_to_reproduce` longtext NOT NULL,
   `additional_information` longtext NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -265,7 +265,7 @@ CREATE TABLE `mantis_bug_text_table` (
 
 LOCK TABLES `mantis_bug_text_table` WRITE;
 /*!40000 ALTER TABLE `mantis_bug_text_table` DISABLE KEYS */;
-INSERT INTO `mantis_bug_text_table` VALUES (1,'Testing Issue description','Testing Issue description steps','Testing Issue additional information');
+INSERT INTO `mantis_bug_text_table` VALUES (19,'Issue Deleted When Testing','','');
 /*!40000 ALTER TABLE `mantis_bug_text_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -513,7 +513,7 @@ CREATE TABLE `mantis_filters_table` (
   `name` varchar(64) NOT NULL DEFAULT '',
   `filter_string` longtext NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -522,6 +522,7 @@ CREATE TABLE `mantis_filters_table` (
 
 LOCK TABLES `mantis_filters_table` WRITE;
 /*!40000 ALTER TABLE `mantis_filters_table` DISABLE KEYS */;
+INSERT INTO `mantis_filters_table` VALUES (1,1,-1,0,'','v8#a:43:{s:16:\"_source_query_id\";i:1;s:8:\"_version\";s:2:\"v8\";s:10:\"_view_type\";s:6:\"simple\";s:13:\"show_category\";a:1:{i:0;s:1:\"0\";}s:13:\"show_severity\";a:1:{i:0;i:0;}s:11:\"show_status\";a:1:{i:0;i:0;}s:8:\"per_page\";i:50;s:17:\"highlight_changed\";i:6;s:11:\"reporter_id\";a:1:{i:0;i:0;}s:10:\"handler_id\";a:1:{i:0;i:0;}s:10:\"project_id\";a:1:{i:0;i:-3;}s:4:\"sort\";s:12:\"last_updated\";s:3:\"dir\";s:4:\"DESC\";s:11:\"start_month\";i:4;s:9:\"start_day\";i:1;s:10:\"start_year\";i:2016;s:9:\"end_month\";i:4;s:7:\"end_day\";i:12;s:8:\"end_year\";i:2016;s:6:\"search\";s:0:\"\";s:11:\"hide_status\";a:1:{i:0;i:-2;}s:16:\"and_not_assigned\";b:0;s:15:\"show_resolution\";a:1:{i:0;i:0;}s:10:\"show_build\";a:1:{i:0;s:1:\"0\";}s:12:\"show_version\";a:1:{i:0;s:1:\"0\";}s:17:\"do_filter_by_date\";b:0;s:16:\"fixed_in_version\";a:1:{i:0;s:1:\"0\";}s:14:\"target_version\";a:1:{i:0;s:1:\"0\";}s:13:\"show_priority\";a:1:{i:0;i:0;}s:12:\"user_monitor\";a:1:{i:0;i:0;}s:10:\"view_state\";i:0;s:13:\"custom_fields\";a:0:{}s:13:\"sticky_issues\";s:2:\"on\";s:17:\"relationship_type\";i:-1;s:16:\"relationship_bug\";i:0;s:12:\"show_profile\";a:1:{i:0;i:0;}s:8:\"platform\";a:1:{i:0;s:1:\"0\";}s:2:\"os\";a:1:{i:0;s:1:\"0\";}s:8:\"os_build\";a:1:{i:0;s:1:\"0\";}s:10:\"tag_string\";s:0:\"\";s:10:\"tag_select\";i:0;s:12:\"note_user_id\";a:1:{i:0;i:0;}s:10:\"match_type\";i:0;}'),(2,1,0,0,'','v8#a:43:{s:16:\"_source_query_id\";s:0:\"\";s:8:\"_version\";s:2:\"v8\";s:10:\"_view_type\";s:6:\"simple\";s:13:\"show_category\";a:1:{i:0;s:1:\"0\";}s:13:\"show_severity\";a:1:{i:0;i:0;}s:11:\"show_status\";a:1:{i:0;i:0;}s:8:\"per_page\";i:50;s:17:\"highlight_changed\";i:6;s:11:\"reporter_id\";a:1:{i:0;i:0;}s:10:\"handler_id\";a:1:{i:0;i:0;}s:10:\"project_id\";a:1:{i:0;i:-3;}s:4:\"sort\";s:12:\"last_updated\";s:3:\"dir\";s:4:\"DESC\";s:11:\"start_month\";i:4;s:9:\"start_day\";i:1;s:10:\"start_year\";i:2016;s:9:\"end_month\";i:4;s:7:\"end_day\";i:12;s:8:\"end_year\";i:2016;s:6:\"search\";s:0:\"\";s:11:\"hide_status\";a:1:{i:0;i:-2;}s:16:\"and_not_assigned\";b:0;s:15:\"show_resolution\";a:1:{i:0;i:0;}s:10:\"show_build\";a:1:{i:0;s:1:\"0\";}s:12:\"show_version\";a:1:{i:0;s:1:\"0\";}s:17:\"do_filter_by_date\";b:0;s:16:\"fixed_in_version\";a:1:{i:0;s:1:\"0\";}s:14:\"target_version\";a:1:{i:0;s:1:\"0\";}s:13:\"show_priority\";a:1:{i:0;i:0;}s:12:\"user_monitor\";a:1:{i:0;i:0;}s:10:\"view_state\";i:0;s:13:\"custom_fields\";a:0:{}s:13:\"sticky_issues\";s:2:\"on\";s:17:\"relationship_type\";i:-1;s:16:\"relationship_bug\";i:0;s:12:\"show_profile\";a:1:{i:0;i:0;}s:8:\"platform\";a:1:{i:0;s:1:\"0\";}s:2:\"os\";a:1:{i:0;s:1:\"0\";}s:8:\"os_build\";a:1:{i:0;s:1:\"0\";}s:10:\"tag_string\";s:0:\"\";s:10:\"tag_select\";i:0;s:12:\"note_user_id\";a:1:{i:0;i:0;}s:10:\"match_type\";i:0;}'),(3,1,-2,0,'','v8#a:43:{s:16:\"_source_query_id\";s:0:\"\";s:8:\"_version\";s:2:\"v8\";s:10:\"_view_type\";s:6:\"simple\";s:13:\"show_category\";a:1:{i:0;s:1:\"0\";}s:13:\"show_severity\";a:1:{i:0;i:0;}s:11:\"show_status\";a:1:{i:0;i:0;}s:8:\"per_page\";i:50;s:17:\"highlight_changed\";i:6;s:11:\"reporter_id\";a:1:{i:0;i:0;}s:10:\"handler_id\";a:1:{i:0;i:0;}s:10:\"project_id\";a:1:{i:0;i:-3;}s:4:\"sort\";s:12:\"last_updated\";s:3:\"dir\";s:4:\"DESC\";s:11:\"start_month\";i:4;s:9:\"start_day\";i:1;s:10:\"start_year\";i:2016;s:9:\"end_month\";i:4;s:7:\"end_day\";i:12;s:8:\"end_year\";i:2016;s:6:\"search\";s:0:\"\";s:11:\"hide_status\";a:1:{i:0;i:-2;}s:16:\"and_not_assigned\";b:0;s:15:\"show_resolution\";a:1:{i:0;i:0;}s:10:\"show_build\";a:1:{i:0;s:1:\"0\";}s:12:\"show_version\";a:1:{i:0;s:1:\"0\";}s:17:\"do_filter_by_date\";b:0;s:16:\"fixed_in_version\";a:1:{i:0;s:1:\"0\";}s:14:\"target_version\";a:1:{i:0;s:1:\"0\";}s:13:\"show_priority\";a:1:{i:0;i:0;}s:12:\"user_monitor\";a:1:{i:0;i:0;}s:10:\"view_state\";i:0;s:13:\"custom_fields\";a:0:{}s:13:\"sticky_issues\";s:2:\"on\";s:17:\"relationship_type\";i:-1;s:16:\"relationship_bug\";i:0;s:12:\"show_profile\";a:1:{i:0;i:0;}s:8:\"platform\";a:1:{i:0;s:1:\"0\";}s:2:\"os\";a:1:{i:0;s:1:\"0\";}s:8:\"os_build\";a:1:{i:0;s:1:\"0\";}s:10:\"tag_string\";s:0:\"\";s:10:\"tag_select\";i:0;s:12:\"note_user_id\";a:1:{i:0;i:0;}s:10:\"match_type\";i:0;}');
 /*!40000 ALTER TABLE `mantis_filters_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -660,7 +661,7 @@ CREATE TABLE `mantis_project_table` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_project_name` (`name`),
   KEY `idx_project_view` (`view_state`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -669,7 +670,7 @@ CREATE TABLE `mantis_project_table` (
 
 LOCK TABLES `mantis_project_table` WRITE;
 /*!40000 ALTER TABLE `mantis_project_table` DISABLE KEYS */;
-INSERT INTO `mantis_project_table` VALUES (1,'QuarkProject',50,1,10,10,'','Quark testing project',1,1);
+INSERT INTO `mantis_project_table` VALUES (1,'QuarkProject',50,1,10,10,'','Quark testing project',1,1),(2,'QuarkProjectCleanHard',10,1,10,10,'','Project for testing the MantisBTHelper clean hard functionnalities. Issues will be permanently deleted here.',1,1);
 /*!40000 ALTER TABLE `mantis_project_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -803,7 +804,7 @@ CREATE TABLE `mantis_tokens_table` (
   `expiry` int(10) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `idx_typeowner` (`type`,`owner`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -812,7 +813,7 @@ CREATE TABLE `mantis_tokens_table` (
 
 LOCK TABLES `mantis_tokens_table` WRITE;
 /*!40000 ALTER TABLE `mantis_tokens_table` DISABLE KEYS */;
-INSERT INTO `mantis_tokens_table` VALUES (1,1,4,'1',1460024899,1460025403),(2,1,3,'1',1460025084,1460111510);
+INSERT INTO `mantis_tokens_table` VALUES (6,1,3,'19',1460450800,1460537202),(5,1,4,'1',1460450716,1460451065);
 /*!40000 ALTER TABLE `mantis_tokens_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -953,7 +954,7 @@ CREATE TABLE `mantis_user_table` (
 
 LOCK TABLES `mantis_user_table` WRITE;
 /*!40000 ALTER TABLE `mantis_user_table` DISABLE KEYS */;
-INSERT INTO `mantis_user_table` VALUES (1,'administrator','','root@localhost','63a9f0ea7bb98050796b649e85481845',1,0,90,4,0,0,'5a3d033aa132ae8716746e281b190ceb518b3808ffb42d04d7a1a1847d6f21e1',1460025113,1460024886);
+INSERT INTO `mantis_user_table` VALUES (1,'administrator','','root@localhost','63a9f0ea7bb98050796b649e85481845',1,0,90,7,0,0,'5a3d033aa132ae8716746e281b190ceb518b3808ffb42d04d7a1a1847d6f21e1',1460450834,1460024886);
 /*!40000 ALTER TABLE `mantis_user_table` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -966,4 +967,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-04-07 10:34:22
+-- Dump completed on 2016-04-12  8:48:12

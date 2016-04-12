@@ -11,6 +11,10 @@ import javax.xml.rpc.ServiceException;
 import org.atom.quark.core.helper.AbstractCleaningHelper;
 import org.atom.quark.core.helper.CleaningHelper;
 import org.atom.quark.core.helper.Helper;
+import org.atom.quark.core.result.ResultBuilder;
+import org.atom.quark.core.result.TypedHelperResult;
+import org.atom.quark.core.waiter.SimpleWaiter;
+import org.atom.quark.core.waiter.Waiter;
 import org.atom.quark.mantisbt.context.MantisBTContext;
 import org.atom.quark.mantisbt.utils.MantisBTClient;
 import org.atom.quark.mantisbt.utils.MantisBTClient.IssueStatus;
@@ -21,6 +25,11 @@ import biz.futureware.mantis.rpc.soap.client.AttachmentData;
 import biz.futureware.mantis.rpc.soap.client.IssueData;
 import biz.futureware.mantis.rpc.soap.client.ObjectRef;
 
+/**
+ * 
+ * @author Pierre Beucher
+ *
+ */
 public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, CleaningHelper{
 
 	/**
@@ -33,11 +42,6 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	 * Default number of issues per pages.
 	 */
 	public static final long DEFAULT_ISSUE_RETRIEVING_PAGE_SIZE = 50;
-	
-//	private MantisBTClient client;
-//	
-//	private BigInteger projectId;
-//	
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -57,45 +61,6 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		this.cleaner = new MantisBTCleaningHelper();
 		init();
 	}
-//	
-//	/**
-//	 * Init this Helper using its current context.
-//	 * @throws ServiceException 
-//	 * @throws RemoteException 
-//	 */
-//	public void init() throws ServiceException, RemoteException{
-//		this.client = buildClient();
-//		this.projectId = initProjectId();
-//	}
-//	
-//	/**
-//	 * Create a new MantisBTClient if this Helper is ready.
-//	 * @return a new client
-//	 * @throws ServiceException 
-//	 */
-//	private MantisBTClient buildClient() throws ServiceException{
-//		if(isReady()){
-//			return new MantisBTClient(context.getUrl(),
-//					context.getAuthContext().getLogin(),
-//					context.getAuthContext().getPassword());
-//		} else {
-//			throw new RuntimeException("Cannot build a client if Helper is not ready.");
-//		}
-//	}
-//	
-//	private BigInteger initProjectId() throws RemoteException{
-//		return this.client.mc_project_get_id_from_name(context.getProjectName());
-//	}
-//
-//	/**
-//	 * MantisBTHelper is ready if its URL, username and password are set properly.
-//	 */
-//	@Override
-//	public boolean isReady() {
-//		return context.getAuthContext().getLogin() != null
-//				&& context.getAuthContext().getPassword() != null
-//				&& context.getUrl() != null;
-//	}
 	
 	private Set<IssueData> _getIssuesForProject() throws RemoteException{
 		Set<IssueData> result = new HashSet<IssueData>();		
@@ -138,6 +103,66 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	}
 	
 	/**
+	 * Wait for an issue with an attachment matching pattern to be found. Will success
+	 * once one or more issues matching the given pattern is found, or fail after
+	 * timeout. 
+	 * @param pattern
+	 * @param timeout
+	 * @param period
+	 * @return
+	 * @throws Exception 
+	 */
+	public TypedHelperResult<Set<IssueData>> waitForIssueWithAttachment(final Pattern pattern, long timeout, long period) throws Exception{
+		Waiter<TypedHelperResult<Set<IssueData>>> waiter = new SimpleWaiter<TypedHelperResult<Set<IssueData>>>(timeout, period){
+			@Override
+			public TypedHelperResult<Set<IssueData>> performCheck(TypedHelperResult<Set<IssueData>> latestResult)
+					throws Exception {
+				Set<IssueData> result = getIssuesWithAttachment(pattern);
+				return ResultBuilder.result(!result.isEmpty(), result);
+			}
+		};
+		return waiter.call();
+	}
+	
+	/**
+	 * Generate a dummy issue on the MantisBT server managed by this Helper.
+	 * The dummy issue is added to the project managed by this Helper, with a description and summary
+	 * like "Dummy Issue {current system time}". The first found category is used. 
+	 * @return the ID of the generated issue
+	 * @throws RemoteException 
+	 */
+	public IssueData addDummyIssue() throws RemoteException{
+		IssueData dummy = generateDummyIssueData();
+		BigInteger created = client.mc_issue_add(dummy);
+		return client.mc_issue_get(created);
+	}
+	
+	/**
+	 * Generate a dummy issue data containing automatically generated minimal configuration
+	 * (description, summary and category).
+	 * The generated issue data is not added to the MantisBT server. The generated issue
+	 * is associated to the first usable category found on the server.
+	 * @return 
+	 * @throws RemoteException 
+	 */
+	public IssueData generateDummyIssueData() throws RemoteException{
+		String[] categories = client.mc_project_get_categories(projectId);
+		if(categories.length == 0){
+			throw new RuntimeException("There is no categories available of the MantisBT server. A category is required to create issues.");
+		}
+		
+		String category = categories[0];
+		ObjectRef projRef = new ObjectRef(projectId, context.getProjectName());
+		
+		IssueData issue = new IssueData();
+		issue.setDescription("Dummy issue created by " + this.toString() + " at [" + System.currentTimeMillis() + "]");
+		issue.setSummary("Dummy issue [" + System.currentTimeMillis() + "]");
+		issue.setProject(projRef);
+		issue.setCategory(category);
+		return issue;
+	}
+	
+	/**
 	 * Retrieve all the issues from the managed context project.
 	 * @return
 	 * @throws RemoteException 
@@ -155,12 +180,6 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	public void clean(CleaningMethod cleaningMethod) throws Exception {
 		cleaner.clean(cleaningMethod);
 	}
-
-//	@Override
-//	public void setContext(MantisBTContext context) throws Exception {
-//		super.setContext(context);
-//		init();
-//	}
 
 	public void setClient(MantisBTClient client) {
 		this.client = client;
