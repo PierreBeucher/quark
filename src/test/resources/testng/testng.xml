@@ -25,6 +25,12 @@
 	<parameter name="mantisbt-project" value="QuarkProject" />
 	<parameter name="mantisbt-project-clean-hard" value="QuarkProjectCleanHard" />
 	
+	<parameter name="chemistry-user" value="admin" />
+	<parameter name="chemistry-password" value="admin" />
+	<parameter name="chemistry-ws-base-url" value="https://cmis.alfresco.com/alfresco/cmisws" />
+	<parameter name="chemistry-atompub-url" value="https://cmis.alfresco.com/api/-default-/public/cmis/versions/1.0/atom" />
+	<parameter name="chemistry-repository-id" value="-default-" />
+	
 	<test name="SftpHelperTest">
 		<classes>
 			<class name="org.atom.quark.sftp.helper.SftpHelperFilesIT"/>
