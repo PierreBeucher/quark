@@ -36,7 +36,7 @@ public class WaiterTest {
 		int expectedTime = (totalCheckCount-1)*period;
 		
 		//margin when calculating our period is respected
-		int margin = 25;
+		int margin = 100;
 		
 		Waiter<HelperResult> waiter = new SimpleWaiter<HelperResult>(timeout, period){
 			
