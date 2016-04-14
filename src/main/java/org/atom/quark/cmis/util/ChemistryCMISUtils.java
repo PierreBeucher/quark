@@ -2,9 +2,11 @@ package org.atom.quark.cmis.util;
 
 import java.util.List;
 
+import org.apache.chemistry.opencmis.client.api.CmisObject;
 import org.apache.chemistry.opencmis.client.api.Repository;
 import org.apache.chemistry.opencmis.client.api.SessionFactory;
 import org.apache.chemistry.opencmis.client.runtime.SessionFactoryImpl;
+import org.apache.chemistry.opencmis.commons.enums.BaseTypeId;
 import org.atom.quark.cmis.context.AtomPubBindingContext;
 import org.atom.quark.cmis.context.CMISBindingContext;
 import org.atom.quark.cmis.context.CMISContext;
@@ -16,6 +18,18 @@ import org.atom.quark.cmis.helper.chemistry.WebServiceSessionHandler;
 public class ChemistryCMISUtils {
 	
 	private ChemistryCMISUtils(){}
+	
+	public static boolean isFolder(CmisObject o){
+		return isType(o, BaseTypeId.CMIS_FOLDER);
+	}
+	
+	public static boolean isDocument(CmisObject o){
+		return isType(o, BaseTypeId.CMIS_DOCUMENT);
+	}
+	
+	public static boolean isType(CmisObject o, BaseTypeId type){
+		return o.getBaseTypeId() == type;
+	}
 	
 	public static List<Repository> getRepositories(CMISBindingContext ctx){
 		SessionHandler handler = getSessionHandler(new CMISContext(ctx, null));

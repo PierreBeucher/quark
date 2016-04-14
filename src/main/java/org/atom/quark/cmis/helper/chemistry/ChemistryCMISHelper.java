@@ -1,14 +1,18 @@
 package org.atom.quark.cmis.helper.chemistry;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.chemistry.opencmis.client.api.CmisObject;
+import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.client.api.ItemIterable;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.client.api.SessionFactory;
 import org.apache.chemistry.opencmis.client.runtime.SessionFactoryImpl;
-import org.apache.chemistry.opencmis.client.util.FileUtils;
+import org.apache.chemistry.opencmis.commons.enums.BaseTypeId;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
 import org.atom.quark.cmis.context.CMISBindingContext;
 import org.atom.quark.cmis.context.CMISContext;
@@ -16,6 +20,9 @@ import org.atom.quark.cmis.helper.CMISHelper;
 import org.atom.quark.cmis.util.ChemistryCMISUtils;
 import org.atom.quark.core.helper.AbstractHelper;
 import org.atom.quark.core.helper.Helper;
+import org.atom.quark.core.result.ResultBuilder;
+import org.atom.quark.core.result.TypedHelperResult;
+import org.atom.quark.core.waiter.SimpleWaiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,24 +80,32 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 		return this;
 	}
 	
-	public Folder createFolder(String parent, String name){
-		return FileUtils.createFolder(parent, name, null, session);
-	}
-	
-	public Folder createFolderIfNotExists(String parent, String name){
-		Folder folder = null;
-		try{
-			if(parent.endsWith("/")){
-				 FileUtils.getFolder(parent + name, session);
-			} else {
-				folder = FileUtils.getFolder(parent + "/" + name, session);
-			}
-		} catch (CmisObjectNotFoundException e){
-			//this is expected
-			return createFolder(parent, name);
-		}
-		return folder;
-	}
+//	public Folder createFolder(String parent, String name){
+//		return FileUtils.createFolder(parent, name, null, session);
+//	}
+//	
+//	public Folder createFolderIfNotExists(String parent, String name){
+//		Folder folder = null;
+//		try{
+//			if(parent.endsWith("/")){
+//				 FileUtils.getFolder(parent + name, session);
+//			} else {
+//				folder = FileUtils.getFolder(parent + "/" + name, session);
+//			}
+//		} catch (CmisObjectNotFoundException e){
+//			//this is expected
+//			return createFolder(parent, name);
+//		}
+//		return folder;
+//	}
+//	
+//	public Document createDocumentFromFile(String parent, File file) throws FileNotFoundException{
+//		return FileUtils.createDocumentFromFile(parent, file, null, VersioningState.MINOR, session);
+//	}
+//	
+//	public Document createDocumentFromFileIfNotExists(String parent, File file) throws FileNotFoundException{
+//		return FileUtils.createDocumentFromFile(parent, file, null, VersioningState.MINOR, session);
+//	}
 	
 	public ItemIterable<CmisObject> listDirectory(String path){
 		CmisObject o = session.getObjectByPath(path);
@@ -99,6 +114,56 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 		}
 		
 		return ((Folder) o).getChildren();
+	}
+	
+	/**
+	 * Check whether or not the given folder contains Documents which name matches Pattern.
+	 * Result is success if one or more Document matching pattern is found. 
+	 * @param directory
+	 * @param pattern
+	 * @return result as List of found Documents
+	 */
+	public TypedHelperResult<List<Document>> containsDocument(String directory, Pattern pattern){
+		ItemIterable<CmisObject> iterable = listDirectory(directory);
+		List<Document> result = new ArrayList<Document>();
+		for(CmisObject o : iterable){
+			if(o.getBaseTypeId() == BaseTypeId.CMIS_DOCUMENT 
+					&& (pattern.matcher(o.getName()).matches())){
+				result.add((Document) o);
+			}
+		}
+		return ResultBuilder.result(!result.isEmpty(), result);
+	}
+	
+	/**
+	 * Check whether or not the specified folder contains a document with the given name.
+	 * Success if a Document with the exact given name exists. Failure if nt object found
+	 * or object found but is not a document.
+	 * @param parent
+	 * @param documentName
+	 * @return result as object found
+	 */
+	public TypedHelperResult<Document> containsDocument(String path){
+		try {
+			CmisObject o = session.getObjectByPath(path);
+			boolean success = o.getBaseTypeId() == BaseTypeId.CMIS_DOCUMENT;
+			return ResultBuilder.result(success, (Document) o);
+		} catch (CmisObjectNotFoundException e) {
+			return ResultBuilder.failure(null);
+		}
+	}
+	
+	
+	public TypedHelperResult<Document> waitForContainsDocument(final String path, long timeout, long period) throws Exception{
+		
+		SimpleWaiter<TypedHelperResult<Document>> waiter = new SimpleWaiter<TypedHelperResult<Document>>(timeout, period){
+			@Override
+			public TypedHelperResult<Document> performCheck(TypedHelperResult<Document> latestResult)
+					throws Exception {
+				return containsDocument(path);
+			}
+		};
+		return waiter.call();
 	}
 	
 	/**
@@ -112,6 +177,15 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 	@Override
 	public boolean isReady() {
 		return bindingContextHandler.isReady();
+	}
+	
+	/**
+	 * Return the session currently used by this Helper. This method will
+	 * return null if init() has not been called yet.
+	 * @return the Helper's session, or null if Helper not initialized
+	 */
+	public Session getSession(){
+		return session;
 	}
 
 }
