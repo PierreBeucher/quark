@@ -37,24 +37,26 @@
 			<class name="org.atom.quark.sftp.helper.SftpHelperAuthIT"/>
 		</classes>
 	</test>
-	
 	<test name="FileHelperTest">
 		<classes>
 			<class name="org.atom.quark.file.helper.FileHelperIT"/>
 		</classes>
 	</test>
-	
 	<test name="JdbcHelperTest">
 		<classes>
 			<class name="org.atom.quark.jdbc.helper.JdbcHelperIT"/>
 		</classes>
 	</test>
-	
 	<test name="MantisBTHelperTest">
 		<classes>
 			<class name="org.atom.quark.mantisbt.utils.MantisBTClientIT"/>
 			<class name="org.atom.quark.mantisbt.helper.MantisBTHelperIT"/>
 			<class name="org.atom.quark.mantisbt.helper.MantisBTHelperBuilderIT"/>
+		</classes>
+	</test>
+	<test name="CMISHelperTest">
+		<classes>
+			<class name="org.atom.quark.cmis.helper.ChemistryCMISHelperIT"/>
 		</classes>
 	</test>
 	
