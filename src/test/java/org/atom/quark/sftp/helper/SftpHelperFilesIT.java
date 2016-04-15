@@ -7,7 +7,7 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.atom.quark.core.result.ExpectingHelperResult;
-import org.atom.quark.core.result.TypedHelperResult;
+import org.atom.quark.core.result.BaseHelperResult;
 import org.atom.quark.sftp.context.SftpAuthContext;
 import org.atom.quark.sftp.context.SftpContext;
 import org.slf4j.Logger;
@@ -139,14 +139,14 @@ public class SftpHelperFilesIT {
 	public void compareChecksumStream() throws Exception{
 		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		InputStream stream = new FileInputStream(testFile);
-		ExpectingHelperResult result = helper.compareChecksum(stream, testDir + "/file.xml");
+		ExpectingHelperResult<?, ?> result = helper.compareChecksum(stream, testDir + "/file.xml");
 		Assert.assertEquals(result.isSuccess(), true, "Checksum does not match, actual:" + result.getActual() + ", expected:" + result.getExpected());
 	}
 	
 	@Test 
 	public void compareChecksumFile() throws Exception{
 		SftpHelper helper = buildNonStrictHostCheckingHelper();
-		ExpectingHelperResult result = helper.compareChecksum(testFile, testDir + "/file.xml");
+		ExpectingHelperResult<?, ?> result = helper.compareChecksum(testFile, testDir + "/file.xml");
 		Assert.assertEquals(result.isSuccess(), true, "Checksum does not match, actual:" + result.getActual() + ", expected:" + result.getExpected());
 	}
 	
@@ -204,7 +204,7 @@ public class SftpHelperFilesIT {
 		//launch the thread and check for file
 		t.start();
 		Pattern pattern = Pattern.compile(uploadAs);
-		TypedHelperResult<Vector<LsEntry>> result = helper.waitForContainsFile(testDir, pattern, 10000, 1000);
+		BaseHelperResult<Vector<LsEntry>> result = helper.waitForContainsFile(testDir, pattern, 10000, 1000);
 		
 		Assert.assertEquals(result.getActual().size(), 1);
 		Assert.assertEquals(result.getActual().get(0).getFilename(), uploadAs);
@@ -215,7 +215,7 @@ public class SftpHelperFilesIT {
 		final SftpHelper helper = buildNonStrictHostCheckingHelper();
 		
 		Pattern pattern = Pattern.compile("NonExistingFile.txt");
-		TypedHelperResult<Vector<LsEntry>> result = helper.waitForContainsFile(testDir, pattern, 3000, 500);
+		BaseHelperResult<Vector<LsEntry>> result = helper.waitForContainsFile(testDir, pattern, 3000, 500);
 		
 		Assert.assertEquals(result.getActual().size(), 0);
 		Assert.assertEquals(result.isSuccess(), false);
@@ -248,7 +248,7 @@ public class SftpHelperFilesIT {
 		//launch the thread and check for file
 		t.start();
 		Pattern pattern = Pattern.compile(uploadAsPattern);
-		TypedHelperResult<Vector<LsEntry>> result = helper.waitForContainsFile(testDir, pattern, 10000, 1000);
+		BaseHelperResult<Vector<LsEntry>> result = helper.waitForContainsFile(testDir, pattern, 10000, 1000);
 		
 		Assert.assertEquals(result.getActual().size(), 3);
 	}

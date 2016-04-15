@@ -9,7 +9,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.atom.quark.core.result.HelperResult;
+import org.atom.quark.core.result.IntegerHelperResult;
 import org.atom.quark.core.result.ResultBuilder;
+import org.atom.quark.core.result.StringHelperResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -38,14 +40,14 @@ public class WaiterTest {
 		//margin when calculating our period is respected
 		int margin = 100;
 		
-		Waiter<HelperResult> waiter = new SimpleWaiter<HelperResult>(timeout, period){
+		Waiter<HelperResult<?>> waiter = new SimpleWaiter<HelperResult<?>>(timeout, period){
 			
-			int checkCount = 0;
+			Integer checkCount = 0;
 			
 			@Override
-			public HelperResult performCheck(HelperResult latestResult) throws Exception {
+			public HelperResult<?> performCheck(HelperResult<?> latestResult) throws Exception {
 				checkCount++;
-				return ResultBuilder.result(checkCount >= totalCheckCount, checkCount);
+				return new IntegerHelperResult(checkCount >= totalCheckCount, checkCount);
 			}
 		};
 		
@@ -74,16 +76,16 @@ public class WaiterTest {
 	@Test
 	public void callTimeout() throws Exception{
 		
-		final HelperResult failure = ResultBuilder.failure("fail");
-		Waiter<HelperResult> waiter = new SimpleWaiter<HelperResult>(1000, 100){
+		final HelperResult<?> failure = new StringHelperResult(false, "fail");
+		Waiter<HelperResult<?>> waiter = new SimpleWaiter<HelperResult<?>>(1000, 100){
 			@Override
-			public HelperResult performCheck(HelperResult latestResult) throws Exception {
+			public HelperResult<?> performCheck(HelperResult<?> latestResult) throws Exception {
 				return failure;
 			}
 		};
 		
 		//not throwing an exception indicates that the timeout worked
-		HelperResult result = callWaiterSecureTimeout(waiter, 10000);
+		HelperResult<?> result = callWaiterSecureTimeout(waiter, 10000);
 		Assert.assertEquals(result, failure, "The Waiter should return the expected failure after timeout");
 	}
 	
@@ -96,14 +98,14 @@ public class WaiterTest {
 	@Test
 	public void callSuccess() throws TimeoutException, InterruptedException, ExecutionException{
 		
-		final HelperResult failure = ResultBuilder.failure("fail");
-		final HelperResult success = ResultBuilder.success("success");
+		final HelperResult<?> failure = ResultBuilder.failure("fail");
+		final HelperResult<?> success = ResultBuilder.success("success");
 		
 		//first call will always return failure, second call returns success
-		Waiter<HelperResult> waiter = new SimpleWaiter<HelperResult>(1000, 100){
+		Waiter<HelperResult<?>> waiter = new SimpleWaiter<HelperResult<?>>(1000, 100){
 			boolean shouldSuccess = false;
 			@Override
-			public HelperResult performCheck(HelperResult latestResult) throws Exception {
+			public HelperResult<?> performCheck(HelperResult<?> latestResult) throws Exception {
 				if(!shouldSuccess){
 					shouldSuccess = true;
 					return failure;
@@ -113,7 +115,7 @@ public class WaiterTest {
 			}
 		};
 		
-		HelperResult result = callWaiterSecureTimeout(waiter, 10000);
+		HelperResult<?> result = callWaiterSecureTimeout(waiter, 10000);
 		Assert.assertEquals(result, success, "Waiter did not return expected result after success");
 	}
 
@@ -126,12 +128,12 @@ public class WaiterTest {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	private HelperResult callWaiterSecureTimeout(final Waiter<HelperResult> waiter, long timeout) throws TimeoutException, InterruptedException, ExecutionException{
+	private HelperResult<?> callWaiterSecureTimeout(final Waiter<HelperResult<?>> waiter, long timeout) throws TimeoutException, InterruptedException, ExecutionException{
 
 		ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<HelperResult> future = executor.submit(new Callable<HelperResult>(){
+        Future<HelperResult<?>> future = executor.submit(new Callable<HelperResult<?>>(){
 			@Override
-			public HelperResult call() throws Exception {
+			public HelperResult<?> call() throws Exception {
 				return waiter.call();
 			}
         });

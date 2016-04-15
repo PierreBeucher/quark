@@ -78,7 +78,7 @@ public class FileHelperIT {
 	@Test
 	public void containsStringintPositive() throws IOException {
 		FileHelper helper = createHelper();
-		HelperResult result = helper.contains(REPEAT_STRING, 3);
+		HelperResult<?> result = helper.contains(REPEAT_STRING, 3);
 		Assert.assertEquals(result.isSuccess(), true, "File contains 'Repeat' " + REPEAT_STRING_COUNT + " times"
 				+ " but helper returns failure for this assertion");
 	}
@@ -86,7 +86,7 @@ public class FileHelperIT {
 	@Test
 	public void containsStringintNegative() throws IOException {
 		FileHelper helper = createHelper();
-		HelperResult result = helper.contains(REPEAT_STRING, 78);
+		HelperResult<?> result = helper.contains(REPEAT_STRING, 78);
 		Assert.assertEquals(result.isSuccess(), false, "File contains 'Repeat' " + REPEAT_STRING_COUNT + " times"
 				+ " but helper returns success when asserting a different count");
 	}

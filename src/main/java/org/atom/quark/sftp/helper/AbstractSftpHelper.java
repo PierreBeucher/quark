@@ -12,8 +12,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.atom.quark.core.result.ResultBuilder;
-import org.atom.quark.core.result.TypedExpectingHelperResult;
-import org.atom.quark.core.result.TypedHelperResult;
+import org.atom.quark.core.result.BaseExpectingHelperResult;
+import org.atom.quark.core.result.BaseHelperResult;
 import org.atom.quark.core.waiter.SimpleWaiter;
 import org.atom.quark.core.waiter.Waiter;
 import org.atom.quark.sftp.context.SftpContext;
@@ -167,14 +167,14 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		return DigestUtils.md5Hex(getInputStream(dest));
 	}
 
-	public TypedExpectingHelperResult<String, String> compareChecksum(InputStream src, String dest) throws IOException, SftpException {
+	public BaseExpectingHelperResult<String, String> compareChecksum(InputStream src, String dest) throws IOException, SftpException {
 		String expected = DigestUtils.md5Hex(src);
 		String actual = getChecksum(dest);
 		
-		return ResultBuilder.result(expected.equals(actual), actual, expected);
+		return ResultBuilder.expectingResult(expected.equals(actual), actual, expected, "Comparing checksum of '" + dest + "'");
 	}
 
-	public TypedExpectingHelperResult<String, String> compareChecksum(File src, String dest)
+	public BaseExpectingHelperResult<String, String> compareChecksum(File src, String dest)
 			throws NoSuchAlgorithmException, IOException, SftpException {
 		return compareChecksum(streamFile(src), dest);
 	}
@@ -190,15 +190,16 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		
 	}
 
-	public TypedHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException {
+	public BaseHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException {
 		Vector<LsEntry> result = listFiles(dir, pattern);
-		return ResultBuilder.result(!result.isEmpty(), result);
+		return ResultBuilder.result(!result.isEmpty(), result, "Checking for '" + dir + "' content matching " + pattern.pattern());
 	}
 	
-	public TypedHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count)
+	public BaseHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count)
 			throws SftpException {
 		Vector<LsEntry> result = listFiles(dir, pattern);
-		return ResultBuilder.result(result.size() == count, result);
+		return ResultBuilder.expectingResult(result.size() == count, result, count, 
+				"Counting occurences of content matching " + pattern.pattern() + " in " + dir);
 	}
 
 	public boolean containsDirectory(String parentdir, String dirname) throws SftpException {
@@ -212,11 +213,11 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 	}
 
 	@Override
-	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(final String dir, final Pattern pattern, long timeout,
+	public BaseHelperResult<Vector<LsEntry>> waitForContainsFile(final String dir, final Pattern pattern, long timeout,
 			long period) throws Exception {
-		Waiter<TypedHelperResult<Vector<LsEntry>>> waiter = new SimpleWaiter<TypedHelperResult<Vector<LsEntry>>>(timeout, period){
+		Waiter<BaseHelperResult<Vector<LsEntry>>> waiter = new SimpleWaiter<BaseHelperResult<Vector<LsEntry>>>(timeout, period){
 			@Override
-			public TypedHelperResult<Vector<LsEntry>> performCheck(TypedHelperResult<Vector<LsEntry>> latestResult)
+			public BaseHelperResult<Vector<LsEntry>> performCheck(BaseHelperResult<Vector<LsEntry>> latestResult)
 					throws Exception {
 				return containsFile(dir, pattern);
 			}
@@ -225,11 +226,11 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 	}
 
 	@Override
-	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(final String dir, final Pattern pattern, final int count,
+	public BaseHelperResult<Vector<LsEntry>> waitForContainsFile(final String dir, final Pattern pattern, final int count,
 			long timeout, long period) throws Exception {
-		Waiter<TypedHelperResult<Vector<LsEntry>>> waiter = new SimpleWaiter<TypedHelperResult<Vector<LsEntry>>>(timeout, period){
+		Waiter<BaseHelperResult<Vector<LsEntry>>> waiter = new SimpleWaiter<BaseHelperResult<Vector<LsEntry>>>(timeout, period){
 			@Override
-			public TypedHelperResult<Vector<LsEntry>> performCheck(TypedHelperResult<Vector<LsEntry>> latestResult)
+			public BaseHelperResult<Vector<LsEntry>> performCheck(BaseHelperResult<Vector<LsEntry>> latestResult)
 					throws Exception {
 				return containsFile(dir, pattern, count);
 			}

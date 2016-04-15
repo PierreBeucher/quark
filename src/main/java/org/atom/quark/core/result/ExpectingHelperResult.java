@@ -1,11 +1,11 @@
 package org.atom.quark.core.result;
 
 /**
- * HelperResult interface providing access to the final expected data.
+ * HelperResult interface providing access to the expected data.
  * @author Pierre Beucher
  *
  */
-public interface ExpectingHelperResult extends HelperResult {
+public interface ExpectingHelperResult<A, E> extends HelperResult<A> {
 
 	/**
 	 * 

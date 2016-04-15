@@ -23,7 +23,7 @@ import org.atom.quark.cmis.context.CMISContext;
 import org.atom.quark.cmis.context.WebServiceBindingContext;
 import org.atom.quark.cmis.helper.chemistry.ChemistryCMISHelper;
 import org.atom.quark.cmis.util.ChemistryCMISUtils;
-import org.atom.quark.core.result.TypedHelperResult;
+import org.atom.quark.core.result.BaseHelperResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -143,7 +143,7 @@ public class ChemistryCMISHelperIT {
 		tmpFile.deleteOnExit();
 		Document doc = this.createDocumentFromFileIfNotExists(parentTestFolder, tmpFile, helper.getSession());
 		
-		TypedHelperResult<List<Document>> result = helper.containsDocument(parentTestFolder, Pattern.compile(tmpFile.getName()));
+		BaseHelperResult<List<Document>> result = helper.containsDocument(parentTestFolder, Pattern.compile(tmpFile.getName()));
 		Assert.assertEquals(result.isSuccess(), true);
 		Assert.assertEquals(result.getActual().size(), 1);
 		Assert.assertEquals(result.getActual().get(0).getName(), doc.getName());
@@ -162,7 +162,7 @@ public class ChemistryCMISHelperIT {
 		tmpFile.deleteOnExit();
 		createDocumentFromFileIfNotExists(parentTestFolder, tmpFile, helper.getSession());
 		
-		TypedHelperResult<Document> result = helper.containsDocument(parentTestFolder + tmpFile.getName());
+		BaseHelperResult<Document> result = helper.containsDocument(parentTestFolder + tmpFile.getName());
 		Assert.assertNotNull(result.getActual(), "A Document is expected to be found");
 		Assert.assertEquals(result.getActual().getName(), tmpFile.getName(), "A document matching the name is expected to be found");
 	}
@@ -192,7 +192,7 @@ public class ChemistryCMISHelperIT {
 		};
 		waiterRunnable.start();
 		
-		TypedHelperResult<Document> result = helper.waitForContainsDocument(parentTestFolder + tmpFile.getName(), 10000, 1000);
+		BaseHelperResult<Document> result = helper.waitForContainsDocument(parentTestFolder + tmpFile.getName(), 10000, 1000);
 		
 		Assert.assertNotNull(result.getActual(),"A document is expected to be found");
 		Assert.assertEquals(result.getActual().getName(), tmpFile.getName(), "A Document matching the name is expected to be found");

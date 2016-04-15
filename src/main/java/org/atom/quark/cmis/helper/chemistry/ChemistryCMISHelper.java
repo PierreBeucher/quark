@@ -21,7 +21,7 @@ import org.atom.quark.cmis.util.ChemistryCMISUtils;
 import org.atom.quark.core.helper.AbstractHelper;
 import org.atom.quark.core.helper.Helper;
 import org.atom.quark.core.result.ResultBuilder;
-import org.atom.quark.core.result.TypedHelperResult;
+import org.atom.quark.core.result.BaseHelperResult;
 import org.atom.quark.core.waiter.SimpleWaiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +123,7 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 	 * @param pattern
 	 * @return result as List of found Documents
 	 */
-	public TypedHelperResult<List<Document>> containsDocument(String directory, Pattern pattern){
+	public BaseHelperResult<List<Document>> containsDocument(String directory, Pattern pattern){
 		ItemIterable<CmisObject> iterable = listDirectory(directory);
 		List<Document> result = new ArrayList<Document>();
 		for(CmisObject o : iterable){
@@ -143,7 +143,7 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 	 * @param documentName
 	 * @return result as object found
 	 */
-	public TypedHelperResult<Document> containsDocument(String path){
+	public BaseHelperResult<Document> containsDocument(String path){
 		try {
 			CmisObject o = session.getObjectByPath(path);
 			boolean success = o.getBaseTypeId() == BaseTypeId.CMIS_DOCUMENT;
@@ -154,11 +154,11 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 	}
 	
 	
-	public TypedHelperResult<Document> waitForContainsDocument(final String path, long timeout, long period) throws Exception{
+	public BaseHelperResult<Document> waitForContainsDocument(final String path, long timeout, long period) throws Exception{
 		
-		SimpleWaiter<TypedHelperResult<Document>> waiter = new SimpleWaiter<TypedHelperResult<Document>>(timeout, period){
+		SimpleWaiter<BaseHelperResult<Document>> waiter = new SimpleWaiter<BaseHelperResult<Document>>(timeout, period){
 			@Override
-			public TypedHelperResult<Document> performCheck(TypedHelperResult<Document> latestResult)
+			public BaseHelperResult<Document> performCheck(BaseHelperResult<Document> latestResult)
 					throws Exception {
 				return containsDocument(path);
 			}

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import javax.xml.rpc.ServiceException;
 
 import org.atom.quark.core.helper.CleaningHelper.CleaningMethod;
-import org.atom.quark.core.result.TypedHelperResult;
+import org.atom.quark.core.result.BaseHelperResult;
 import org.atom.quark.mantisbt.context.MantisBTContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,7 +126,7 @@ public class MantisBTHelperIT {
 		
 		//check the issue is found
 		Pattern pattern = Pattern.compile(attachment);
-		TypedHelperResult<Set<IssueData>> result = helper.waitForIssueWithAttachment(pattern, 5000, 250);
+		BaseHelperResult<Set<IssueData>> result = helper.waitForIssueWithAttachment(pattern, 5000, 250);
 		
 		logger.info("result after wait for issue with attachment: " + result);
 		

@@ -42,7 +42,7 @@ import org.atom.quark.core.result.HelperResult;
  * @author pierreb
  *
  */
-public abstract class Waiter<E extends HelperResult> implements Callable<E> {
+public abstract class Waiter<E extends HelperResult<?>> implements Callable<E> {
 	
 	protected E latestResult;
 	

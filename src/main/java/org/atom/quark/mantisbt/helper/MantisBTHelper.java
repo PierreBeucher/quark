@@ -13,7 +13,7 @@ import org.atom.quark.core.helper.AbstractCleaningHelper;
 import org.atom.quark.core.helper.CleaningHelper;
 import org.atom.quark.core.helper.Helper;
 import org.atom.quark.core.result.ResultBuilder;
-import org.atom.quark.core.result.TypedHelperResult;
+import org.atom.quark.core.result.BaseHelperResult;
 import org.atom.quark.core.waiter.SimpleWaiter;
 import org.atom.quark.core.waiter.Waiter;
 import org.atom.quark.mantisbt.context.MantisBTContext;
@@ -170,13 +170,13 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	 * @return
 	 * @throws Exception 
 	 */
-	public TypedHelperResult<Set<IssueData>> waitForIssueWithAttachment(final Pattern pattern, long timeout, long period) throws Exception{
-		Waiter<TypedHelperResult<Set<IssueData>>> waiter = new SimpleWaiter<TypedHelperResult<Set<IssueData>>>(timeout, period){
+	public BaseHelperResult<Set<IssueData>> waitForIssueWithAttachment(final Pattern pattern, long timeout, long period) throws Exception{
+		Waiter<BaseHelperResult<Set<IssueData>>> waiter = new SimpleWaiter<BaseHelperResult<Set<IssueData>>>(timeout, period){
 			@Override
-			public TypedHelperResult<Set<IssueData>> performCheck(TypedHelperResult<Set<IssueData>> latestResult)
+			public BaseHelperResult<Set<IssueData>> performCheck(BaseHelperResult<Set<IssueData>> latestResult)
 					throws Exception {
 				Set<IssueData> result = getIssuesWithAttachment(pattern);
-				return ResultBuilder.result(!result.isEmpty(), result);
+				return ResultBuilder.result(!result.isEmpty(), result, "Waiting for issue with attachment '" + pattern.pattern() + "'");
 			}
 		};
 		return waiter.call();

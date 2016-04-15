@@ -10,7 +10,7 @@ import org.atom.quark.core.result.HelperResult;
  *
  * @param <E>
  */
-public abstract class SimpleWaiter<E extends HelperResult> extends Waiter<E> {
+public abstract class SimpleWaiter<E extends HelperResult<?>> extends Waiter<E> {
 
 	private long timeout;
 	

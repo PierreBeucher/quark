@@ -13,35 +13,35 @@ public class ResultBuilderTest {
 
 	@Test
 	public void resultAPositive() {
-		HelperResult result = ResultBuilder.result(true, ACTUAL);
+		HelperResult<String> result = ResultBuilder.result(true, ACTUAL);
 		Assert.assertEquals(result.isSuccess(), true);
 		Assert.assertEquals(result.getActual(), ACTUAL);
 	}
 	
 	@Test
 	public void resultANegative() {
-		HelperResult result = ResultBuilder.result(false, ACTUAL + "abc");
+		HelperResult<String> result = ResultBuilder.result(false, ACTUAL + "abc");
 		Assert.assertEquals(result.isSuccess(), false);
 		Assert.assertNotEquals(result.getActual(), ACTUAL);
 	}
 	
 	@Test
 	public void failureA() {
-		HelperResult result = ResultBuilder.failure(ACTUAL);
+		HelperResult<String> result = ResultBuilder.failure(ACTUAL);
 		Assert.assertEquals(result.isSuccess(), false);
 		Assert.assertEquals(result.getActual(), ACTUAL);
 	}
 
 	@Test
 	public void successA() {
-		HelperResult result = ResultBuilder.success(ACTUAL);
+		HelperResult<String> result = ResultBuilder.success(ACTUAL);
 		Assert.assertEquals(result.isSuccess(), true);
 		Assert.assertEquals(result.getActual(), ACTUAL);
 	}
 
 	@Test
 	public void resultAEPositive() {
-		ExpectingHelperResult result = ResultBuilder.result(true, ACTUAL, EXPECTED);
+		ExpectingHelperResult<String, List<String>> result = ResultBuilder.expectingResult(true, ACTUAL, EXPECTED);
 		Assert.assertEquals(result.isSuccess(), true);
 		Assert.assertEquals(result.getActual(), ACTUAL);
 		Assert.assertEquals(result.getExpected(), EXPECTED);
@@ -49,7 +49,7 @@ public class ResultBuilderTest {
 	
 	@Test
 	public void resultAENegative() {
-		ExpectingHelperResult result = ResultBuilder.result(false, ACTUAL + "abc", new Object[]{});
+		ExpectingHelperResult<String, Object> result = ResultBuilder.expectingResult(false, ACTUAL + "abc", null);
 		Assert.assertEquals(result.isSuccess(), false);
 		Assert.assertNotEquals(result.getActual(), ACTUAL);
 		Assert.assertNotEquals(result.getExpected(), EXPECTED);
@@ -57,7 +57,7 @@ public class ResultBuilderTest {
 	
 	@Test
 	public void successAE() {
-		ExpectingHelperResult result = ResultBuilder.success(ACTUAL, EXPECTED);
+		ExpectingHelperResult<String, List<String>> result = ResultBuilder.expectingSuccess(ACTUAL, EXPECTED);
 		Assert.assertEquals(result.isSuccess(), true);
 		Assert.assertEquals(result.getActual(), ACTUAL);
 		Assert.assertEquals(result.getExpected(), EXPECTED);
@@ -65,7 +65,7 @@ public class ResultBuilderTest {
 	
 	@Test
 	public void failureAE() {
-		ExpectingHelperResult result = ResultBuilder.failure(ACTUAL, EXPECTED);
+		ExpectingHelperResult<String, List<String>> result = ResultBuilder.expectingRailure(ACTUAL, EXPECTED);
 		Assert.assertEquals(result.isSuccess(), false);
 		Assert.assertEquals(result.getActual(), ACTUAL);
 		Assert.assertEquals(result.getExpected(), EXPECTED);

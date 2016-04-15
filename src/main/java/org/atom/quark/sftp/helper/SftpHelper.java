@@ -8,8 +8,8 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.atom.quark.core.helper.Helper;
-import org.atom.quark.core.result.TypedExpectingHelperResult;
-import org.atom.quark.core.result.TypedHelperResult;
+import org.atom.quark.core.result.BaseExpectingHelperResult;
+import org.atom.quark.core.result.BaseHelperResult;
 import org.atom.quark.sftp.context.SftpContext;
 
 import com.jcraft.jsch.ChannelSftp.LsEntry;
@@ -220,7 +220,7 @@ public interface SftpHelper extends Helper {
 	 * @return result as list of found filenames
 	 * @throws SftpException 
 	 */
-	public TypedHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException;
+	public BaseHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern) throws SftpException;
 	
 	/**
 	 * Waiter version for the containsFile() function. Check whether a directory contains files matching the given pattern.
@@ -235,7 +235,7 @@ public interface SftpHelper extends Helper {
 	 * @throws Exception 
 	 * @throws SftpException 
 	 */
-	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(String dir, Pattern pattern, long timeout, long period) throws Exception;
+	public BaseHelperResult<Vector<LsEntry>> waitForContainsFile(String dir, Pattern pattern, long timeout, long period) throws Exception;
 	
 	/**
 	 * Check whether a directory contains files matching the given pattern. 
@@ -247,7 +247,7 @@ public interface SftpHelper extends Helper {
 	 * @return result as list of found filenames
 	 * @throws SftpException 
 	 */
-	public TypedHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count) throws SftpException;
+	public BaseHelperResult<Vector<LsEntry>> containsFile(String dir, Pattern pattern, int count) throws SftpException;
 	
 	/**
 	 * Waiter version of containsFile(). Check whether a directory contains files matching the given pattern. 
@@ -261,7 +261,7 @@ public interface SftpHelper extends Helper {
 	 * @return result as list of found filenames
 	 * @throws SftpException 
 	 */
-	public TypedHelperResult<Vector<LsEntry>> waitForContainsFile(String dir, Pattern pattern, int count,
+	public BaseHelperResult<Vector<LsEntry>> waitForContainsFile(String dir, Pattern pattern, int count,
 			long timeout, long period) throws Exception;
 	
 	/**
@@ -284,7 +284,7 @@ public interface SftpHelper extends Helper {
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException 
 	 */
-	public TypedExpectingHelperResult<String, String> compareChecksum(InputStream src, String dest) throws NoSuchAlgorithmException, IOException, SftpException;
+	public BaseExpectingHelperResult<String, String> compareChecksum(InputStream src, String dest) throws NoSuchAlgorithmException, IOException, SftpException;
 	
 	/**
 	 * Compare checksum of the given source and destination to ensure they correspond.
@@ -295,6 +295,6 @@ public interface SftpHelper extends Helper {
 	 * @throws IOException 
 	 * @throws NoSuchAlgorithmException 
 	 */
-	public  TypedExpectingHelperResult<String, String> compareChecksum(File src, String dest) throws NoSuchAlgorithmException, IOException, SftpException;
+	public  BaseExpectingHelperResult<String, String> compareChecksum(File src, String dest) throws NoSuchAlgorithmException, IOException, SftpException;
 
 }

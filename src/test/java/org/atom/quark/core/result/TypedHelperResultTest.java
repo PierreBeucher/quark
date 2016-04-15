@@ -10,8 +10,8 @@ public class TypedHelperResultTest {
 	
 	private static final List<Object> ACTUAL = new ArrayList<Object>();
 
-	private HelperResult buildResult(){
-		return new TypedHelperResult<List<Object>>(true, ACTUAL);
+	private HelperResult<List<Object>> buildResult(){
+		return new BaseHelperResult<List<Object>>(true, ACTUAL);
 	}
 
 	@Test

@@ -11,25 +11,25 @@ public class TypedExpectingHelperResultTest {
 	private static final String ACTUAL = "abc";
 	private static final ArrayList<Object> EXPECTED = new ArrayList<Object>();
 	
-	private ExpectingHelperResult build(){
-		return new TypedExpectingHelperResult<String, List<Object>>(true, ACTUAL, EXPECTED);
+	private ExpectingHelperResult<String, List<Object>> build(){
+		return new BaseExpectingHelperResult<String, List<Object>>(true, ACTUAL, EXPECTED);
 	}
 	
 	@Test
 	public void isSuccess() {
-		ExpectingHelperResult result = build();
+		ExpectingHelperResult<String, List<Object>> result = build();
 		Assert.assertEquals(result.isSuccess(), true);
 	}
 	
 	@Test
 	public void getActual() {
-		ExpectingHelperResult result = build();
+		ExpectingHelperResult<String, List<Object>> result = build();
 		Assert.assertEquals(result.getActual(), ACTUAL);
 	}
 
 	@Test
 	public void getExpected() {
-		ExpectingHelperResult result = build();
+		ExpectingHelperResult<String, List<Object>> result = build();
 		Assert.assertEquals(result.getExpected(), EXPECTED);
 	}
 }
