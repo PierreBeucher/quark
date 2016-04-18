@@ -1,6 +1,5 @@
 package com.github.pierrebeucher.quark.sftp.context;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Properties;
@@ -17,7 +16,7 @@ import com.github.pierrebeucher.quark.core.context.server.ServerContext;
  */
 public class SftpContext extends ServerContext {
 
-	private File file;
+	//private File file;
 	
 	private SftpAuthContext authContext;
 	
@@ -37,12 +36,18 @@ public class SftpContext extends ServerContext {
 	 * @param authContext sftp authentication context
 	 * @param options sftp client options
 	 */
-	public SftpContext(String host, int port, File file, SftpAuthContext authContext, Properties options) {
+	public SftpContext(String host, int port, SftpAuthContext authContext, Properties options) {
 		super(host, port);
-		this.file = file;
 		this.authContext = authContext;
 		this.options = options;
 	}
+	
+//	public SftpContext(String host, int port, File file, SftpAuthContext authContext, Properties options) {
+//		super(host, port);
+//		this.file = file;
+//		this.authContext = authContext;
+//		this.options = options;
+//	}
 
 	/**
 	 * Constructor with an empty set of options
@@ -51,16 +56,19 @@ public class SftpContext extends ServerContext {
 	 * @param file
 	 * @param authContext
 	 */
-	public SftpContext(String host, int port, File file, SftpAuthContext authContext) {
-		this(host, port, file, authContext, new Properties());
+	public SftpContext(String host, int port, SftpAuthContext authContext) {
+		this(host, port, authContext, new Properties());
 	}
-	public File getFile() {
-		return file;
-	}
-
-	public void setFile(File file) {
-		this.file = file;
-	}
+//	public SftpContext(String host, int port, File file, SftpAuthContext authContext) {
+//		this(host, port, file, authContext, new Properties());
+//	}
+//	public File getFile() {
+//		return file;
+//	}
+//
+//	public void setFile(File file) {
+//		this.file = file;
+//	}
 
 	public SftpAuthContext getAuthContext() {
 		return authContext;

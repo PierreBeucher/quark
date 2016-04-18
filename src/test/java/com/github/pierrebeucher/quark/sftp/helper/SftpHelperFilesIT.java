@@ -55,12 +55,11 @@ public class SftpHelperFilesIT {
 	public static Object[] createInstances(String host, int port, String login,
 			String password, String key, String keyPassphrase, String filePath, String testDir){
 	
-		File testFile = new File(filePath);
 		//SftpAuthContext passwordAuthContext = new SftpAuthContext(login, password);
 		SftpAuthContext publicKeyAuthContext = new SftpAuthContext(login, key, keyPassphrase);
 		
 		//SftpHelperBuilder passwordAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, testFile, passwordAuthContext));
-		SftpHelperBuilder publicKeyAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, testFile, publicKeyAuthContext));
+		SftpHelperBuilder publicKeyAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, publicKeyAuthContext));
 		
 		return new Object[] {
 			//new SftpHelperFilesIT(passwordAuthBuilder, new File(filePath), testDir),

@@ -38,8 +38,8 @@ public class SftpHelperAuthIT {
 		SftpAuthContext passwordAuthContext = new SftpAuthContext(login, password);
 		SftpAuthContext publicKeyAuthContext = new SftpAuthContext(login, key, keyPassphrase);
 		
-		SftpHelperBuilder passwordAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, null, passwordAuthContext));
-		SftpHelperBuilder publicKeyAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, null, publicKeyAuthContext));
+		SftpHelperBuilder passwordAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, passwordAuthContext));
+		SftpHelperBuilder publicKeyAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, publicKeyAuthContext));
 		
 		return new Object[] {
 			new SftpHelperAuthIT(passwordAuthBuilder),
