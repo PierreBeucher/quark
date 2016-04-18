@@ -33,30 +33,30 @@
 	
 	<test name="SftpHelperTest">
 		<classes>
-			<class name="org.atom.quark.sftp.helper.SftpHelperFilesIT"/>
-			<class name="org.atom.quark.sftp.helper.SftpHelperAuthIT"/>
+			<class name="com.github.pierrebeucher.quark.sftp.helper.SftpHelperFilesIT"/>
+			<class name="com.github.pierrebeucher.quark.sftp.helper.SftpHelperAuthIT"/>
 		</classes>
 	</test>
 	<test name="FileHelperTest">
 		<classes>
-			<class name="org.atom.quark.file.helper.FileHelperIT"/>
+			<class name="com.github.pierrebeucher.quark.file.helper.FileHelperIT"/>
 		</classes>
 	</test>
 	<test name="JdbcHelperTest">
 		<classes>
-			<class name="org.atom.quark.jdbc.helper.JdbcHelperIT"/>
+			<class name="com.github.pierrebeucher.quark.jdbc.helper.JdbcHelperIT"/>
 		</classes>
 	</test>
 	<test name="MantisBTHelperTest">
 		<classes>
-			<class name="org.atom.quark.mantisbt.utils.MantisBTClientIT"/>
-			<class name="org.atom.quark.mantisbt.helper.MantisBTHelperIT"/>
-			<class name="org.atom.quark.mantisbt.helper.MantisBTHelperBuilderIT"/>
+			<class name="com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClientIT"/>
+			<class name="com.github.pierrebeucher.quark.mantisbt.helper.MantisBTHelperIT"/>
+			<class name="com.github.pierrebeucher.quark.mantisbt.helper.MantisBTHelperBuilderIT"/>
 		</classes>
 	</test>
 	<test name="CMISHelperTest">
 		<classes>
-			<class name="org.atom.quark.cmis.helper.ChemistryCMISHelperIT"/>
+			<class name="com.github.pierrebeucher.quark.cmis.helper.ChemistryCMISHelperIT"/>
 		</classes>
 	</test>
 	
