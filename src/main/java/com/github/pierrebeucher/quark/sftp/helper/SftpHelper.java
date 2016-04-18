@@ -1,6 +1,7 @@
 package com.github.pierrebeucher.quark.sftp.helper;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -115,9 +116,10 @@ public interface SftpHelper extends Helper {
 	 * @param f
 	 * @param dest
 	 * @return result as filename uploaded
+	 * @throws FileNotFoundException 
 	 * @throws Exception 
 	 */
-	public boolean upload(File file, String dest) throws Exception;
+	public boolean upload(File file, String dest) throws SftpException, FileNotFoundException;
 	
 	/**
 	 * Upload content using a file. 
@@ -125,9 +127,10 @@ public interface SftpHelper extends Helper {
 	 * @param dest
 	 * @param mode
 	 * @return result as filename uploaded
-	 * @throws Exception
+	 * @throws SftpException
+	 * @throws FileNotFoundException 
 	 */
-	public boolean upload(File file, String dest, int mode) throws Exception;
+	public boolean upload(File file, String dest, int mode) throws SftpException, FileNotFoundException;
 	
 	/**
 	 * Upload content using a stream.
@@ -135,17 +138,18 @@ public interface SftpHelper extends Helper {
 	 * @param dest path to the destination
 	 * @param mode writing mode, either APPEND, OVERWRITE or RESUME
 	 * @return result as filename uploaded
-	 * @throws Exception 
+	 * @throws SftpException 
 	 */
-	public boolean upload(InputStream stream, String dest, int mode) throws Exception;
+	public boolean upload(InputStream stream, String dest, int mode) throws SftpException;
 	
 	/**
 	 * Upload content using a stream, overwriting existing destination.
 	 * @param stream streamed data to upload
 	 * @param dest path to the destination
 	 * @return result as filename uploaded
+	 * @throws SftpException 
 	 */
-	public boolean upload(InputStream stream, String dest) throws Exception;
+	public boolean upload(InputStream stream, String dest) throws SftpException;
 	
 	/**
 	 * List directories entry in the given directory, including . and .. if they exists.

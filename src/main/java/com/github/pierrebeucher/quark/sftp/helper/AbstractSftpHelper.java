@@ -108,15 +108,15 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 		return new FileInputStream(f);
 	}
 
-	public boolean upload(File file, String dest) throws Exception {
+	public boolean upload(File file, String dest) throws SftpException, FileNotFoundException {
 		return upload(streamFile(file), dest, SftpHelper.MODE_OVERWRITE);
 	}
 
-	public boolean upload(File file, String dest, int mode) throws Exception {
+	public boolean upload(File file, String dest, int mode) throws SftpException, FileNotFoundException {
 		return upload(streamFile(file), dest, mode);
 	}
 
-	public boolean upload(InputStream stream, String dest) throws Exception {
+	public boolean upload(InputStream stream, String dest) throws SftpException {
 		return upload(stream, dest, SftpHelper.MODE_OVERWRITE);
 	}
 	

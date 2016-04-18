@@ -25,7 +25,7 @@ public class AbstractSftpHelperTest {
 				return false;
 			}
 			@Override
-			public boolean upload(InputStream stream, String dest, int mode) throws Exception {
+			public boolean upload(InputStream stream, String dest, int mode) throws SftpException {
 				return false;
 			}
 			@Override

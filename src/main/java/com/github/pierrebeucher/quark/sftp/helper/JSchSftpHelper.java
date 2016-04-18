@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.pierrebeucher.quark.core.helper.HelperException;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -121,7 +120,7 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 		return true;
 	}
 	
-	public boolean upload(InputStream stream, String dest, int mode) throws Exception {
+	public boolean upload(InputStream stream, String dest, int mode) throws SftpException {
 		int jschMode = 0;
 		switch(mode){
 			case SftpHelper.MODE_APPEND:
@@ -134,7 +133,7 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 				jschMode = ChannelSftp.RESUME;
 				break;
 			default:
-				throw new HelperException("Unknow upload mode " + mode + " for JSch client.");
+				throw new IllegalArgumentException("Unknow upload mode " + mode + " for JSch client.");
 		}
 		
 		channelSftp.put(stream, dest, jschMode);
