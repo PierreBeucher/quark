@@ -36,6 +36,10 @@ public class AbstractSftpHelperTest {
 			public InputStream getInputStream(String dest) throws SftpException {
 				return null;
 			}
+			@Override
+			public boolean exists(String parent, String filename) throws SftpException {
+				return false;
+			}
 		};
 	}
 

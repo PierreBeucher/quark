@@ -33,6 +33,7 @@ public class SftpHelperFilesIT {
 	
 	/**
 	 * Checksum for src/test/resources/files/file.xml
+	 * TODO replace with parameter
 	 */
 	private static final String TESTFILE_CHECKSUM = "79f0583f98948d3587b33bbb6183c6ae";
 	
@@ -254,5 +255,20 @@ public class SftpHelperFilesIT {
 		
 		Assert.assertEquals(result.getActual().size(), 3);
 	}
+	
+	@Test
+	public void existsPositive() throws Exception{
+		SftpHelper helper = buildNonStrictHostCheckingHelper();
+		boolean result = helper.exists(testDir, testFile.getName());
+		Assert.assertEquals(result, true);
+	}
+	
+	@Test
+	public void existsNegative() throws Exception{
+		SftpHelper helper = buildNonStrictHostCheckingHelper();
+		boolean result = helper.exists(testDir, "DoNotExists");
+		Assert.assertEquals(result, false);
+	}
+	
 	
 }

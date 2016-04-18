@@ -299,5 +299,15 @@ public interface SftpHelper extends Helper {
 	 * @throws NoSuchAlgorithmException 
 	 */
 	public  BaseExpectingHelperResult<String, String> compareChecksum(File src, String dest) throws NoSuchAlgorithmException, IOException, SftpException;
+	
+	/**
+	 * Check if the given file exists in its parent the given parent
+	 * directory. This suppose the parent directory exists.
+	 * @param parent
+	 * @param filename
+	 * @return 
+	 * @throws SftpException
+	 */
+	public boolean exists(String parent, String filename) throws SftpException;
 
 }
