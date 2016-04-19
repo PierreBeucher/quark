@@ -8,8 +8,9 @@
 	<parameter name="sftp-password" value="password" />
 	<parameter name="sftp-key" value="src/test/resources/ssh/id_rsa" />
 	<parameter name="sftp-key-passphrase" value="quark" />
-	<parameter name="sftp-filepath" value="src/test/resources/files/file.xml" />
-	<parameter name="sftp-testdir" value="/files" />
+	<parameter name="sftp-filepath" value="src/test/resources/files/static/file.xml" />
+	<parameter name="sftp-static-testdir" value="/files/static"/>
+	<parameter name="sftp-dynamic-testdir" value="/files/dynamic"/>
 	
 	<parameter name="file-utf-8" value="src/test/resources/data/file/file-utf-8.txt" />
 	<parameter name="file-iso-8859-1" value="src/test/resources/data/file/file-iso-8859-1.txt" />

@@ -14,3 +14,4 @@ buildNumber.properties
 **/.vagrant
 **/.vagrant/*
 test-output
+src/test/resources/files/dynamic/*

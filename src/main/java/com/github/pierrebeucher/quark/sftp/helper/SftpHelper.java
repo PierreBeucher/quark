@@ -13,6 +13,7 @@ import com.github.pierrebeucher.quark.core.helper.Helper;
 import com.github.pierrebeucher.quark.core.result.BaseExpectingHelperResult;
 import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
+import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
 
 /**
@@ -301,6 +302,14 @@ public interface SftpHelper extends Helper {
 	public  BaseExpectingHelperResult<String, String> compareChecksum(File src, String dest) throws NoSuchAlgorithmException, IOException, SftpException;
 	
 	/**
+	 * Check if the given path exists (whether a file or directory)
+	 * @param dest
+	 * @return
+	 * @throws SftpException
+	 */
+	public boolean exists(String dest) throws SftpException;
+	
+	/**
 	 * Check if the given file exists in its parent the given parent
 	 * directory. This suppose the parent directory exists.
 	 * @param parent
@@ -309,5 +318,38 @@ public interface SftpHelper extends Helper {
 	 * @throws SftpException
 	 */
 	public boolean exists(String parent, String filename) throws SftpException;
+	
+	/**
+	 * Move the entire directory content (files and directories) from the given
+	 * origin to the given destination. The SFTP protocol not supporting copy operation,
+	 * this method may not be very performent. 
+	 * @param origin
+	 * @param dest
+	 * @throws SftpException 
+	 */
+	public void moveDirectoryContent(String origin, String dest) throws SftpException;
+	
+	/**
+	 * Move the given file to the given destination. Destination must be a full
+	 * filename (not a directory). 
+	 * @param origin
+	 * @param dest
+	 * @throws SftpException 
+	 */
+	public void move(String origin, String dest) throws SftpException;
+	
+	/**
+	 * Return the undelying ChannelSftp used by this Helper. The ChannelSftp instance
+	 * is only iinitialized once connect() is called.
+	 * @return
+	 */
+	public ChannelSftp getChannelSftp();
+	
+	/**
+	 * Create a directory if one is not already existing on the given path.
+	 * @param dest
+	 * @throws SftpException 
+	 */
+	public void mkdirIfNotExists(String dest) throws SftpException;
 
 }

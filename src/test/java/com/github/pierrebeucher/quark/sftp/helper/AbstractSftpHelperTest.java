@@ -6,6 +6,7 @@ import java.util.Vector;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.github.pierrebeucher.quark.sftp.helper.AbstractSftpHelper;
@@ -38,6 +39,21 @@ public class AbstractSftpHelperTest {
 			}
 			@Override
 			public boolean exists(String parent, String filename) throws SftpException {
+				return false;
+			}
+			@Override
+			public void move(String origin, String dest) throws SftpException {
+				
+			}
+			@Override
+			public ChannelSftp getChannelSftp() {
+				return null;
+			}
+			@Override
+			public void mkdirIfNotExists(String dest) throws SftpException {
+			}
+			@Override
+			public boolean exists(String dest) throws SftpException {
 				return false;
 			}
 		};

@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.pierrebeucher.quark.core.result.BaseExpectingHelperResult;
 import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
@@ -28,6 +30,8 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
  */
 public abstract class AbstractSftpHelper implements SftpHelper {
 
+	private Logger logger = LoggerFactory.getLogger(getClass());
+	
 	private SftpContext sftpContext;
 	
 	public AbstractSftpHelper() {
@@ -218,12 +222,11 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 			long period) throws Exception {
 		Waiter<BaseHelperResult<Vector<LsEntry>>> waiter = new SimpleWaiter<BaseHelperResult<Vector<LsEntry>>>(timeout, period){
 			@Override
-			public BaseHelperResult<Vector<LsEntry>> performCheck(BaseHelperResult<Vector<LsEntry>> latestResult)
-					throws Exception {
+			public BaseHelperResult<Vector<LsEntry>> performCheck(BaseHelperResult<Vector<LsEntry>> latestResult) throws SftpException  {
 				return containsFile(dir, pattern);
 			}
 		};
-		return waiter.call();
+		return waiter.call(); 
 	}
 
 	@Override
@@ -237,6 +240,27 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 			}
 		};
 		return waiter.call();
+	}
+	
+	@Override
+	public void moveDirectoryContent(String origin, String dest) throws SftpException {
+		Vector<LsEntry> ls = list(origin);
+		for(LsEntry entry : ls){
+			if(isParentOrCurrent(entry)){
+				continue;
+			}
+			
+			String toMove = origin + "/" + entry.getFilename();
+			String destMove = dest + "/" + entry.getFilename();
+			
+			logger.info("Moving {} to {}", toMove, destMove);
+			
+			move(toMove, destMove);
+		}
+	}
+	
+	public static boolean isParentOrCurrent(LsEntry e){
+		return ".".equals(e.getFilename()) || "..".equals(e.getFilename());
 	}
 	
 	

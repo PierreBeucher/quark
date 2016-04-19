@@ -25,7 +25,14 @@ import com.jcraft.jsch.SftpException;
 public class JSchSftpHelper extends AbstractSftpHelper {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
-
+	
+	/*
+	 * SFTP error codes
+	 */
+	public static final int ERRID_FILE_ALREADY_EXISTS = 11;
+	public static final int ERRID_FAILURE = 4;
+	public static final int ERRID_NO_SUCH_FILE = 2;
+	
 	/**
 	 * Default timeout used when connecting a session
 	 */
@@ -37,6 +44,8 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 	public static final int DEFAULT_CHANNEL_CONNECT_TIMEOUT = 60000;
 
 	private static final String CHANNEL_SFTP = "sftp";
+
+	
 
 	/**
 	 * The SFTP channel created once connected. 
@@ -158,6 +167,43 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public boolean exists(String dest) throws SftpException{
+		try {
+			channelSftp.stat(dest);
+			return true;
+		} catch (SftpException e) {
+			if(e.id == ERRID_NO_SUCH_FILE){
+				return false;
+			} else {
+				throw e;
+			}
+		}
+	}
+
+	@Override
+	public void move(String origin, String dest) throws SftpException{
+		channelSftp.rename(origin, dest);
+	}
+	
+	@Override
+	public ChannelSftp getChannelSftp(){
+		return channelSftp;
+	}
+
+	@Override
+	public void mkdirIfNotExists(String dest) throws SftpException {
+		try {
+			channelSftp.mkdir(dest);
+		} catch (SftpException e) {
+			if(e.id == ERRID_FILE_ALREADY_EXISTS || e.id == ERRID_FAILURE){ // 11: SFTP code "File Already Exists"
+				return;
+			} else {
+				throw e;
+			}
+		}
 	}
 
 }
