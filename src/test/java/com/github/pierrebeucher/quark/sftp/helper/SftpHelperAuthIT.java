@@ -57,7 +57,7 @@ public class SftpHelperAuthIT {
 	}
 	
 	@Test
-	public void connect() throws Exception {
+	public void connectNonStricthostChecking() throws Exception {
 		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		boolean result = helper.connect();
 		Assert.assertEquals(result, true, "Connection to SFTP server failed.");
@@ -69,5 +69,18 @@ public class SftpHelperAuthIT {
 		helper.connect();
 		boolean result = helper.disconnect();
 		Assert.assertEquals(result, true, "Disconnection from SFTP server failed.");
+	}
+	
+	/**
+	 * Ensure the knwon_hosts file(s) are correctly being configured
+	 * @throws Exception 
+	 */
+	@Test
+	public void connectStrictHostChecking() throws Exception{
+		SftpHelper helper = builder.build();
+		
+		logger.debug("Connect {}", helper);
+		
+		helper.connect();
 	}
 }

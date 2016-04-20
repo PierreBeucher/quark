@@ -12,6 +12,8 @@ before_install:
 - docker run --name mysql-mantisbt -p 3337:3306 -v /$(pwd)/src/test/resources/mantisbt/1.2.19/mantisbt-export.sql:/docker-entrypoint-initdb.d/mantisbt-export.sql:rw -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=bugtracker -e MYSQL_USER=mantisbt -e MYSQL_PASSWORD=mantisbt -d mysql
 - docker run --name mantisbt -p 8080:80 --link mysql-mantisbt:mysql-mantisbt -v /$(pwd)/src/test/resources/mantisbt/1.2.19/config_inc.php:/var/www/html/config_inc.php:rw -d vimagick/mantisbt
 - docker ps -a
+- ssh-keyscan -t rsa -p 2022 localhost | sed -e 's/localhost\?/[localhost]:2022/' >> known_hosts
+- cat ~/.ssh/known_hosts
 
 script:
 - mvn verify

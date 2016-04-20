@@ -18,7 +18,8 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 
 /**
- * A SFTP Helper using JSch.
+ * A SFTP Helper using JSch. This Helper will trust any host found in {user.home}/.ssh/known_hosts,
+ * unless knownHosts is set to null or to a non-existing file.
  * @author Pierre Beucher
  *
  */
@@ -44,8 +45,8 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 	public static final int DEFAULT_CHANNEL_CONNECT_TIMEOUT = 60000;
 
 	private static final String CHANNEL_SFTP = "sftp";
-
 	
+	private File knownHosts;
 
 	/**
 	 * The SFTP channel created once connected. 
@@ -64,10 +65,12 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 
 	public JSchSftpHelper() {
 		super();
+		this.knownHosts = new File(System.getProperty("user.home"), "/.ssh/known_hosts");
 	}
 
 	public JSchSftpHelper(SftpContext sftpContext) {
 		super(sftpContext);
+		this.knownHosts = new File(System.getProperty("user.home"), "/.ssh/known_hosts");
 	}
 
 	/**
@@ -89,7 +92,7 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 
 		try{
 
-			JSch jsch = new JSch();
+			JSch jsch = initJSch();
 			//JSch.setLogger(new DebugLogger());
 
 			//add private key if existing
@@ -120,6 +123,25 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 			disconnect();
 			throw e;
 		}
+	}
+	
+	/**
+	 * initialize the JSch instance, providing basic configuration for our context
+	 * @return
+	 * @throws JSchException 
+	 */
+	private JSch initJSch() throws JSchException{
+		JSch jsch = new JSch();
+		
+		if(knownHosts != null && knownHosts.exists() && knownHosts.isFile()){
+			logger.debug("Using {} as known hosts", knownHosts.getAbsolutePath());
+			jsch.setKnownHosts(knownHosts.getAbsolutePath());
+		} else {
+			logger.debug("No known_hosts set for {} (is null or not a file)", knownHosts);
+		}
+		
+		return jsch;
+		
 	}
 
 	public boolean disconnect(){		
@@ -204,6 +226,14 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 				throw e;
 			}
 		}
+	}
+
+	public File getKnownHosts() {
+		return knownHosts;
+	}
+
+	public void setKnownHosts(File knownHosts) {
+		this.knownHosts = knownHosts;
 	}
 
 }
