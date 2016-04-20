@@ -98,7 +98,7 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 	}
 
 	public SftpHelper privateKeyPassword(String privateKeyPassword) {
-		getContext().getAuthContext().setPrivateKeyPassword(privateKeyPassword);
+		getContext().getAuthContext().setPrivateKeyPassphrase(privateKeyPassword);
 		return this;
 	}
 	

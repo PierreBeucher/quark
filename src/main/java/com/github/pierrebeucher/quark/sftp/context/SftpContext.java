@@ -89,6 +89,38 @@ public class SftpContext extends ServerContext {
 	public void addOption(String key, Object value){
 		this.options.put(key, value);
 	}
+	
+	public void setLogin(String login){
+		this.authContext.setLogin(login);
+	}
+	
+	public String getLogin(){
+		return this.authContext.getLogin();
+	}
+	
+	public void setPassword(String password){
+		this.authContext.setPassword(password);
+	}
+	
+	public String getPassword(){
+		return this.authContext.getPassword();
+	}
+	
+	public void setPrivateKey(String keyPath){
+		this.authContext.setPrivateKey(keyPath);
+	}
+	
+	public String getPrivateKey(){
+		return this.authContext.getPrivateKey();
+	}
+	
+	public void setPrivateKeyPassphrase(String keyPassword){
+		this.authContext.setPrivateKeyPassphrase(keyPassword);
+	}
+	
+	public String getPrivateKeyPassword(){
+		return this.authContext.getPrivateKeyPassword();
+	}
 
 	@Override
 	public String toString() {

@@ -64,7 +64,7 @@ public class SshAuthContext extends LoginAuthContext{
 		return privateKeyPassword;
 	}
 
-	public void setPrivateKeyPassword(String privateKeyPassword) {
+	public void setPrivateKeyPassphrase(String privateKeyPassword) {
 		this.privateKeyPassword = privateKeyPassword;
 	}
 	

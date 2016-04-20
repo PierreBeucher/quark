@@ -6,8 +6,16 @@ import com.github.pierrebeucher.quark.core.context.base.HelperContext;
 
 public class JdbcContext implements HelperContext{
 	
+
 	private DataSource dataSource;
 	private String database;
+	
+	/**
+	 * Empty constructor. Use setters to setup context.
+	 */
+	public JdbcContext() {
+		super();
+	}
 	
 	public JdbcContext(DataSource dataSource) {
 		this(dataSource, null);
