@@ -1,12 +1,18 @@
 package com.github.pierrebeucher.quark.jdbc.context;
 
+import java.sql.SQLException;
+
 import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.pierrebeucher.quark.core.context.base.HelperContext;
 
 public class JdbcContext implements HelperContext{
 	
-
+	private Logger logger = LoggerFactory.getLogger(getClass());
+	
 	private DataSource dataSource;
 	private String database;
 	
@@ -44,7 +50,12 @@ public class JdbcContext implements HelperContext{
 
 	@Override
 	public String toString() {
-		return dataSource.toString();
+		try {
+			return dataSource.getConnection().getMetaData().getURL() + ":" + database;
+		} catch (SQLException e) {
+			logger.error("Cannot generate dataSource URL: {}", e);
+			return dataSource.toString() + ":" + database;
+		}
 	}
 	
 	

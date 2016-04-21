@@ -74,13 +74,13 @@ public class BaseHelperResult<A> implements HelperResult<A> {
 
 	@Override
 	public String getMessage() {
-		return "[actual:" + getActual() + "|action:" + message + "]";
+		return message + ": " + getActual();
 	}
 	
-	@Override
-	public String getShortMessage() {
-		return getActual() + "|" + message;
-	}
+//	@Override
+//	public String getShortMessage() {
+//		return getActual() + "|" + message;
+//	}
 
 	@Override
 	public Throwable getCause() {

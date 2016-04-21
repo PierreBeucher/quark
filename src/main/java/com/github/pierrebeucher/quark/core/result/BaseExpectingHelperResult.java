@@ -23,13 +23,13 @@ public class BaseExpectingHelperResult<A, E> extends BaseHelperResult<A>
 	
 	@Override
 	public String getMessage() {
-		return "[expected:" + getExpected() + "|actual:" + getActual() + "|action:" + message + "]";
+		return message + ": [expected:" + getExpected() + "|actual:" + getActual() + "]";
 	}
 
-	@Override
-	public String getShortMessage(){
-		return getExpected() + "|" + getActual() + "|" + getMessage();
-	}
+//	@Override
+//	public String getShortMessage(){
+//		return getExpected() + "|" + getActual() + "|" + getMessage();
+//	}
 	
 	@Override
 	public Object getExpected() {

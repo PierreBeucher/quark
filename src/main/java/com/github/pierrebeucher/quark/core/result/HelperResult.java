@@ -68,10 +68,10 @@ public interface HelperResult<A> {
 	 */
 	String getMessage();
 	
-	/**
-	 * A short message explaining this Result success or failure. 
-	 */
-	String getShortMessage();
+//	/**
+//	 * A short message explaining this Result success or failure. 
+//	 */
+//	String getShortMessage();
 	
 	
 	/**

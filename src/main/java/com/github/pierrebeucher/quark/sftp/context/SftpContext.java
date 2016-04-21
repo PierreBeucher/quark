@@ -4,8 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Properties;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.github.pierrebeucher.quark.core.context.server.ServerContext;
 
 /**
@@ -134,25 +132,25 @@ public class SftpContext extends ServerContext {
 			buf.append("[URISyntaxException]");
 		}
 		
-		buf.append(" (");
-		if(StringUtils.isEmpty(getAuthContext().getPassword())
-				&& StringUtils.isEmpty(getAuthContext().getPrivateKey())){
-			buf.append("anonymous");
-		} else {
-			buf.append("password:");
-			buf.append(StringUtils.isEmpty(getAuthContext().getPassword()) ? "no" : "yes");
-			buf.append(",key:");
-			if(!StringUtils.isEmpty(getAuthContext().getPrivateKey())){
-				buf.append("yes");
-				if(StringUtils.isEmpty(getAuthContext().getPrivateKeyPassword())){
-					buf.append("(no passphrase)");
-				}
-			} else {
-				buf.append("no");
-			}
-			
-		}
-		buf.append(")");
+//		buf.append(" (");
+//		if(StringUtils.isEmpty(getAuthContext().getPassword())
+//				&& StringUtils.isEmpty(getAuthContext().getPrivateKey())){
+//			buf.append("anonymous");
+//		} else {
+//			buf.append("password:");
+//			buf.append(StringUtils.isEmpty(getAuthContext().getPassword()) ? "no" : "yes");
+//			buf.append(",key:");
+//			if(!StringUtils.isEmpty(getAuthContext().getPrivateKey())){
+//				buf.append("yes");
+//				if(StringUtils.isEmpty(getAuthContext().getPrivateKeyPassword())){
+//					buf.append("(no passphrase)");
+//				}
+//			} else {
+//				buf.append("no");
+//			}
+//			
+//		}
+//		buf.append(")");
 		
 //		.append(StringUtils.isNotEmpty(getAuthContext().getPassword()))
 //		.append(",key:")

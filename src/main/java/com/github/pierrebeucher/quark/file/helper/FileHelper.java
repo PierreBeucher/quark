@@ -1,5 +1,6 @@
 package com.github.pierrebeucher.quark.file.helper;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +12,6 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
@@ -89,9 +89,7 @@ public class FileHelper extends AbstractHelper<FileContext> implements Helper {
 	 * @throws FileNotFoundException
 	 */
 	public InputStream getStream() throws FileNotFoundException{
-		//TODO
-		throw new NotImplementedException("Not yet implemented.");
-		//return new FileInputStream(getContext().getFile());
+		return new BufferedInputStream(new FileInputStream(getContext().getFile()));
 	}
 	
 	/**
