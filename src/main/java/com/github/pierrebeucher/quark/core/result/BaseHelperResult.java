@@ -1,5 +1,7 @@
 package com.github.pierrebeucher.quark.core.result;
 
+import com.github.pierrebeucher.quark.core.context.base.HelperContext;
+
 /**
  * A typed helper result, defining the type of the actual and expected
  * values.
@@ -16,6 +18,12 @@ public class BaseHelperResult<A> implements HelperResult<A> {
 	
 	protected String message;
 	
+	private Object context;
+	
+	public BaseHelperResult() {
+		super();
+	}
+
 	public BaseHelperResult(boolean success, A actual) {
 		this(success, actual, null);
 	}
@@ -40,47 +48,21 @@ public class BaseHelperResult<A> implements HelperResult<A> {
 	}
 
 	@Override
-	public void assertSuccess() {
-		if(success) return;
+	public String getDescription() {
+		StringBuilder builder = new StringBuilder(success ? SUCCESS : FAILURE)
+				.append(": ")
+				.append(actual);
 		
-		throw buildAssertionError();
-	}
-	
-	@Override
-	public void assertFailure() {
-		if(!success) return;
-		
-		throw buildAssertionError();
-	}
-
-	
-	/**
-	 * Build the AssertionError used by assertSuccess().
-	 * @return a new AssertionError representing this Helper result success or failure
-	 */
-	protected AssertionError buildAssertionError(){
-		StringBuilder builder = new StringBuilder("Expected ")
-			.append(FAILURE)
-			.append(" for: ")
-			.append(success ? SUCCESS : FAILURE)
-			.append(getMessage());
-		
-		if(getCause() != null){
-			return new AssertionError(builder.toString(), getCause());
-		} else {
-			return new AssertionError(builder.toString());
+		if(cause != null){
+			builder.append(", cause: ").append(cause);
 		}
+		
+		if(context != null){
+			builder.append(" w/ ").append(context);
+		}
+		
+		return builder.toString();
 	}
-
-	@Override
-	public String getMessage() {
-		return message + ": " + getActual();
-	}
-	
-//	@Override
-//	public String getShortMessage() {
-//		return getActual() + "|" + message;
-//	}
 
 	@Override
 	public Throwable getCause() {
@@ -88,10 +70,43 @@ public class BaseHelperResult<A> implements HelperResult<A> {
 	}
 
 	/**
-	 * Return the value returned by the getMessage() method.
+	 * Same as calling {@link #getDescription()}
 	 */
 	@Override
 	public String toString() {
-		return getMessage();
+		return getDescription();
+	}
+
+	@Override
+	public Object getContext() {
+		return this.context;
+	}
+
+	public void setContext(HelperContext context) {
+		this.context = context;
+	}
+	
+	@Override
+	public BaseHelperResult<A> success(boolean success){
+		this.success = success;
+		return this;
+	}
+	
+	@Override
+	public BaseHelperResult<A> actual(A actual){
+		this.actual = actual;
+		return this;
+	}
+	
+	@Override
+	public BaseHelperResult<A> context(Object context){
+		this.context = context;
+		return this;
+	}
+	
+	@Override
+	public BaseHelperResult<A> cause(Throwable cause){
+		this.cause = cause;
+		return this;
 	}
 }

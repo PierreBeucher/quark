@@ -12,9 +12,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.github.pierrebeucher.quark.core.result.HelperResult;
-import com.github.pierrebeucher.quark.core.result.IntegerHelperResult;
 import com.github.pierrebeucher.quark.core.result.ResultBuilder;
-import com.github.pierrebeucher.quark.core.result.StringHelperResult;
 import com.github.pierrebeucher.quark.core.waiter.SimpleWaiter;
 import com.github.pierrebeucher.quark.core.waiter.Waiter;
 
@@ -50,7 +48,7 @@ public class WaiterTest {
 			@Override
 			public HelperResult<?> performCheck(HelperResult<?> latestResult) throws Exception {
 				checkCount++;
-				return new IntegerHelperResult(checkCount >= totalCheckCount, checkCount);
+				return ResultBuilder.result(checkCount >= totalCheckCount, checkCount);
 			}
 		};
 		
@@ -79,7 +77,7 @@ public class WaiterTest {
 	@Test
 	public void callTimeout() throws Exception{
 		
-		final HelperResult<?> failure = new StringHelperResult(false, "fail");
+		final HelperResult<?> failure = ResultBuilder.result(false, "fail");
 		Waiter<HelperResult<?>> waiter = new SimpleWaiter<HelperResult<?>>(1000, 100){
 			@Override
 			public HelperResult<?> performCheck(HelperResult<?> latestResult) throws Exception {

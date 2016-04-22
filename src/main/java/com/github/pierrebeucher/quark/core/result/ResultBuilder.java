@@ -7,6 +7,10 @@ package com.github.pierrebeucher.quark.core.result;
  */
 public class ResultBuilder {
 	
+	public static <A> HelperResult<A> instance(A actual){
+		return new BaseHelperResult<A>().actual(actual);
+	}
+	
 	public static <A> BaseHelperResult<A> result(boolean success, A actual) {
 		return new BaseHelperResult<A>(success, actual);
 	}
