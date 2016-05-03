@@ -77,18 +77,16 @@ public abstract class Waiter<E extends HelperResult<?>> implements Callable<E> {
 	 * result define the success or failure of the performed
 	 * verification.
 	 * @return the verification result, either success or failure
-	 * @throws Exception
 	 */
-	public abstract E performCheck(E latestResult) throws Exception;
+	public abstract E performCheck(E latestResult);
 	
 	/**
 	 * This method will call in the following order beforeCheck(), performCheck() and afterCheck().
 	 * It should be used by the concrete implementation of call() to perform
 	 * our check actions periodically. It can be overridden to behave differently. 
-	 * @return 
-	 * @throws Exception 
+	 * @return  
 	 */
-	protected E check() throws Exception{
+	protected E check(){
 		beforeCheck(latestResult);
 		latestResult = performCheck(latestResult);
 		afterCheck(latestResult);
@@ -100,29 +98,9 @@ public abstract class Waiter<E extends HelperResult<?>> implements Callable<E> {
 	 * <i>timeout</i> is reached. On success, return the successful result. On failure, return
 	 * the latest failed result. 
 	 * @return the first successful action result if any, or the latest failed item
-	 * @throws Exception 
+	 * @throws InterruptedException 
 	 */
-	public abstract E call() throws Exception;
-//	public E call() throws Exception {
-//		long tStart = System.currentTimeMillis();
-//		long tCurrent = System.currentTimeMillis();
-//		long tEnd = tStart + timeout;
-//		
-//		E latestResult = null;
-//		do {
-//			beforeCheck(latestResult);
-//			latestResult = check();
-//			afterCheck(latestResult);
-//			if(latestResult.isSuccess()){
-//				return latestResult;
-//			}
-//			
-//			Thread.sleep(period);
-//			tCurrent = System.currentTimeMillis();
-//		}while(tCurrent < tEnd);
-//		
-//		//after timeout, fail with the latest item
-//		return latestResult;
-//	}
+	public abstract E call() throws InterruptedException;
+
 
 }

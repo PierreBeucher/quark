@@ -159,8 +159,7 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 		
 		SimpleWaiter<BaseHelperResult<Document>> waiter = new SimpleWaiter<BaseHelperResult<Document>>(timeout, period){
 			@Override
-			public BaseHelperResult<Document> performCheck(BaseHelperResult<Document> latestResult)
-					throws Exception {
+			public BaseHelperResult<Document> performCheck(BaseHelperResult<Document> latestResult) {
 				return containsDocument(path);
 			}
 		};

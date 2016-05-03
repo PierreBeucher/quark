@@ -5,18 +5,14 @@ package com.github.pierrebeucher.quark.core.helper;
  * @author Pierre Beucher
  *
  */
-public class HelperException extends Exception{
+public class HelperException extends RuntimeException{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8360811008792406358L;
 
-	public HelperException() {
-		super();
-	}
-
-	public HelperException(String arg0, Throwable arg1, boolean arg2, boolean arg3) {
+	protected HelperException(String arg0, Throwable arg1, boolean arg2, boolean arg3) {
 		super(arg0, arg1, arg2, arg3);
 	}
 

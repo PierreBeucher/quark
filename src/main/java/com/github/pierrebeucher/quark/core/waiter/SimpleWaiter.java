@@ -41,7 +41,7 @@ public abstract class SimpleWaiter<E extends HelperResult<?>> extends Waiter<E> 
 	}
 
 	@Override
-	public E call() throws Exception {
+	public E call() throws InterruptedException {
 		long tCurrent = currentTime();
 		long tStart = tCurrent;
 		long tEnd = tStart + timeout;

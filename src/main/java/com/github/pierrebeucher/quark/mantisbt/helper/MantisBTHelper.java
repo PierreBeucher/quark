@@ -169,14 +169,18 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	 * @param timeout
 	 * @param period
 	 * @return
-	 * @throws Exception 
+	 * @throws InterruptedException  
 	 */
-	public BaseHelperResult<Set<IssueData>> waitForIssueWithAttachment(final Pattern pattern, long timeout, long period) throws Exception{
+	public BaseHelperResult<Set<IssueData>> waitForIssueWithAttachment(final Pattern pattern, long timeout, long period) throws InterruptedException {
 		Waiter<BaseHelperResult<Set<IssueData>>> waiter = new SimpleWaiter<BaseHelperResult<Set<IssueData>>>(timeout, period){
 			@Override
-			public BaseHelperResult<Set<IssueData>> performCheck(BaseHelperResult<Set<IssueData>> latestResult)
-					throws Exception {
-				Set<IssueData> result = getIssuesWithAttachment(pattern);
+			public BaseHelperResult<Set<IssueData>> performCheck(BaseHelperResult<Set<IssueData>> latestResult) {
+				Set<IssueData> result;
+				try {
+					result = getIssuesWithAttachment(pattern);
+				} catch (RemoteException e) {
+					throw new MantisHelperException(e);
+				}
 				return ResultBuilder.result(!result.isEmpty(), result, "Waiting for issue with attachment '" + pattern.pattern() + "'");
 			}
 		};

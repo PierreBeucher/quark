@@ -46,7 +46,7 @@ public class WaiterTest {
 			Integer checkCount = 0;
 			
 			@Override
-			public HelperResult<?> performCheck(HelperResult<?> latestResult) throws Exception {
+			public HelperResult<?> performCheck(HelperResult<?> latestResult) {
 				checkCount++;
 				return ResultBuilder.result(checkCount >= totalCheckCount, checkCount);
 			}
@@ -80,7 +80,7 @@ public class WaiterTest {
 		final HelperResult<?> failure = ResultBuilder.result(false, "fail");
 		Waiter<HelperResult<?>> waiter = new SimpleWaiter<HelperResult<?>>(1000, 100){
 			@Override
-			public HelperResult<?> performCheck(HelperResult<?> latestResult) throws Exception {
+			public HelperResult<?> performCheck(HelperResult<?> latestResult) {
 				return failure;
 			}
 		};
@@ -106,7 +106,7 @@ public class WaiterTest {
 		Waiter<HelperResult<?>> waiter = new SimpleWaiter<HelperResult<?>>(1000, 100){
 			boolean shouldSuccess = false;
 			@Override
-			public HelperResult<?> performCheck(HelperResult<?> latestResult) throws Exception {
+			public HelperResult<?> performCheck(HelperResult<?> latestResult) {
 				if(!shouldSuccess){
 					shouldSuccess = true;
 					return failure;

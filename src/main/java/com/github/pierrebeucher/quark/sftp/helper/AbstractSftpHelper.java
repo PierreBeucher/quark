@@ -219,11 +219,15 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 
 	@Override
 	public BaseHelperResult<Vector<LsEntry>> waitForContainsFile(final String dir, final Pattern pattern, long timeout,
-			long period) throws Exception {
+			long period) throws InterruptedException {
 		Waiter<BaseHelperResult<Vector<LsEntry>>> waiter = new SimpleWaiter<BaseHelperResult<Vector<LsEntry>>>(timeout, period){
 			@Override
-			public BaseHelperResult<Vector<LsEntry>> performCheck(BaseHelperResult<Vector<LsEntry>> latestResult) throws SftpException  {
-				return containsFile(dir, pattern);
+			public BaseHelperResult<Vector<LsEntry>> performCheck(BaseHelperResult<Vector<LsEntry>> latestResult)  {
+				try {
+					return containsFile(dir, pattern);
+				} catch (SftpException e) {
+					throw new SftpHelperException(e);
+				}
 			}
 		};
 		return waiter.call(); 
@@ -231,12 +235,15 @@ public abstract class AbstractSftpHelper implements SftpHelper {
 
 	@Override
 	public BaseHelperResult<Vector<LsEntry>> waitForContainsFile(final String dir, final Pattern pattern, final int count,
-			long timeout, long period) throws Exception {
+			long timeout, long period) throws InterruptedException {
 		Waiter<BaseHelperResult<Vector<LsEntry>>> waiter = new SimpleWaiter<BaseHelperResult<Vector<LsEntry>>>(timeout, period){
 			@Override
-			public BaseHelperResult<Vector<LsEntry>> performCheck(BaseHelperResult<Vector<LsEntry>> latestResult)
-					throws Exception {
-				return containsFile(dir, pattern, count);
+			public BaseHelperResult<Vector<LsEntry>> performCheck(BaseHelperResult<Vector<LsEntry>> latestResult) {
+				try {
+					return containsFile(dir, pattern, count);
+				} catch (SftpException e) {
+					throw new SftpHelperException(e);
+				}
 			}
 		};
 		return waiter.call();
