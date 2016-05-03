@@ -177,6 +177,16 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 		return (Vector<LsEntry>) channelSftp.ls(dir);
 	}
 
+	@Override
+	public void remove(String filepath) throws SftpException {
+		channelSftp.rm(filepath);
+	}
+
+	@Override
+	public void removeDir(String dirpath) throws SftpException {
+		channelSftp.rmdir(dirpath);
+	}
+
 	public InputStream getInputStream(String dest) throws SftpException {
 		return channelSftp.get(dest);
 	}

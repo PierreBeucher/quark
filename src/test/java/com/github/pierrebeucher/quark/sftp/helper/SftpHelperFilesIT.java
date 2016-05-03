@@ -179,6 +179,26 @@ public class SftpHelperFilesIT {
 	}
 	
 	@Test
+	public void remove() throws Exception{
+		SftpHelper helper = buildNonStrictHostCheckingHelper();
+		String fileToRemove = dynamicSftpDir + "/fileToRemove";
+		helper.upload(testFile, fileToRemove);
+		
+		helper.remove(fileToRemove);
+		Assert.assertEquals(helper.exists(fileToRemove), false);
+	}
+	
+	@Test
+	public void removeDir() throws Exception{
+		SftpHelper helper = buildNonStrictHostCheckingHelper();
+		String dirToRemove = dynamicSftpDir + "/dirToRemove";
+		helper.mkdirIfNotExists(dirToRemove);
+		
+		helper.removeDir(dirToRemove);
+		Assert.assertEquals(helper.exists(dirToRemove), false);
+	}
+	
+	@Test
 	public void getChecksum() throws Exception{
 		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		String checksum = helper.getChecksum(staticSftpDir + "/file.xml");

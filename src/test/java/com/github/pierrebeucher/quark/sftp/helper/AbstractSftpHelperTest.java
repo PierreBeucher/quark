@@ -56,6 +56,13 @@ public class AbstractSftpHelperTest {
 			public boolean exists(String dest) throws SftpException {
 				return false;
 			}
+			@Override
+			public void remove(String filepath) throws SftpException {
+			}
+			
+			@Override
+			public void removeDir(String dirpath) throws SftpException {
+			}
 		};
 	}
 

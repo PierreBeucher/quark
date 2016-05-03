@@ -189,6 +189,21 @@ public interface SftpHelper extends Helper {
 	public Vector<LsEntry> list(String dir) throws SftpException;
 	
 	/**
+	 * Remove the file pointed by the given path. Cannot remove directories (use removeDir)
+	 * @param file
+	 * @return
+	 * @throws SftpException 
+	 */
+	public void remove(String filepath) throws SftpException;
+	
+	/**
+	 * Remove the given directory.
+	 * @param dirpath
+	 * @throws SftpException 
+	 */
+	public void removeDir(String dirpath) throws SftpException;
+	
+	/**
 	 * Get an InputStream for the given destination file
 	 * @return result as InputStream
 	 * @throws SftpException 
