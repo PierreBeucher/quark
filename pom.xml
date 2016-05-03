@@ -4,16 +4,22 @@
 	<artifactId>quark</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Quark Framework</name>
+	
+	<properties>
+		<jdk.version>1.7</jdk.version>
+	</properties>
+	
 	<build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
-				<configuration>
-					<source/>
-					<target/>
-				</configuration>
-			</plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.5.1</version>
+					<configuration>
+						<source>${jdk.version}</source>
+						<target>${jdk.version}</target>
+					</configuration>
+				</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
