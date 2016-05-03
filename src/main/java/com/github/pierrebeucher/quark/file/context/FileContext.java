@@ -23,7 +23,7 @@ public class FileContext implements HelperContext {
 	 * Requires setters to be called for setup.
 	 */
 	public FileContext() {
-		this(null);
+		this(null, Charset.defaultCharset());
 	}
 	
 	/**
@@ -44,6 +44,10 @@ public class FileContext implements HelperContext {
 		super();
 		this.file = file;
 		this.charset = charset;
+	}
+	
+	public FileContext(FileContext ctx) {
+		this(ctx.file, ctx.charset);
 	}
 
 	/**

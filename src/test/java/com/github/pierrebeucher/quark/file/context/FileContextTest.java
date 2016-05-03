@@ -53,6 +53,14 @@ public class FileContextTest {
 		Assert.assertEquals(ctx.getCharset(), Charset.defaultCharset());
 		Assert.assertEquals(ctx.getFile(), testFile);
 	}
+	
+	@Test
+	public void FileContextCopy() {
+		FileContext base = new FileContext(testFile);
+		FileContext ctx = new FileContext(base);
+		Assert.assertEquals(ctx.getCharset(), Charset.defaultCharset());
+		Assert.assertEquals(ctx.getFile(), testFile);
+	}
 
 	
 	@Test

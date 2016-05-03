@@ -18,6 +18,10 @@ public class CMISContext implements HelperContext {
 		super();
 		this.bindingContext = EmptyBindingContext.instance();
 	}
+	
+	public CMISContext(CMISContext ctx) {
+		this(ctx.bindingContext, ctx.repositoryId);
+	}
 
 	public CMISBindingContext getBindingContext() {
 		return bindingContext;

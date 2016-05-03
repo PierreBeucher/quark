@@ -32,4 +32,14 @@ public class AtomPubBindingContextTest {
 		Assert.assertEquals(ctx.getUser(), user);
 		Assert.assertEquals(ctx.getAtomPubUrl(), new URL(atomPubUrl));
 	}
+	
+	@Test
+	public void AtomPubBindingContextCopy() throws MalformedURLException {
+		AtomPubBindingContext baseContext = new AtomPubBindingContext(user, password, new URL(atomPubUrl));
+		AtomPubBindingContext copyContext =  new AtomPubBindingContext(baseContext);
+		Assert.assertEquals(copyContext.getBindingType(), CMISBindingContext.BINDING_ATOMPUB);
+		Assert.assertEquals(copyContext.getPassword(), password);
+		Assert.assertEquals(copyContext.getUser(), user);
+		Assert.assertEquals(copyContext.getAtomPubUrl(), new URL(atomPubUrl));
+	}
 }

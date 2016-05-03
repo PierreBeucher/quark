@@ -25,6 +25,10 @@ public class MantisBTContext implements HelperContext{
 		this.url = url;
 		this.projectName = projectName;
 	}
+	
+	public MantisBTContext(MantisBTContext ctx){
+		this(ctx.url, ctx.authContext.getLogin(), ctx.authContext.getPassword(), ctx.projectName);
+	}
 
 	public PasswordAuthContext getAuthContext() {
 		return authContext;

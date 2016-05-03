@@ -46,6 +46,20 @@ public class SftpContextTest {
 		Assert.assertEquals(ctx.getPort(), PORT);
 		Assert.assertNotNull(ctx.getOptions());
 	}
+	
+	@Test
+	public void SftpContextCopy() {
+		SftpAuthContext authCtx = new SftpAuthContext(LOGIN, PASSWORD);
+		SftpContext base = new SftpContext(HOST, PORT, authCtx);
+		SftpContext ctx = new SftpContext(base);
+		Assert.assertEquals(ctx.getAuthContext().getLogin(), authCtx.getLogin());
+		Assert.assertEquals(ctx.getAuthContext().getPassword(), authCtx.getPassword());
+		Assert.assertEquals(ctx.getAuthContext().getPrivateKey(), authCtx.getPrivateKey());
+		Assert.assertEquals(ctx.getAuthContext().getPrivateKeyPassword(), authCtx.getPrivateKeyPassword());
+		Assert.assertEquals(ctx.getHost(), HOST);
+		Assert.assertEquals(ctx.getPort(), PORT);
+		Assert.assertNotNull(ctx.getOptions());
+	}
 
 	@Test
 	public void authContext() {

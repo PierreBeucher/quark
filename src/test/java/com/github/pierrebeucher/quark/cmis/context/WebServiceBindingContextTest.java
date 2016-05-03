@@ -78,4 +78,34 @@ public class WebServiceBindingContextTest {
 		Assert.assertEquals(ctx.getRepositoryService(), repositoryService);
 		Assert.assertEquals(ctx.getVersioningService(), versioningService);
 	}
+	
+	@Test
+	public void WebServiceBindingContextCopy() throws MalformedURLException {
+		URL aclService = new URL(baseUrl + "/ACLService?wsdl");
+		URL discoveryUrl = new URL(baseUrl + "/DiscoveryService?wsdl");
+		URL multiFilingService = new URL(baseUrl + "/MultiFilingService?wsdl");
+		URL navigationService = new URL(baseUrl + "/NavigationService?wsdl");
+		URL objectService = new URL(baseUrl + "/ObjectService?wsdl");
+		URL policyService = new URL(baseUrl + "/PolicyService?wsdl");
+		URL relationshipService = new URL(baseUrl + "/RelationshipService?wsdl");
+		URL repositoryService = new URL(baseUrl + "/RepositoryService?wsdl");
+		URL versioningService = new URL(baseUrl + "/VersioningService?wsdl");
+		
+		WebServiceBindingContext base = new WebServiceBindingContext(user, password, new URL(baseUrl));
+		WebServiceBindingContext ctx = new WebServiceBindingContext(base);
+		
+		Assert.assertEquals(ctx.getUser(), user);
+		Assert.assertEquals(ctx.getPassword(), password);
+		Assert.assertEquals(ctx.getBindingType().toString(), CMISBindingContext.BINDING_WEBSERVICES);
+		
+		Assert.assertEquals(ctx.getAclService(), aclService);
+		Assert.assertEquals(ctx.getDiscoveryService(), discoveryUrl);
+		Assert.assertEquals(ctx.getMultifilingService(), multiFilingService);
+		Assert.assertEquals(ctx.getNavigationService(), navigationService);
+		Assert.assertEquals(ctx.getObjectService(), objectService);
+		Assert.assertEquals(ctx.getPolicyService(), policyService);
+		Assert.assertEquals(ctx.getRelationshipService(), relationshipService);
+		Assert.assertEquals(ctx.getRepositoryService(), repositoryService);
+		Assert.assertEquals(ctx.getVersioningService(), versioningService);
+	}
 }

@@ -16,6 +16,10 @@ public class PasswordAuthContext extends LoginAuthContext {
 		super(login);
 		this.password = password;
 	}
+	
+	public PasswordAuthContext(PasswordAuthContext ctx) {
+		this(ctx.getLogin(), ctx.password);
+	}
 
 	public String getPassword() {
 		return password;

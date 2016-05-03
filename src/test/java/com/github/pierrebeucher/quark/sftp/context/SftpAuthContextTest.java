@@ -35,4 +35,14 @@ public class SftpAuthContextTest {
 		Assert.assertEquals(ctx.getPrivateKey(), KEY);
 		Assert.assertEquals(ctx.getPrivateKeyPassword(), KEYPASS);
 	}
+	
+	@Test
+	public void SftpAuthContextCopy() {
+		SftpAuthContext base = new SftpAuthContext(LOGIN, PASSWORD, KEY, KEYPASS);
+		SftpAuthContext ctx = new SftpAuthContext(base);
+		Assert.assertEquals(ctx.getLogin(), LOGIN);
+		Assert.assertEquals(ctx.getPassword(), PASSWORD);
+		Assert.assertEquals(ctx.getPrivateKey(), KEY);
+		Assert.assertEquals(ctx.getPrivateKeyPassword(), KEYPASS);
+	}
 }

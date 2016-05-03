@@ -19,6 +19,13 @@ public class LoginAuthContextTest {
   }
   
   @Test
+  public void LoginAuthContextCopy() {
+	  LoginAuthContext base = new LoginAuthContext("login");
+	  LoginAuthContext ctx = new LoginAuthContext(base);
+	  Assert.assertEquals(ctx.getLogin(), "login");
+  }
+  
+  @Test
   public void login(){
 	  LoginAuthContext ctx = new LoginAuthContext();
 	  ctx.setLogin("login");

@@ -26,4 +26,13 @@ public class CMISBindingContextTest {
 		Assert.assertEquals(ctx.getUser(), user);
 		Assert.assertEquals(ctx.getPassword(), password);
 	}
+	
+	@Test
+	public void CMISBindingContextCopy() {
+		CMISBindingContext base = new CMISBindingContext(bindingType, user, password) {};
+		CMISBindingContext ctx = new CMISBindingContext(base) {};
+		Assert.assertEquals(ctx.getBindingType(), bindingType);
+		Assert.assertEquals(ctx.getUser(), user);
+		Assert.assertEquals(ctx.getPassword(), password);
+	}
 }

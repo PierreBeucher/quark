@@ -42,6 +42,26 @@ public class ServerContextTest {
 		Assert.assertEquals(ctx.getHost(), HOST);
 		Assert.assertEquals(ctx.getPort(), PORT);
 	}
+	
+	@Test
+	public void ServerContextCopy() {
+		ServerContext base = new ServerContext(HOST, PORT){
+			@Override
+			public URI toUri() throws URISyntaxException {
+				return null;
+			}
+		};
+		
+		ServerContext ctx = new ServerContext(base){
+			@Override
+			public URI toUri() throws URISyntaxException {
+				return null;
+			}
+		};
+
+		Assert.assertEquals(ctx.getHost(), HOST);
+		Assert.assertEquals(ctx.getPort(), PORT);
+	}
 
 	@Test
 	public void host() {

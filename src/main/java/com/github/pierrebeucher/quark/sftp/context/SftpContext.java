@@ -57,6 +57,11 @@ public class SftpContext extends ServerContext {
 	public SftpContext(String host, int port, SftpAuthContext authContext) {
 		this(host, port, authContext, new Properties());
 	}
+	
+	public SftpContext(SftpContext ctx) {
+		this(ctx.getHost(), ctx.getPort(), new SftpAuthContext(ctx.getAuthContext()));
+	}
+	
 //	public SftpContext(String host, int port, File file, SftpAuthContext authContext) {
 //		this(host, port, file, authContext, new Properties());
 //	}

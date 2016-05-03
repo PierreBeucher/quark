@@ -32,6 +32,10 @@ public class JdbcContext implements HelperContext{
 		this.database = database;
 	}
 	
+	public JdbcContext(JdbcContext ctx) {
+		this(ctx.dataSource, ctx.database);
+	}
+	
 	public DataSource getDataSource() {
 		return dataSource;
 	}

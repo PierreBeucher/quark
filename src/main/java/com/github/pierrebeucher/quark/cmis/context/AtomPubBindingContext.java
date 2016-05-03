@@ -10,6 +10,10 @@ public class AtomPubBindingContext extends CMISBindingContext{
 		super(CMISBindingContext.BINDING_ATOMPUB, user, password);
 		this.atomPubUrl = atomPubUrl;
 	}
+	
+	public AtomPubBindingContext(AtomPubBindingContext ctx) {
+		this(ctx.user, ctx.password, ctx.atomPubUrl);
+	}
 
 	public AtomPubBindingContext() {
 		super();

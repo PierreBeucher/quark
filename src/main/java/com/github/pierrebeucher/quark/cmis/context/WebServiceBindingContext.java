@@ -75,6 +75,12 @@ public class WebServiceBindingContext extends CMISBindingContext {
 		this.versioningService = versioningService;
 	}
 	
+	public WebServiceBindingContext(WebServiceBindingContext ctx){
+		this(ctx.user, ctx.password,
+				ctx.aclService, ctx.discoveryService, ctx.multifilingService, ctx.navigationService, ctx.objectService,
+				ctx.policyService, ctx.relationshipService, ctx.repositoryService, ctx.versioningService);
+	}
+	
 	public static URL buildServiceURL(URL baseUrl, CMISService service) throws MalformedURLException{
 		return new URL(baseUrl.getProtocol(), baseUrl.getHost(), baseUrl.getPort(), 
 				baseUrl.getFile() + "/" + service.value() + "?wsdl", null);

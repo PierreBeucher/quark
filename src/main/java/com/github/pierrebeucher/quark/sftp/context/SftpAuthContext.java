@@ -33,6 +33,14 @@ public class SftpAuthContext extends SshAuthContext{
 	public SftpAuthContext(String login, String password) {
 		super(login, password);
 	}
+	
+	public SftpAuthContext(SftpAuthContext ctx) {
+		super(ctx.getLogin(), ctx.getPassword(), ctx.getPrivateKey(), ctx.getPrivateKeyPassword());
+	}
+
+	protected SftpAuthContext(String login, String password, String privateKey, String privateKeyPassword) {
+		super(login, password, privateKey, privateKeyPassword);
+	}
 
 
 }

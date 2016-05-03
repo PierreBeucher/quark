@@ -29,6 +29,10 @@ public abstract class CMISBindingContext implements HelperContext{
 		this.password = password;
 		this.bindingType = bindingType;
 	}
+	
+	protected CMISBindingContext(CMISBindingContext ctx) {
+		this(ctx.bindingType, ctx.user, ctx.password);
+	}
 
 	public String getUser() {
 		return user;

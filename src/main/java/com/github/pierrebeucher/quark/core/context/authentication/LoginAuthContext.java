@@ -8,6 +8,10 @@ public class LoginAuthContext extends AuthContext{
 		super();
 		this.login = login;
 	}
+	
+	public LoginAuthContext(LoginAuthContext ctx) {
+		this(ctx.login);
+	}
 
 	/**
 	 * Empty constructor. Use setters to define context.

@@ -43,6 +43,20 @@ public class SshAuthContext extends LoginAuthContext{
 		this.privateKey = privateKey;
 		this.privateKeyPassword = privateKeyPassword;
 	}
+	
+	/**
+	 * Protected constructor taking login, password, private key and passphrase. 
+	 * @param login
+	 * @param password
+	 * @param privateKey
+	 * @param privateKeyPassword
+	 */
+	protected SshAuthContext(String login, String password, String privateKey, String privateKeyPassword) {
+		super(login);
+		this.password = password;
+		this.privateKey = privateKey;
+		this.privateKeyPassword = privateKeyPassword;
+	}
 
 	public String getPassword() {
 		return password;

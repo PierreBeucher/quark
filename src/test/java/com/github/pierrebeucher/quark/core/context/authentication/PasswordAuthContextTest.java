@@ -29,6 +29,14 @@ public class PasswordAuthContextTest {
 		Assert.assertEquals(ctx.getLogin(), LOGIN);
 		Assert.assertEquals(ctx.getPassword(), PASS);
 	}
+	
+	@Test
+	public void PasswordAuthContextCopy() {
+		PasswordAuthContext base = new PasswordAuthContext(LOGIN, PASS);
+		PasswordAuthContext ctx = new PasswordAuthContext(base);
+		Assert.assertEquals(ctx.getLogin(), LOGIN);
+		Assert.assertEquals(ctx.getPassword(), PASS);
+	}
 
 	@Test
 	public void password() {

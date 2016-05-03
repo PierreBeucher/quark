@@ -55,6 +55,16 @@ public class MantisBTContextTest {
 		Assert.assertEquals(ctx.getAuthContext().getPassword(), password);
 		Assert.assertEquals(ctx.getProjectName(), project);
 	}
+	
+	@Test
+	public void MantisBTContextCopy() {
+		MantisBTContext base = new MantisBTContext(url, username, password, project);
+		MantisBTContext ctx = new MantisBTContext(base);
+		Assert.assertEquals(ctx.getUrl(), url);
+		Assert.assertEquals(ctx.getAuthContext().getLogin(), username);
+		Assert.assertEquals(ctx.getAuthContext().getPassword(), password);
+		Assert.assertEquals(ctx.getProjectName(), project);
+	}
 
 	@Test
 	public void setAuthContext() {

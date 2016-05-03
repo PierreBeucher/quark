@@ -35,6 +35,10 @@ public abstract class ServerContext implements HelperContext{
 		this.host = host;
 		this.port = port;
 	}
+	
+	public ServerContext(ServerContext ctx){
+		this(ctx.host, ctx.port);
+	}
 
 	public String getHost() {
 		return host;
