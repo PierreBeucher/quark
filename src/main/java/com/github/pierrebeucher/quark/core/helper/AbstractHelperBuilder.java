@@ -25,6 +25,10 @@ public abstract class AbstractHelperBuilder<C extends HelperContext, H extends H
 
 	protected C baseContext;
 	
+	protected AbstractHelperBuilder() {
+		super();
+	}
+
 	public AbstractHelperBuilder(C baseContext) {
 		super();
 		this.baseContext = baseContext;
@@ -40,6 +44,10 @@ public abstract class AbstractHelperBuilder<C extends HelperContext, H extends H
 	
 	public C getBaseContext() {
 		return baseContext;
+	}
+	
+	protected void setBaseContext(C baseContext){
+		this.baseContext = baseContext;
 	}
 
 }
