@@ -65,10 +65,18 @@ public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> impl
 				&& context.getUrl() != null;
 	}
 	
+	/**
+	 * Settting the context will re-initialize this Helper, by calling {@link #init()} method.
+	 * @throws MantisHelperException
+	 */
 	@Override
-	public void setContext(MantisBTContext context) throws Exception {
+	public void setContext(MantisBTContext context) {
 		super.setContext(context);
-		init();
+		try {
+			init();
+		} catch (RemoteException | ServiceException e) {
+			throw new MantisHelperException(e);
+		}
 	}
 
 	public void setClient(MantisBTClient client) {
