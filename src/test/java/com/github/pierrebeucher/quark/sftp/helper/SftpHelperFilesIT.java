@@ -266,7 +266,8 @@ public class SftpHelperFilesIT {
 					Thread.sleep(5000);
 					helper.upload(testFile, dynamicSftpDir + "/" + uploadAs);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("Cannot upload file: {}", e);
+					throw new RuntimeException(e);
 				}
 			}
 		};
@@ -310,7 +311,8 @@ public class SftpHelperFilesIT {
 					helper.upload(testFile, dynamicSftpDir + "/" + uploadAs2);
 					helper.upload(testFile, dynamicSftpDir + "/" + uploadAs3);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("Cannot upload file: {}", e);
+					throw new RuntimeException(e);
 				}
 			}
 		};
