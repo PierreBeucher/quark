@@ -5,13 +5,17 @@ Vagrant.configure(2) do |config|
  
   config.vm.box = "ubuntu/trusty64"
   
-  # Use private network
+  # Use private network (must match FTP Docker Container localhost)
   config.vm.network "private_network", ip: "192.168.100.42"
   
-  # Map host 2022 to guest 2022, port used by Docker SFTP
+  # Port forwarding for sftp, mysql, mantisbt (web) and ftp
   config.vm.network "forwarded_port", guest: 2022, host: 2022
   config.vm.network "forwarded_port", guest: 3336, host: 3336
-  config.vm.network "forwarded_port", guest: 8080, host: 8080
+  config.vm.network "forwarded_port", guest: 8080, host: 8081
+  config.vm.network "forwarded_port", guest: 2121, host: 2121
+  for i in 30000..30009
+    config.vm.network :forwarded_port, guest: i, host: i
+  end
 
   # Define memory
   config.vm.provider "virtualbox" do |vb|
@@ -22,6 +26,7 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder "../ssh/", "/vagrant/ssh", create:true
   config.vm.synced_folder "../files/", "/vagrant/files", create:true
   config.vm.synced_folder "../mantisbt/1.2.19/", "/vagrant/mantisbt", create:true
+  config.vm.synced_folder "../ftp/", "/vagrant/ftp", create:true
   
   config.vm.provision "docker" do |d|
     
@@ -57,5 +62,12 @@ Vagrant.configure(2) do |config|
     d.run "vimagick/mantisbt",
 	  args: "--name mantisbt -p 8080:80 --link mysql-mantisbt:mysql-mantisbt \
 	    -v /vagrant/mantisbt/config_inc.php:/var/www/html/config_inc.php:rw"
+	    
+	# FTP container. PUBLICHOST must match public IP
+	d.run "ftpd_server",
+	  image: "stilliard/pure-ftpd",
+	  args: "-p 2121:21 -p 30000-30009:30000-30009 -e PUBLICHOST=192.168.100.42 \
+	    -v /vagrant/ftp/pureftpd.passwd:/etc/pure-ftpd/pureftpd.passwd \
+	    -v /vagrant/ftp/pureftpd.pdb:/etc/pure-ftpd/pureftpd.pdb"
   end
 end

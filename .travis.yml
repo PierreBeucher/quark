@@ -10,7 +10,8 @@ before_install:
 - docker run -p 2022:22 -v /$(pwd)/src/test/resources/files:/home/quark/files:rw -v /$(pwd)/src/test/resources/ssh/id_rsa.pub:/home/quark/.ssh/keys/id_rsa.pub:ro -d atmoz/sftp quark:password:$(id -u):$(id -g)
 - docker run -p 3336:3306 -e MYSQL_ROOT_PASSWORD=password -d mysql
 - docker run --name mysql-mantisbt -p 3337:3306 -v /$(pwd)/src/test/resources/mantisbt/1.2.19/mantisbt-export.sql:/docker-entrypoint-initdb.d/mantisbt-export.sql:rw -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=bugtracker -e MYSQL_USER=mantisbt -e MYSQL_PASSWORD=mantisbt -d mysql
-- docker run --name mantisbt -p 8080:80 --link mysql-mantisbt:mysql-mantisbt -v /$(pwd)/src/test/resources/mantisbt/1.2.19/config_inc.php:/var/www/html/config_inc.php:rw -d vimagick/mantisbt
+- docker run --name mantisbt -p 8081:80 --link mysql-mantisbt:mysql-mantisbt -v /$(pwd)/src/test/resources/mantisbt/1.2.19/config_inc.php:/var/www/html/config_inc.php:rw -d vimagick/mantisbt
+- docker run -d --name ftpd_server -p 2121:21 -p 30000-30009:30000-30009 -e "PUBLICHOST=localhost" -v /$(pwd)/src/test/resources/ftp/pureftpd.passwd:/etc/pure-ftpd/pureftpd.passwd -v /$(pwd)/src/test/resources/ftp/pureftpd.pdb:/etc/pure-ftpd/pureftpd.pdb stilliard/pure-ftpd
 - docker ps -a
 - ssh-keyscan -t rsa -p 2022 localhost | sed -e 's/localhost\?/[localhost]:2022/' >> known_hosts
 - cat ~/.ssh/known_hosts

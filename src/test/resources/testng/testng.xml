@@ -20,7 +20,7 @@
 	<parameter name="db-login" value="root" />
 	<parameter name="db-password" value="password" />
 	
-	<parameter name="mantisbt-url" value="http://localhost:8080/api/soap/mantisconnect.php" />
+	<parameter name="mantisbt-url" value="http://localhost:8081/api/soap/mantisconnect.php" />
 	<parameter name="mantisbt-username" value="administrator" />
 	<parameter name="mantisbt-password" value="root" />
 	<parameter name="mantisbt-project" value="QuarkProject" />
@@ -31,6 +31,11 @@
 	<parameter name="chemistry-ws-base-url" value="https://cmis.alfresco.com/alfresco/cmisws" />
 	<parameter name="chemistry-atompub-url" value="https://cmis.alfresco.com/api/-default-/public/cmis/versions/1.0/atom" />
 	<parameter name="chemistry-repository-id" value="-default-" />
+	
+	<parameter name="ftp-host" value="localhost" />
+	<parameter name="ftp-port" value="2121" />
+	<parameter name="ftp-login" value="bob" />
+	<parameter name="ftp-password" value="bob" />
 	
 	<test name="SftpHelperTest">
 		<classes>
@@ -58,6 +63,11 @@
 	<test name="CMISHelperTest">
 		<classes>
 			<class name="com.github.pierrebeucher.quark.cmis.helper.ChemistryCMISHelperIT"/>
+		</classes>
+	</test>
+	<test name="FtpHelperTest">
+		<classes>
+			<class name="com.github.pierrebeucher.quark.ftp.helper.FtpHelperIT"/>
 		</classes>
 	</test>
 	
