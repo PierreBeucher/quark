@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -16,7 +17,6 @@ import org.apache.chemistry.opencmis.client.api.Repository;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.client.util.FileUtils;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
-import org.apache.chemistry.opencmis.commons.exceptions.CmisContentAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -29,6 +29,7 @@ import com.github.pierrebeucher.quark.cmis.context.AtomPubBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISContext;
 import com.github.pierrebeucher.quark.cmis.context.WebServiceBindingContext;
+import com.github.pierrebeucher.quark.cmis.helper.chemistry.ChemistryCMISCleaner;
 import com.github.pierrebeucher.quark.cmis.helper.chemistry.ChemistryCMISHelper;
 import com.github.pierrebeucher.quark.cmis.util.ChemistryCMISUtils;
 import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
@@ -53,11 +54,21 @@ public class ChemistryCMISHelperIT {
 	
 	@BeforeClass
 	@Parameters({ "chemistry-user", "chemistry-password", "chemistry-atompub-url", "chemistry-ws-base-url" })
-	public void beforeClass(String user, String password, String atomPubUrl, String wsBaseUrl) throws MalformedURLException{
+	public void beforeClass(String user, String password, String atomPubUrl, String wsBaseUrlStr) throws MalformedURLException{
 		this.user = user;
 		this.password = password;
 		this.atomPubUrl = new URL(atomPubUrl);
-		this.wsBaseUrl = new URL(wsBaseUrl);
+		this.wsBaseUrl = new URL(wsBaseUrlStr);
+		
+		//remove any previous file
+		ChemistryCMISHelper helper = buildTestHelper(new WebServiceBindingContext(user, password, wsBaseUrl));
+		helper.init();
+		for(Document d : helper.listDocumentsMatching("/", Pattern.compile("quark"))){
+			logger.info("Removing {} before class", d.getName());
+			//d.cancelCheckOut()
+			//d.refresh();
+			d.deleteAllVersions();
+		}
 	}
 	
 	/**
@@ -103,14 +114,17 @@ public class ChemistryCMISHelperIT {
 		};
 	}
 
-	public Folder createFolderIfNotExists(String parent, String name, Session session){
-		try {
-			return FileUtils.createFolder(parent, name, null, session);
-		} catch (CmisContentAlreadyExistsException e) {
-			//expected, folder already exists, return it
-			return FileUtils.getFolder(parent, session);
-		}
-	}
+//	public Folder createFolderIfNotExists(String parent, String name, Session session){
+//		try {
+//			return FileUtils.createFolder(parent, name, null, session);
+//		} catch (CmisContentAlreadyExistsException e) {
+//			if(parent.endsWith("/")){
+//				return FileUtils.getFolder(parent + name, session);
+//			} else {
+//				return FileUtils.getFolder(parent + "/" + name, session);
+//			}
+//		}
+//	}
 
 	private Document createDocumentFromFileIfNotExists(String parent, File file, Session session) throws FileNotFoundException{
 		return FileUtils.createDocumentFromFile(parent, file, null, VersioningState.MINOR, session);
@@ -120,7 +134,7 @@ public class ChemistryCMISHelperIT {
 	public void listDirectory(ChemistryCMISHelper helper) throws Exception{
 		helper.init();
 		
-		createFolderIfNotExists(parentTestFolder, testFolder, helper.getSession());
+		helper.createFolderIfNotExists(parentTestFolder, testFolder);
 		
 		ItemIterable<CmisObject> result = helper.listDirectory("/");
 		Folder found = null;
@@ -198,5 +212,41 @@ public class ChemistryCMISHelperIT {
 		Assert.assertNotNull(result.getActual(),"A document is expected to be found");
 		Assert.assertEquals(result.getActual().getName(), tmpFile.getName(), "A Document matching the name is expected to be found");
 	}
-
+	
+	@Test(dataProvider = "chemistry-cmis-helper")
+	public void listDocumentMatching(ChemistryCMISHelper helper) throws IOException{
+		helper.init();
+		
+		String pattern = "MatchThis " + System.currentTimeMillis();
+		final File tmpFile = File.createTempFile("quark" + pattern, null);
+		tmpFile.deleteOnExit();
+		createDocumentFromFileIfNotExists(parentTestFolder, tmpFile, helper.getSession());
+		
+		Collection<Document> result = helper.listDocumentsMatching(parentTestFolder, Pattern.compile(pattern));
+		Assert.assertEquals(result.size(), 1);
+		Assert.assertEquals(result.toArray(new Document[1])[0].getName(), tmpFile.getName());
+	}
+	
+	@Test(dataProvider = "chemistry-cmis-helper")
+	public void clean(ChemistryCMISHelper helper) throws IOException{
+		helper.init();
+		
+		//create dummy files and folders
+		String cleanFolderName = "quarkCleanFolder";
+		Folder cleanFolder = helper.createFolderIfNotExists(parentTestFolder, 
+				cleanFolderName);
+		
+		File tmpFile = File.createTempFile("quark", "");
+		tmpFile.deleteOnExit();
+		createDocumentFromFileIfNotExists(cleanFolder.getPath(), tmpFile, helper.getSession());
+		
+		ChemistryCMISCleaner cleaner = new ChemistryCMISCleaner(helper.getContext());
+		String archiveDir = cleaner.cleanToLocalDir(cleanFolder.getPath());
+		
+		logger.info("Cleaned from {} to {}", cleanFolder.getPath(), archiveDir);
+		
+		Assert.assertEquals(helper.listDirectory(cleanFolder.getPath()).getTotalNumItems(), 0);
+		Assert.assertEquals(helper.listDirectory(archiveDir).getTotalNumItems(), 1);
+		
+	}
 }

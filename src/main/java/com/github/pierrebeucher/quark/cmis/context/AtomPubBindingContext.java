@@ -27,4 +27,9 @@ public class AtomPubBindingContext extends CMISBindingContext{
 		this.atomPubUrl = atomPubUrl;
 	}
 
+	@Override
+	public String toString() {
+		return getUser() + "@" + getAtomPubUrl();
+	}
+
 }

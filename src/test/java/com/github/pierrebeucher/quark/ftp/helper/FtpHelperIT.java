@@ -13,6 +13,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.github.pierrebeucher.quark.ftp.context.FtpContext;
+
 public class FtpHelperIT {
 
 	private String testFileContent;
@@ -43,6 +45,10 @@ public class FtpHelperIT {
 				.port(port)
 				.login(login)
 				.password(password);
+	}
+	
+	private FtpCleaner createCleaner(){
+		return new FtpCleaner(new FtpContext(host, port, login, password));
 	}
 
 	@Test
@@ -192,6 +198,51 @@ public class FtpHelperIT {
 		try{
 			helper.init();
 			Assert.assertEquals(helper.isDirectory("/nonExistingDir"), false);
+		} finally {
+			helper.disconnect();
+		}
+	}
+
+	
+	@Test
+	public void clean() throws SocketException, IOException {
+		String dirToClean = "/cleanerDir";
+		String archiveDir = "/cleanderArchiveDir";
+		FtpHelper helper = createFtpHelper();
+		try{
+			helper.init();
+			helper.makeDirectory(dirToClean);
+			helper.makeDirectory(archiveDir);
+			helper.upload(testFile, dirToClean + "/" + testFile.getName());
+			
+			FtpCleaner cleaner = createCleaner();
+			cleaner.clean(dirToClean, archiveDir);
+		
+			logger.info("{} cleaned to {}", dirToClean, archiveDir);
+			
+			Assert.assertEquals(helper.isFile(dirToClean + "/" + testFile.getName()), false);
+			Assert.assertEquals(helper.isFile(archiveDir + "/" + testFile.getName()), true);
+		} finally {
+			helper.disconnect();
+		}
+	}
+
+	@Test
+	public void cleanToLocalDir() throws IOException {
+		String dirToClean = "/cleanerDirLocal";
+		FtpHelper helper = createFtpHelper();
+		try{
+			helper.init();
+			helper.makeDirectory(dirToClean);
+			helper.upload(testFile, dirToClean + "/" + testFile.getName());
+			
+			FtpCleaner cleaner = createCleaner();
+			String archiveDir = cleaner.cleanToLocalDir(dirToClean);
+		
+			logger.info("{} cleaned to {}", dirToClean, archiveDir);
+			
+			Assert.assertEquals(helper.isFile(dirToClean + "/" + testFile.getName()), false);
+			Assert.assertEquals(helper.isFile(archiveDir + "/" + testFile.getName()), true);
 		} finally {
 			helper.disconnect();
 		}

@@ -58,4 +58,9 @@ public abstract class CMISBindingContext implements HelperContext{
 		this.bindingType = bindingType;
 	}
 
+	@Override
+	public String toString() {
+		return user + "@" + bindingType;
+	}
+
 }

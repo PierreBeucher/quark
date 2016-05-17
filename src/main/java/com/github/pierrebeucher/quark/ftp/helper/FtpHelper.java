@@ -188,4 +188,23 @@ public class FtpHelper extends AbstractHelper<FtpContext>{
 			throw new FtpHelperException("Directory creation of " + path + " failed.");
 		}
 	}
+
+	public boolean rename(String from, String to) throws IOException {
+		return ftpClient.rename(from, to);
+	}
+	
+	/**
+	 * Move the file from the given path to its destination. 
+	 * @param from
+	 * @param to
+	 * @throws IOException
+	 * @throws FtpHelperException 
+	 */
+	public void move(String from, String to) throws IOException, FtpHelperException {
+		boolean result = ftpClient.rename(from, to);
+		if(!result){
+			throw new FtpHelperException("Cannot move " + from + " to "+ to +
+					" (" + ftpClient.getReplyCode() + ": " + ftpClient.getReplyString() + ")");
+		}
+	}
 }

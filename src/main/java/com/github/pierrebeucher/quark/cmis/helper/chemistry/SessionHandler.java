@@ -3,6 +3,7 @@ package com.github.pierrebeucher.quark.cmis.helper.chemistry;
 import java.util.Map;
 
 import org.apache.chemistry.opencmis.commons.SessionParameter;
+import org.apache.commons.lang3.StringUtils;
 
 import com.github.pierrebeucher.quark.cmis.context.AtomPubBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISBindingContext;
@@ -42,7 +43,10 @@ public abstract class SessionHandler {
 		
 		params.put(SessionParameter.USER, context.getBindingContext().getUser());
 		params.put(SessionParameter.PASSWORD, context.getBindingContext().getPassword());
-		params.put(SessionParameter.REPOSITORY_ID, context.getRepositoryId());
+		
+		if(!StringUtils.isEmpty(context.getRepositoryId())){
+			params.put(SessionParameter.REPOSITORY_ID, context.getRepositoryId());
+		}
 		
 		return params;
 	}

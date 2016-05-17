@@ -56,6 +56,15 @@ public class FtpContext extends ServerContext {
 	public void setPassword(String password) {
 		authContext.setPassword(password);
 	}
+
+	@Override
+	public String toString() {
+		try {
+			return toUri().toString();
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	
 
 

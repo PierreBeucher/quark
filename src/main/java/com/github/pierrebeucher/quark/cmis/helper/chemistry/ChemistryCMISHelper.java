@@ -1,6 +1,7 @@
 package com.github.pierrebeucher.quark.cmis.helper.chemistry;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -9,10 +10,15 @@ import org.apache.chemistry.opencmis.client.api.CmisObject;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.client.api.ItemIterable;
+import org.apache.chemistry.opencmis.client.api.Repository;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.client.api.SessionFactory;
 import org.apache.chemistry.opencmis.client.runtime.SessionFactoryImpl;
+import org.apache.chemistry.opencmis.client.util.FileUtils;
+import org.apache.chemistry.opencmis.commons.PropertyIds;
+import org.apache.chemistry.opencmis.commons.SessionParameter;
 import org.apache.chemistry.opencmis.commons.enums.BaseTypeId;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisContentAlreadyExistsException;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,12 +64,22 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 	}
 	
 	private Session createSession(){
-		SessionFactory factory = SessionFactoryImpl.newInstance();
 		Map<String, String> params = generateSessionParameters();
-		
 		logger.debug("Creation session using {}", params);
 		
-		return factory.createSession(params);
+	    //if repositoryId specified, create session directly
+		//if not, use sole available session if possible
+		SessionFactory factory = SessionFactoryImpl.newInstance();
+		if(params.containsKey(SessionParameter.REPOSITORY_ID)){
+			return factory.createSession(params);
+		} else {
+			List<Repository> repositoryList = factory.getRepositories(params);
+			if(repositoryList.size() > 1){
+				throw new IllegalStateException("Cannot create session with no repositoryId specified as more"
+						+ " than one repository is available. Provide a repositoryId in your context.");
+			}
+			return repositoryList.get(0).createSession();
+		} 
 	}
 	
 	/**
@@ -118,6 +134,23 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 	}
 	
 	/**
+	 * List Documents at the given path with a name matching the given pattern.
+	 * @param path
+	 * @param p
+	 * @return
+	 */
+	public List<Document> listDocumentsMatching(String path, Pattern pattern){
+		List<Document> result = new ArrayList<Document>();
+		for(CmisObject o : listDirectory(path)){
+			if(ChemistryCMISUtils.isDocument(o)
+					&& (pattern.matcher(o.getName()).find())){
+				result.add((Document) o);
+			}
+		}
+		return result;
+	}
+	
+	/**
 	 * Check whether or not the given folder contains Documents which name matches Pattern.
 	 * Result is success if one or more Document matching pattern is found. 
 	 * @param directory
@@ -125,14 +158,7 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 	 * @return result as List of found Documents
 	 */
 	public BaseHelperResult<List<Document>> containsDocument(String directory, Pattern pattern){
-		ItemIterable<CmisObject> iterable = listDirectory(directory);
-		List<Document> result = new ArrayList<Document>();
-		for(CmisObject o : iterable){
-			if(o.getBaseTypeId() == BaseTypeId.CMIS_DOCUMENT 
-					&& (pattern.matcher(o.getName()).matches())){
-				result.add((Document) o);
-			}
-		}
+		List<Document> result = listDocumentsMatching(directory, pattern);
 		return ResultBuilder.result(!result.isEmpty(), result);
 	}
 	
@@ -164,6 +190,49 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 			}
 		};
 		return waiter.call();
+	}
+	
+	/**
+	 * Create a sub-folder using the given name in parent.
+	 * The Folder is created with the minimal set of properties:
+	 * <pre>
+	 * properties.put(PropertyIds.OBJECT_TYPE_ID, "cmis:folder");
+	 * properties.put(PropertyIds.NAME, name);
+	 * </pre>
+	 * @param name
+	 * @param parent
+	 * @return
+	 */
+	public Folder createFolder(String name, Folder parent){
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put(PropertyIds.OBJECT_TYPE_ID, "cmis:folder");
+		properties.put(PropertyIds.NAME, name);
+
+		return createFolder(name, parent, properties);
+	}
+	
+	/**
+	 * Create a Folder using the given properties. Identical to 
+	 * <i>parent.createFolder(props)</i>
+	 * @param name
+	 * @param parent
+	 * @param props
+	 * @return
+	 */
+	public Folder createFolder(String name, Folder parent, Map<String, Object> props){
+		return parent.createFolder(props);
+	}
+	
+	public Folder createFolderIfNotExists(String parent, String name){
+		try {
+			return FileUtils.createFolder(parent, name, null, session);
+		} catch (CmisContentAlreadyExistsException e) {
+			if(parent.endsWith("/")){
+				return FileUtils.getFolder(parent + name, session);
+			} else {
+				return FileUtils.getFolder(parent + "/" + name, session);
+			}
+		}
 	}
 	
 	/**

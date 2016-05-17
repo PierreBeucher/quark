@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.FileCleaner;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSchException;
@@ -21,20 +22,13 @@ import com.jcraft.jsch.SftpException;
  * @author pierreb
  *
  */
-public class SftpCleaner extends AbstractHelper<SftpContext> {
+public class SftpCleaner extends AbstractHelper<SftpContext> implements FileCleaner{
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	public SftpCleaner(SftpContext context) {
 		super(context);
 	}
-
-	/**
-	 * Default archive directory name used when cleaning a directory. 
-	 */
-	public static final String DEFAULT_CLEAN_DIR = "quark_trash";
-	
-	public static final String DEFAULT_CLEAN_DIR_DATE_FORMAT = "yyyyMMddHHmmss"; 
 
 	private JSchSftpHelper createSftpHelper() throws JSchException{
 		JSchSftpHelper helper = new JSchSftpHelper(context);
@@ -50,6 +44,7 @@ public class SftpCleaner extends AbstractHelper<SftpContext> {
 	 * @return the path to the local directory where data have been archived
 	 * @throws JSchException 
 	 */
+	@Override
 	public String cleanToLocalDir(String dirToClean) throws SftpHelperException{
 		//default archive dir is /path/to/dirToClean/.quark_trash/yyyyMMddHHmmss/data...
 		DateFormat dateFormat = new SimpleDateFormat(DEFAULT_CLEAN_DIR_DATE_FORMAT);

@@ -38,5 +38,10 @@ public class CMISContext implements HelperContext {
 	public void setRepositoryId(String repositoryId) {
 		this.repositoryId = repositoryId;
 	}
+
+	@Override
+	public String toString() {
+		return "binding=" + bindingContext + ", repository=" + repositoryId;
+	}
 	
 }

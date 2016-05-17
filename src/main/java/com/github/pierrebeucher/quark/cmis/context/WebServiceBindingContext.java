@@ -86,15 +86,6 @@ public class WebServiceBindingContext extends CMISBindingContext {
 				baseUrl.getFile() + "/" + service.value() + "?wsdl", null);
 	}
 
-	@Override
-	public String toString() {
-		return "WebServiceBindingContext [aclService=" + aclService + ", discoveryService=" + discoveryService
-				+ ", multifilingService=" + multifilingService + ", navigationService=" + navigationService
-				+ ", objectService=" + objectService + ", policyService=" + policyService + ", relationShipService="
-				+ relationshipService + ", repositoryService=" + repositoryService + ", versioningService="
-				+ versioningService + "]";
-	}
-
 	public URL getAclService() {
 		return aclService;
 	}
