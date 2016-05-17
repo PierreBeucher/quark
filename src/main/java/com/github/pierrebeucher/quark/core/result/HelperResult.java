@@ -71,7 +71,7 @@ public interface HelperResult<A> {
 	 * is supposed to be found.
 	 * @return the obtained output
 	 */
-	Object getActual();
+	A getActual();
 	
 	/**
 	 * A short description of this result, resuming the available elements: success, actual, expected, 
