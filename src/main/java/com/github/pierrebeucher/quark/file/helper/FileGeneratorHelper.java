@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -12,8 +13,25 @@ import java.nio.file.Files;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
 import com.github.pierrebeucher.quark.file.context.FileContext;
@@ -38,6 +56,46 @@ public class FileGeneratorHelper extends AbstractHelper<FileContext> {
 	
 	public FileGeneratorHelper(FileContext context) {
 		super(context);
+	}
+	
+	/**
+	 * Evaluate the given XPath expression for the file managed by this helper, and replace all matching
+	 * node values by the replacement string. The returned file is written in the system
+	 * temp directory.
+	 * @param xpath
+	 * @param replacement
+	 * @return
+	 * @throws IOException 
+	 */
+	public File xPathReplace(XPathExpression expression, String replacement) throws IOException{
+		try{
+			//replace
+			Document doc = generateDomDocument(context.getFile());
+			NodeList nodeList = (NodeList) expression.evaluate(doc, XPathConstants.NODESET);
+			if(nodeList != null && nodeList.getLength() > 0){
+				for(int i=0; i<nodeList.getLength(); i++){
+					nodeList.item(i).setNodeValue(replacement);
+				}
+			}
+			
+			//write out
+			File out = File.createTempFile(context.getFile().getName(), null);
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+			Source source = new DOMSource(doc);
+			Result target = new StreamResult(new FileOutputStream(out));
+			transformer.transform(source, target);
+			
+			return out;
+		} catch (SAXException | IOException | ParserConfigurationException |
+				XPathExpressionException | TransformerFactoryConfigurationError | TransformerException e){
+			throw new IOException(e.getMessage(), e);
+		}
+	}
+	
+	private Document generateDomDocument(File file) throws SAXException, IOException, ParserConfigurationException{
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
+		return builder.parse(file);
 	}
 	
 	/**
@@ -99,132 +157,4 @@ public class FileGeneratorHelper extends AbstractHelper<FileContext> {
 				context.getFile().isFile() &&
 				context.getCharset() != null;
 	}
-
-//	/**
-//	 * Write a new file
-//	 * @param newContent content of the file
-//	 * @param newFileDirectory directory where to write, or null to use default temp directory
-//	 * @return resulting File
-//	 * @throws IOException
-//	 */
-//	private File writeNewFile(byte[] newContent, File newFileDirectory) throws IOException{
-//		String fileExt = FilenameUtils.getExtension(originalFile.getPath());
-//		String baseFilename = FilenameUtils.getBaseName(originalFile.getPath());
-//		File newFile = File.createTempFile(baseFilename, "." + fileExt, newFileDirectory);
-//		Files.write(Paths.get(newFile.getPath()), newContent, StandardOpenOption.APPEND);
-//		
-//		this.generatedFile.add(newFile);
-//		
-//		if(this.deleteOnExit){
-//			newFile.deleteOnExit();
-//		}
-//		
-//		return newFile;
-//	}
-//	
-//	/**
-//	 * Read the file managed by this helper as byte array
-//	 * @return
-//	 * @throws IOException
-//	 */
-//	private byte[] readAllBytes() throws IOException{
-//		return Files.readAllBytes(Paths.get(originalFile.getPath()));
-//	}
-//	
-//	/**
-//	 * Read the file managed by this helper as byte array
-//	 * and transform it into a String using this helper Charset
-//	 * @return
-//	 * @throws IOException
-//	 */
-//	private String readAllBytesAsString() throws IOException{
-//		return new String(readAllBytes(), getCharset());
-//	}
-//	
-//	/**
-//	 * <p>Generate a unique file by replacing the given token from the
-//	 * original file by a randomly unique generated value. A new file 
-//	 * is written in the given folder with random name. </p>
-//	 * @param replacementToken token to be replaced to generate unique file. Can be REGEX value.
-//	 * @param newFiledirectory directory where the new file is written
-//	 * @return a new unique file
-//	 * @throws IOException 
-//	 */
-//	private File doGenerateUniqueFile(String replacementToken, File newFiledirectory) throws IOException{
-//		
-//		String uniqueValue = generateUniqueValue().toString();
-//		String newContent  = readAllBytesAsString().replaceAll(replacementToken, uniqueValue);
-//		
-//		return writeNewFile(newContent.getBytes(), newFiledirectory);
-//	}
-//	
-//	/**
-//	 * <p>Generate a unique file by replacing the given token from the
-//	 * original file by a randomly unique generated value. A new file 
-//	 * is written in the given folder with random name. </p>
-//	 * @param replacementToken token to be replaced to generate unique file. Can be REGEX value.
-//	 * @param newFiledirectory directory where the new file is written
-//	 * @return a new unique file
-//	 * @throws IOException 
-//	 */
-//	public File generateUniqueFile(String replacementToken, File newFiledirectory) throws IOException{
-//		return doGenerateUniqueFile(replacementToken, newFiledirectory);
-//	}
-//	
-//	/**
-//	 * <p>Generate a unique file by replacing the given token from the
-//	 * original file by a randomly unique generated value.</p>
-//	 * A new file is written in the given folder with random name. 
-//	 * @param replacementToken token to be replaced to generate unique file. Can be REGEX value.
-//	 * @return a new unique file
-//	 * @throws IOException 
-//	 */
-//	public File generateUniqueFile(String replacementToken) throws IOException{
-//		return generateUniqueFile(replacementToken, null);
-//	}
-//	
-//	/**
-//	 * Generate a unique value. This implementation
-//	 * uses UUID.
-//	 * @return an object which will return a unique value using toString()
-//	 */
-//	protected Object generateUniqueValue(){
-//		return UUID.randomUUID();
-//	}
-//	
-//	/**
-//	 * Generate a transformed file, by replacing all the tokens (key)
-//	 * by its replacement (values) using the given map. Tokens can 
-//	 * be REGEX patterns. 
-//	 * @param replacementMap map containing token (keys) and their replacement values (values)
-//	 * @param directory where to write the resulting file
-//	 * @return the resulting File pointer
-//	 * @throws IOException 
-//	 */
-//	public File generateTransformedFile(Map<String, String> replacementMap, File newFileDirectory) throws IOException{
-//		String fileStr = readAllBytesAsString();
-//		
-//		String newStr = fileStr;
-//		for(Entry<String, String> e : replacementMap.entrySet()){
-//			newStr = newStr.replaceAll(e.getKey(), e.getValue());
-//			
-//			//debug
-//			//System.out.println("Replacing " + e.getKey() + " by " + e.getValue());
-//		}
-//		
-//		return this.writeNewFile(newStr.getBytes(), newFileDirectory);
-//	}
-//	/**
-//	 * Generate a transformed file, by replacing all the tokens (key)
-//	 * by its replacement (values) using the given map. Tokens can 
-//	 * be REGEX patterns. 
-//	 * @param replacementMap map containing token (keys) and their replacement values (values)
-//	 * @return the transformed File pointer
-//	 * @throws IOException 
-//	 */
-//	public File generateTransformedFile(Map<String, String> replacementMap) throws IOException{
-//		//write to default tmp dir
-//		return generateTransformedFile(replacementMap, null);
-//	}
-
 }

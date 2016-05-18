@@ -9,6 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -22,7 +27,12 @@ public class FileGeneratorHelperIT {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private String templateContent;
+	
+	private String xmlTemplateContent;
+	private String xmlToXPathReplace;
+	
 	private File template;
+	private File xmlTemplate;
 	private Charset charset;
 	
 	@BeforeClass
@@ -30,11 +40,27 @@ public class FileGeneratorHelperIT {
 		//create a dummy template file to perform our tests
 		charset = Charset.forName("UTF-8");
 		templateContent = "abcydge aaTOKEN1 cdhddesuc TOKEN2יb\n cjechfue -\"egATOKENd42ez יחא&&&";
-		template = File.createTempFile("quarkit", null);
 		
-		BufferedWriter writer = Files.newBufferedWriter(template.toPath(), charset);
-		writer.write(templateContent);
-		writer.close();	
+		//build xml template
+		xmlToXPathReplace = "ToReplace";
+		xmlTemplateContent = "<root><parent><child>" + xmlToXPathReplace + "</child></parent></root>";
+		
+		template = createTemplateFile(templateContent);
+		xmlTemplate = createTemplateFile(xmlTemplateContent);
+	}
+	
+	private File createTemplateFile(String content) throws IOException{
+		BufferedWriter writer = null;
+		try{
+			File f = File.createTempFile("quarkit", null);
+			writer = Files.newBufferedWriter(f.toPath(), charset);
+			writer.write(content);
+			return f;
+		} finally {
+			if(writer != null){
+				writer.close();
+			}
+		}
 	}
 
 	/**
@@ -43,8 +69,8 @@ public class FileGeneratorHelperIT {
 	 * @param charset
 	 * @return
 	 */
-	private FileGeneratorHelper createGeneratorHelper(){
-		FileContext ctx = new FileContext(template);
+	private FileGeneratorHelper createGeneratorHelper(File file){
+		FileContext ctx = new FileContext(file);
 		return new FileGeneratorHelper(ctx);
 	}
 	
@@ -61,7 +87,7 @@ public class FileGeneratorHelperIT {
 		File dest = File.createTempFile("quarkit_replacedest", null);
 		dest.deleteOnExit();
 		
-		FileGeneratorHelper helper = createGeneratorHelper();
+		FileGeneratorHelper helper = createGeneratorHelper(template);
 		helper.generate(tokenMap, dest);
 		
 		List<String> lines = Files.readAllLines(dest.toPath(), charset);
@@ -72,5 +98,19 @@ public class FileGeneratorHelperIT {
 		Assert.assertEquals(lines.get(0).contains(replacement1), true, "First line '" + lines.get(0) + "' does not contain '" + replacement1 + "'");
 		Assert.assertEquals(lines.get(0).contains(replacement2), true, "First line '" + lines.get(0) + "' does not contain '" + replacement2 + "'");
 		Assert.assertEquals(lines.get(1).contains(replacement3), true, "Second line '" + lines.get(0) + "' does not contain '" + replacement3 + "'");
+	}
+	
+	@Test
+	public void testXPathReplace() throws XPathExpressionException, IOException{
+		FileGeneratorHelper helper = createGeneratorHelper(xmlTemplate);
+		XPathExpression exp =  XPathFactory.newInstance().newXPath().compile("//parent/child/text()");
+		String replacement = "MyReplacement";
+		File generated = helper.xPathReplace(exp, replacement);
+		
+		logger.info("XPath generated: {}", generated); 
+		
+		String generatedContent = FileUtils.readFileToString(generated);
+		Assert.assertEquals(generatedContent.contains(replacement), true);
+		Assert.assertEquals(generatedContent.contains(xmlToXPathReplace), false);
 	}
 }

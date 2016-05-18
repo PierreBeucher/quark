@@ -73,4 +73,9 @@ public class FileContext implements HelperContext {
 	public void setCharset(Charset charset) {
 		this.charset = charset;
 	}
+
+	@Override
+	public String toString() {
+		return file + "(" + charset + ")";
+	}
 }
