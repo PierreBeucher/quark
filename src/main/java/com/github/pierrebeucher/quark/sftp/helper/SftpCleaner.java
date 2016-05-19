@@ -48,7 +48,7 @@ public class SftpCleaner extends AbstractHelper<SftpContext> implements FileClea
 	public String cleanToLocalDir(String dirToClean) throws SftpHelperException{
 		//default archive dir is /path/to/dirToClean/.quark_trash/yyyyMMddHHmmss/data...
 		DateFormat dateFormat = new SimpleDateFormat(DEFAULT_CLEAN_DIR_DATE_FORMAT);
-		String quarkTrashDir = dirToClean + "/." + DEFAULT_CLEAN_DIR;
+		String quarkTrashDir = dirToClean + "/" + DEFAULT_CLEAN_DIR;
 		String archiveDir = quarkTrashDir + "/" + dateFormat.format(new Date());
 		
 		JSchSftpHelper helper;
