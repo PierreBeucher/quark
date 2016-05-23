@@ -12,8 +12,17 @@ import com.github.pierrebeucher.quark.mantisbt.context.MantisBTContext;
 public class MantisBTHelperBuilder extends AbstractHelperBuilder<MantisBTContext, MantisBTHelper>
 		implements HelperBuilder {
 
+	public MantisBTHelperBuilder() {
+		super(new MantisBTContext());
+	}
+	
 	public MantisBTHelperBuilder(MantisBTContext baseContext) {
 		super(baseContext);
+	}
+	
+	@Override
+	public void setBaseContext(MantisBTContext baseContext) {
+		super.setBaseContext(baseContext);
 	}
 
 	@Override

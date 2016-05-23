@@ -16,9 +16,9 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.github.pierrebeucher.quark.core.helper.CleaningHelper.CleaningMethod;
-import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.mantisbt.context.MantisBTContext;
 import com.github.pierrebeucher.quark.mantisbt.helper.MantisBTHelper;
+import com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClient.IssueStatus;
 
 import biz.futureware.mantis.rpc.soap.client.IssueData;
 
@@ -105,36 +105,88 @@ public class MantisBTHelperIT {
 	}
 	
 	@Test
-	public void waitForIssueWithAttachment() throws Exception{
+	public void getIssueWithAttachmentFilter() throws RemoteException, ServiceException {
 		
-		final String attachment = "fileWithWait.txt";
-		final MantisBTHelper helper = buildHelper(standardProject);
-		Thread issueCreatorThread = new Thread(){
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(2000);
-					
-					//create a dummy issue with attachment
-					IssueData issue = helper.addDummyIssue();
-					helper.getClient().mc_issue_attachment_add(issue.getId(), attachment, "txt", "Test content".getBytes());
-				} catch (Exception e) {
-					logger.error("Error on issue creator thread: {}", e);
-				}
-			}
-		};
+		//create a dummy issue with attachment
+		String attachment = "filterAttachFile";
+		MantisBTHelper helper = buildHelper(standardProject);
 		
-		issueCreatorThread.start();
+		IssueData issueOpen = helper.addDummyIssue();
+		IssueData issueClosed = helper.addDummyIssue();
+		
+		helper.getClient().mc_issue_attachment_add(issueOpen.getId(), attachment + "open.txt" , "txt", "Test content open".getBytes());
+		helper.getClient().mc_issue_attachment_add(issueClosed.getId(), attachment + "closed.txt", "txt", "Test content closed".getBytes());
+		
+		helper.updateIssue(issueOpen, IssueStatus.ACKNOWLEDGED);
+		helper.updateIssue(issueClosed, IssueStatus.CLOSED);
 		
 		//check the issue is found
-		Pattern pattern = Pattern.compile(attachment);
-		BaseHelperResult<Set<IssueData>> result = helper.waitForIssueWithAttachment(pattern, 5000, 250);
+		Pattern pattern = Pattern.compile(attachment + ".*");
+		Set<IssueData> result = helper.getIssuesWithAttachment(pattern, IssueFilter.nonClosedFilterInstance());
 		
-		logger.info("result after wait for issue with attachment: " + result);
+		Assert.assertEquals(result.size(), 1, "Incorrect number of issue found with attachment '" + attachment + "'");
 		
-		Assert.assertTrue(result.isSuccess(), "Result after waiting for issue with attachent" + attachment + "' should be success");
-		Assert.assertEquals(result.getActual().size(), 1, "Only 1 issue should be found after waiting for issue with attachment");
+		IssueData foundIssue = (IssueData) result.toArray()[0];
+		Assert.assertEquals(foundIssue.getStatus().getId(), IssueStatus.ACKNOWLEDGED.getId(),
+				"Issue found is not in expected status ");
+	}
+	
+//	@Test
+//	public void waitForIssueWithAttachment() throws Exception{
+//		
+//		final String attachment = "fileWithWait.txt";
+//		final MantisBTHelper helper = buildHelper(standardProject);
+//		Thread issueCreatorThread = new Thread(){
+//			@Override
+//			public void run() {
+//				try {
+//					Thread.sleep(2000);
+//					
+//					//create a dummy issue with attachment
+//					IssueData issue = helper.addDummyIssue();
+//					helper.getClient().mc_issue_attachment_add(issue.getId(), attachment, "txt", "Test content".getBytes());
+//				} catch (Exception e) {
+//					logger.error("Error on issue creator thread: {}", e);
+//				}
+//			}
+//		};
+//		
+//		issueCreatorThread.start();
+//		
+//		//check the issue is found
+//		Pattern pattern = Pattern.compile(attachment);
+//		BaseHelperResult<Set<IssueData>> result = helper.waitForIssueWithAttachment(pattern, 5000, 250);
+//		
+//		logger.info("result after wait for issue with attachment: " + result);
+//		
+//		Assert.assertTrue(result.isSuccess(), "Result after waiting for issue with attachent" + attachment + "' should be success");
+//		Assert.assertEquals(result.getActual().size(), 1, "Only 1 issue should be found after waiting for issue with attachment");
+//		
+//	}
+	
+	@Test
+	public void updateIssue() throws RemoteException, ServiceException{
+		MantisBTHelper helper = buildHelper(standardProject);
+		IssueData dummy = helper.addDummyIssue();
 		
+		helper.updateIssue(dummy, IssueStatus.RESOLVED);
+		IssueData afterUpdate = helper.getClient().mc_issue_get(dummy.getId());
+		Assert.assertEquals(afterUpdate.getStatus().getId(), IssueStatus.RESOLVED.getId());
+	}
+	
+	@Test
+	public void deleteIssue() throws RemoteException, ServiceException{
+		MantisBTHelper helper = buildHelper(projectCleanHard);
+		IssueData dummy = helper.addDummyIssue();
+		
+		helper.deleteIssue(dummy);
+		try {
+			IssueData found = helper.getClient().mc_issue_get(dummy.getId());
+			Assert.fail("Expected an exception to be thrown, but found issue: " + found.getId());
+		} catch (RemoteException e) {
+			Assert.assertTrue(e.getMessage().contains("Issue does not exist"),
+					"Error does not contain 'does not exists' after issue delete, but:" + e);
+		}
 	}
 	
 	@Test

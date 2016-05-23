@@ -54,4 +54,31 @@ public class MantisBTContext implements HelperContext{
 		this.url = url;
 	}
 
+	public String getLogin() {
+		return authContext.getLogin();
+	}
+
+	public void setLogin(String login) {
+		authContext.setLogin(login);
+	}
+
+	public String getPassword() {
+		return authContext.getPassword();
+	}
+
+	public void setPassword(String password) {
+		authContext.setPassword(password);
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer buf = new StringBuffer(authContext.getLogin() + "@" + url.toString());
+		if(projectName != null){
+			buf.append("/").append(projectName);
+		} else {
+			buf.append("(no project)");
+		}
+		return buf.toString();
+	}
+
 }

@@ -15,16 +15,13 @@ import org.slf4j.LoggerFactory;
 import com.github.pierrebeucher.quark.core.helper.AbstractCleaningHelper;
 import com.github.pierrebeucher.quark.core.helper.CleaningHelper;
 import com.github.pierrebeucher.quark.core.helper.Helper;
-import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
-import com.github.pierrebeucher.quark.core.result.ResultBuilder;
-import com.github.pierrebeucher.quark.core.waiter.SimpleWaiter;
-import com.github.pierrebeucher.quark.core.waiter.Waiter;
 import com.github.pierrebeucher.quark.mantisbt.context.MantisBTContext;
 import com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClient;
 import com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClient.IssueStatus;
 
 import biz.futureware.mantis.rpc.soap.client.AttachmentData;
 import biz.futureware.mantis.rpc.soap.client.IssueData;
+import biz.futureware.mantis.rpc.soap.client.IssueNoteData;
 import biz.futureware.mantis.rpc.soap.client.ObjectRef;
 
 /**
@@ -148,44 +145,47 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	 * @throws RemoteException 
 	 */
 	public Set<IssueData> getIssuesWithAttachment(Pattern pattern) throws RemoteException{
+		return getIssuesWithAttachment(pattern, IssueFilter.allAcceptingFilterInstance());
+	}
+	
+	public Set<IssueData> getIssuesWithAttachment(Pattern pattern, IssueFilter filter) throws RemoteException{
 		IssueData[] issueArray = client.mc_project_get_issues(projectId, BigInteger.valueOf(1), BigInteger.valueOf(DEFAULT_ISSUE_RETRIEVING_PAGE_SIZE));
 		Set<IssueData> result = new HashSet<IssueData>();
 		for(IssueData issue : issueArray){
 			AttachmentData[] attachArray = issue.getAttachments();
 			for(AttachmentData attach : attachArray){
-				if(pattern.matcher(attach.getFilename()).find()){
+				if(filter.accept(issue) && pattern.matcher(attach.getFilename()).find()){
 					result.add(issue);
 				}
 			}
 		}
-		return result;
-	}
+		return result;}
 	
-	/**
-	 * Wait for an issue with an attachment matching pattern to be found. Will success
-	 * once one or more issues matching the given pattern is found, or fail after
-	 * timeout. 
-	 * @param pattern
-	 * @param timeout
-	 * @param period
-	 * @return
-	 * @throws InterruptedException  
-	 */
-	public BaseHelperResult<Set<IssueData>> waitForIssueWithAttachment(final Pattern pattern, long timeout, long period) throws InterruptedException {
-		Waiter<BaseHelperResult<Set<IssueData>>> waiter = new SimpleWaiter<BaseHelperResult<Set<IssueData>>>(timeout, period){
-			@Override
-			public BaseHelperResult<Set<IssueData>> performCheck(BaseHelperResult<Set<IssueData>> latestResult) {
-				Set<IssueData> result;
-				try {
-					result = getIssuesWithAttachment(pattern);
-				} catch (RemoteException e) {
-					throw new MantisHelperException(e);
-				}
-				return ResultBuilder.result(!result.isEmpty(), result, "Waiting for issue with attachment '" + pattern.pattern() + "'");
-			}
-		};
-		return waiter.call();
-	}
+//	/**
+//	 * Wait for an issue with an attachment matching pattern to be found. Will success
+//	 * once one or more issues matching the given pattern is found, or fail after
+//	 * timeout. 
+//	 * @param pattern
+//	 * @param timeout
+//	 * @param period
+//	 * @return
+//	 * @throws InterruptedException  
+//	 */
+//	public BaseHelperResult<Set<IssueData>> waitForIssueWithAttachment(final Pattern pattern, long timeout, long period) throws InterruptedException {
+//		Waiter<BaseHelperResult<Set<IssueData>>> waiter = new SimpleWaiter<BaseHelperResult<Set<IssueData>>>(timeout, period){
+//			@Override
+//			public BaseHelperResult<Set<IssueData>> performCheck(BaseHelperResult<Set<IssueData>> latestResult) {
+//				Set<IssueData> result;
+//				try {
+//					result = getIssuesWithAttachment(pattern);
+//				} catch (RemoteException e) {
+//					throw new MantisHelperException(e);
+//				}
+//				return ResultBuilder.result(!result.isEmpty(), result, "Waiting for issue with attachment '" + pattern.pattern() + "'");
+//			}
+//		};
+//		return waiter.call();
+//	}
 	
 	/**
 	 * Generate a dummy issue on the MantisBT server managed by this Helper.
@@ -232,6 +232,37 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	 */
 	public Set<IssueData> getProjectIssues() throws RemoteException{
 		return _getIssuesForProject();
+	}
+	
+	/**
+	 * Add a note on the given issue.
+	 * @param issue
+	 * @param noteText
+	 * @return
+	 * @throws RemoteException
+	 * @throws ServiceException
+	 */
+	public IssueNoteData addNote(IssueData issue, String noteText) throws RemoteException, ServiceException{
+		IssueNoteData noteData = new IssueNoteData();
+		noteData.setText(noteText);
+		
+		client.mc_issue_note_add(issue.getId(), noteData);
+		
+		return noteData;
+	}
+	
+	public void deleteIssue(IssueData issue) throws RemoteException{
+		logger.debug("Deleting issue: {}", issue.getId());
+		client.mc_issue_delete(issue.getId());
+	}
+	
+	public void updateIssue(IssueData issue, IssueStatus status) throws RemoteException{
+		ObjectRef newStatus = new ObjectRef(status.getId(), status.name());
+		
+		logger.debug("Updating issue {} to {}", issue.getId(), status.name());
+		
+		issue.setStatus(newStatus);
+		client.mc_issue_update(issue.getId(), issue);
 	}
 
 	@Override
@@ -292,7 +323,7 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		protected void cleanSafe() throws Exception {
 			Set<IssueData> issueSet = _getIssuesForProject();
 			for(IssueData issue : issueSet){
-				closeIssue(issue);
+				updateIssue(issue, IssueStatus.CLOSED);
 			}
 		}
 
@@ -307,18 +338,6 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 			for(IssueData issue : issueSet){
 				deleteIssue(issue);
 			}
-		}
-		
-		private void closeIssue(IssueData issue) throws RemoteException{
-			ObjectRef closedStatus = new ObjectRef(IssueStatus.CLOSED.getId(), "Closed");
-			logger.debug("Closing issue: {}", issue.getId());
-			issue.setStatus(closedStatus);
-			client.mc_issue_update(issue.getId(), issue);
-		}
-		
-		private void deleteIssue(IssueData issue) throws RemoteException{
-			logger.debug("Deleting issue: {}", issue.getId());
-			client.mc_issue_delete(issue.getId());
 		}
 		
 	}
