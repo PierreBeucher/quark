@@ -12,11 +12,14 @@ import org.apache.chemistry.opencmis.client.api.Session;
 
 import com.github.pierrebeucher.quark.cmis.context.CMISContext;
 import com.github.pierrebeucher.quark.cmis.util.ChemistryCMISUtils;
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.helper.FileCleaner;
+import com.github.pierrebeucher.quark.core.helper.InitializationException;
 
-public class ChemistryCMISCleaner extends AbstractHelper<CMISContext>
+public class ChemistryCMISCleaner extends AbstractLifecycleHelper<CMISContext>
 	implements FileCleaner {
+	
+	private ChemistryCMISHelper helper;
 
 	public ChemistryCMISCleaner(CMISContext context) {
 		super(context);
@@ -28,9 +31,18 @@ public class ChemistryCMISCleaner extends AbstractHelper<CMISContext>
 	}
 
 	@Override
+	protected void doInitialise() throws InitializationException {
+		helper = createCmisHelper();
+		helper.initialise();
+	}
+
+	@Override
+	protected void doDispose() {
+		helper.dispose();
+	}
+
+	@Override
 	public void clean(String dirToClean, String archiveDir) {
-		ChemistryCMISHelper helper = createCmisHelper();
-		helper.init();
 		_clean(dirToClean, archiveDir, helper);
 	}
 	
@@ -38,10 +50,7 @@ public class ChemistryCMISCleaner extends AbstractHelper<CMISContext>
 	 * Delete all the files from thre given directory.
 	 * @param dirToClean
 	 */
-	public void deleteAll(String dirToClean){
-		ChemistryCMISHelper helper = createCmisHelper();
-		helper.init();
-		
+	public void deleteAll(String dirToClean){		
 		Folder folderToClean = (Folder) helper.getSession().getObjectByPath(dirToClean);
 		for(CmisObject o : folderToClean.getChildren()){
 			if(ChemistryCMISUtils.isDocument(o)){
@@ -52,8 +61,6 @@ public class ChemistryCMISCleaner extends AbstractHelper<CMISContext>
 
 	@Override
 	public String cleanToLocalDir(String dirToClean) {
-		ChemistryCMISHelper helper = createCmisHelper();
-		helper.init();
 		Folder folderToClean = (Folder) helper.getSession().getObjectByPath(dirToClean);
 		
 		//create the local archive directories before archiving

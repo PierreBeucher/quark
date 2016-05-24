@@ -2,7 +2,6 @@ package com.github.pierrebeucher.quark.sftp.helper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -11,7 +10,6 @@ import com.github.pierrebeucher.quark.sftp.context.SftpAuthContext;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.github.pierrebeucher.quark.sftp.helper.JSchSftpHelperBuilder;
 import com.github.pierrebeucher.quark.sftp.helper.SftpHelper;
-import com.github.pierrebeucher.quark.sftp.helper.SftpHelperBuilder;
 
 /**
  * Test SftpHelper authentication using various context: password and public key authentication 
@@ -22,9 +20,9 @@ public class SftpHelperAuthIT {
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private SftpHelperBuilder builder;
+	private JSchSftpHelperBuilder builder;
 
-	public SftpHelperAuthIT(SftpHelperBuilder builder) {
+	public SftpHelperAuthIT(JSchSftpHelperBuilder builder) {
 		super();
 		this.builder = builder;
 	}
@@ -38,8 +36,8 @@ public class SftpHelperAuthIT {
 		SftpAuthContext passwordAuthContext = new SftpAuthContext(login, password);
 		SftpAuthContext publicKeyAuthContext = new SftpAuthContext(login, key, keyPassphrase);
 		
-		SftpHelperBuilder passwordAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, passwordAuthContext));
-		SftpHelperBuilder publicKeyAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, publicKeyAuthContext));
+		JSchSftpHelperBuilder passwordAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, passwordAuthContext));
+		JSchSftpHelperBuilder publicKeyAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, publicKeyAuthContext));
 		
 		return new Object[] {
 			new SftpHelperAuthIT(passwordAuthBuilder),
@@ -47,28 +45,16 @@ public class SftpHelperAuthIT {
 		};
 	}
 	
-	private SftpHelper buildNonStrictHostCheckingHelper() throws Exception{
-		SftpHelper helper = builder.build().addOption("StrictHostKeyChecking", "no");
-		
-		logger.info("Connect {}", helper);
-		
-		helper.connect();
-		return helper;
-	}
-	
 	@Test
-	public void connectNonStricthostChecking() throws Exception {
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
-		boolean result = helper.connect();
-		Assert.assertEquals(result, true, "Connection to SFTP server failed.");
-	}
-	
-	@Test
-	public void disconnect() throws Exception {
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
-		helper.connect();
-		boolean result = helper.disconnect();
-		Assert.assertEquals(result, true, "Disconnection from SFTP server failed.");
+	public void nonStricthostChecking() throws Exception {
+		JSchSftpHelper helper = (JSchSftpHelper) builder.build().addOption("StrictHostKeyChecking", "no");
+		
+		logger.info("nonStricthostChecking: {}", helper);
+		helper.initialise();
+		logger.info("Initialised:{}", helper.hashCode());
+		helper.dispose();
+		logger.info("Disposed:{}", helper.hashCode());
+		logger.info("Ready to dispose {}: {}", helper.hashCode(), helper.isFinaliseReady());
 	}
 	
 	/**
@@ -76,11 +62,13 @@ public class SftpHelperAuthIT {
 	 * @throws Exception 
 	 */
 	@Test
-	public void connectStrictHostChecking() throws Exception{
+	public void strictHostChecking() throws Exception{
 		SftpHelper helper = builder.build();
 		
-		logger.debug("Connect {}", helper);
-		
-		helper.connect();
+		logger.info("stricthostChecking: {}", helper);
+		helper.initialise();
+		logger.info("Initialised:{}", helper.hashCode());
+		helper.dispose();
+		logger.info("Disposed:{}", helper.hashCode());
 	}
 }

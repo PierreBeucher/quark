@@ -4,12 +4,13 @@ import java.math.BigInteger;
 import java.rmi.RemoteException;
 import javax.xml.rpc.ServiceException;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.helper.Helper;
+import com.github.pierrebeucher.quark.core.helper.InitializationException;
 import com.github.pierrebeucher.quark.mantisbt.context.MantisBTContext;
 import com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClient;
 
-public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> implements Helper {
+public class AbstractMantisBTHelper extends AbstractLifecycleHelper<MantisBTContext> implements Helper {
 
 	protected MantisBTClient client;
 	
@@ -19,22 +20,35 @@ public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> impl
 		super(new MantisBTContext());
 	}
 
-	
-	public AbstractMantisBTHelper(MantisBTContext context) throws RemoteException, ServiceException {
+	public AbstractMantisBTHelper(MantisBTContext context) {
 		super(context);
-		init();
 	}
 	
-	/**
-	 * Init this Helper using its current context.
-	 * @throws ServiceException 
-	 * @throws RemoteException 
-	 */
-	public AbstractMantisBTHelper init() throws ServiceException, RemoteException{
-		this.client = buildClient();
-		this.projectId = initProjectId();
-		return this;
+	@Override
+	protected void doInitialise() throws InitializationException {
+		try{
+			this.client = buildClient();
+			this.projectId = initProjectId();
+		} catch(ServiceException | RemoteException e){
+			throw new InitializationException(e);
+		}
 	}
+
+	@Override
+	protected void doDispose() {
+		//do nothing
+	}
+
+//	/**
+//	 * Init this Helper using its current context.
+//	 * @throws ServiceException 
+//	 * @throws RemoteException 
+//	 */
+//	public AbstractMantisBTHelper initialise() throws ServiceException, RemoteException{
+//		this.client = buildClient();
+//		this.projectId = initProjectId();
+//		return this;
+//	}
 	
 	/**
 	 * Create a new MantisBTClient if this Helper is ready.
@@ -42,15 +56,16 @@ public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> impl
 	 * @throws ServiceException 
 	 */
 	protected MantisBTClient buildClient() throws ServiceException{
-		if(isReady()){
-			return new MantisBTClient(context.getUrl(),
-					context.getAuthContext().getLogin(),
-					context.getAuthContext().getPassword());
-		} else {
-			throw new RuntimeException("Cannot build a client if Helper is not ready.");
-		}
+		return new MantisBTClient(context.getUrl(),
+				context.getAuthContext().getLogin(),
+				context.getAuthContext().getPassword());
 	}
 	
+	/**
+	 * Use the Helper client to retrieve the projectID using the configured project name. 
+	 * @return
+	 * @throws RemoteException
+	 */
 	protected BigInteger initProjectId() throws RemoteException{
 		return this.client.mc_project_get_id_from_name(context.getProjectName());
 	}
@@ -63,24 +78,6 @@ public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> impl
 		return context.getAuthContext().getLogin() != null
 				&& context.getAuthContext().getPassword() != null
 				&& context.getUrl() != null;
-	}
-	
-	/**
-	 * Settting the context will re-initialize this Helper, by calling {@link #init()} method.
-	 * @throws MantisHelperException
-	 */
-	@Override
-	public void setContext(MantisBTContext context) {
-		super.setContext(context);
-		try {
-			init();
-		} catch (RemoteException | ServiceException e) {
-			throw new MantisHelperException(e);
-		}
-	}
-
-	public void setClient(MantisBTClient client) {
-		this.client = client;
 	}
 
 	public MantisBTClient getClient() {

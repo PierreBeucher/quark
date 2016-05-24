@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -23,6 +24,8 @@ public class JdbcHelperIT {
 	private int port;
 	private String login;
 	private String password;
+	
+	private JdbcHelper helper;
 
 	@Parameters({ "db-host", "db-port", "db-login", "db-password" })
 	@BeforeTest
@@ -33,6 +36,14 @@ public class JdbcHelperIT {
 		this.password = password;
 		
 		logger.info("Testing with host={}, port={}, login={}, password={}", host, port, login, password);
+		
+		this.helper = createHelper();
+		this.helper.initialise();
+	}
+	
+	@AfterTest
+	public void afterTest(){
+		helper.dispose();
 	}
 
 	private JdbcHelper createHelper(){
@@ -47,17 +58,17 @@ public class JdbcHelperIT {
 		return new JdbcHelper(new JdbcContext(dataSource));
 	}
 
-	@Test
-	public void connect() throws SQLException {
-		JdbcHelper helper = createHelper();
-		helper.connect();
-	}
+//	@Test
+//	public void connect() throws SQLException {
+//		JdbcHelper helper = createHelper();
+//		helper.connect();
+//	}
 
-	@Test
-	public void connectStringString() throws SQLException {
-		JdbcHelper helper = createHelper();
-		helper.connect(login, password);
-	}
+//	@Test
+//	public void connectStringString() throws SQLException {
+//		JdbcHelper helper = createHelper();
+//		helper.connect(login, password);
+//	}
 
 	@Test
 	public void getConnection() throws SQLException {
@@ -66,38 +77,38 @@ public class JdbcHelperIT {
 		Assert.assertNotNull(c);
 	}
 	
-	@Test
-	public void getConnectionStringString() throws SQLException {
-		JdbcHelper helper = createHelper();
-		Connection c = helper.getConnection(login, password);
-		Assert.assertNotNull(c);
-	}
+//	@Test
+//	public void getConnectionStringString() throws SQLException {
+//		JdbcHelper helper = createHelper();
+//		Connection c = helper.getConnection(login, password);
+//		Assert.assertNotNull(c);
+//	}
 	
-	@Test
-	public void close() throws SQLException {
-		JdbcHelper helper = createHelper();
-		helper.connect();
-		helper.close();
-	}
-
-	@Test
-	public void isReadyPositive() throws SQLException {
-		JdbcHelper helper = createHelper();
-		helper.connect();
-		Assert.assertEquals(helper.isReady(), true);
-	}
-	
-	@Test
-	public void isReadyNegativeNoConnect() throws SQLException {
-		JdbcHelper helper = createHelper();
-		Assert.assertEquals(helper.isReady(), false);
-	}
-	
-	@Test
-	public void isReadyNegativeDisconnect() throws SQLException {
-		JdbcHelper helper = createHelper();
-		helper.connect();
-		helper.close();
-		Assert.assertEquals(helper.isReady(), false);
-	}
+//	@Test
+//	public void close() throws SQLException {
+//		JdbcHelper helper = createHelper();
+//		helper.connect();
+//		helper.close();
+//	}
+//
+//	@Test
+//	public void isReadyPositive() throws SQLException {
+//		JdbcHelper helper = createHelper();
+//		helper.connect();
+//		Assert.assertEquals(helper.isReady(), true);
+//	}
+//	
+//	@Test
+//	public void isReadyNegativeNoConnect() throws SQLException {
+//		JdbcHelper helper = createHelper();
+//		Assert.assertEquals(helper.isReady(), false);
+//	}
+//	
+//	@Test
+//	public void isReadyNegativeDisconnect() throws SQLException {
+//		JdbcHelper helper = createHelper();
+//		helper.connect();
+//		helper.close();
+//		Assert.assertEquals(helper.isReady(), false);
+//	}
 }

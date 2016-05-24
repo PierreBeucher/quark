@@ -5,11 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.helper.FileCleaner;
+import com.github.pierrebeucher.quark.core.helper.InitializationException;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSchException;
@@ -22,18 +20,29 @@ import com.jcraft.jsch.SftpException;
  * @author pierreb
  *
  */
-public class SftpCleaner extends AbstractHelper<SftpContext> implements FileCleaner{
+public class SftpCleaner extends AbstractLifecycleHelper<SftpContext> implements FileCleaner{
 	
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	//private Logger logger = LoggerFactory.getLogger(getClass());
+	
+	private JSchSftpHelper helper;
 	
 	public SftpCleaner(SftpContext context) {
 		super(context);
 	}
 
-	private JSchSftpHelper createSftpHelper() throws JSchException{
-		JSchSftpHelper helper = new JSchSftpHelper(context);
-		helper.connect();
-		return helper;
+	@Override
+	protected void doInitialise() throws InitializationException {
+		helper = createSftpHelper();
+		helper.initialise();
+	}
+
+	@Override
+	protected void doDispose() {
+		helper.dispose();
+	}
+
+	private JSchSftpHelper createSftpHelper(){
+		return new JSchSftpHelper(context);
 	}
 	/**
 	 * <p>Clean the given directory by copying
@@ -51,15 +60,13 @@ public class SftpCleaner extends AbstractHelper<SftpContext> implements FileClea
 		String quarkTrashDir = dirToClean + "/" + DEFAULT_CLEAN_DIR;
 		String archiveDir = quarkTrashDir + "/" + dateFormat.format(new Date());
 		
-		JSchSftpHelper helper;
 		try {
-			helper = createSftpHelper();
 			helper.mkdirIfNotExists(quarkTrashDir);
 			helper.mkdirIfNotExists(archiveDir);
 		
 			_clean(dirToClean, archiveDir, helper);
 			return archiveDir;
-		} catch (JSchException | SftpException e) {
+		} catch (SftpException e) {
 			throw new SftpHelperException(e);
 		}
 	}
@@ -75,7 +82,7 @@ public class SftpCleaner extends AbstractHelper<SftpContext> implements FileClea
 	public void clean(String dirToClean, String archiveDir) throws SftpHelperException{
 		try {
 			_clean(dirToClean, archiveDir, createSftpHelper());
-		} catch (JSchException | SftpException e) {
+		} catch (SftpException e) {
 			throw new SftpHelperException(e);
 		}
 	}
@@ -115,5 +122,13 @@ public class SftpCleaner extends AbstractHelper<SftpContext> implements FileClea
 		return context.getAuthContext().getLogin() != null
 				&& !StringUtils.isEmpty(context.getHost())
 				&& context.getPort() > 0;
+	}
+
+	/**
+	 * 
+	 * @return the underlying Helper used by this Cleaner
+	 */
+	public JSchSftpHelper getHelper() {
+		return helper;
 	}
 }

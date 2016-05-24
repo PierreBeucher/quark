@@ -16,8 +16,8 @@ public class JSchSftpHelperBuilder extends SftpHelperBuilder {
 	}
 
 	@Override
-	protected SftpHelper buildBaseHelper() {
-		SftpHelper helper = new JSchSftpHelper()
+	protected JSchSftpHelper buildBaseHelper() {
+		JSchSftpHelper helper = (JSchSftpHelper) new JSchSftpHelper()
 			.host(baseContext.getHost())
 			.port(baseContext.getPort())
 			.login(baseContext.getAuthContext().getLogin())

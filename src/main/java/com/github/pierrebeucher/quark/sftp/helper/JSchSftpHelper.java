@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Vector;
 
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.github.pierrebeucher.quark.core.helper.InitializationException;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -25,7 +22,7 @@ import com.jcraft.jsch.SftpException;
  */
 public class JSchSftpHelper extends AbstractSftpHelper {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	//private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	/*
 	 * SFTP error codes
@@ -46,7 +43,15 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 
 	private static final String CHANNEL_SFTP = "sftp";
 	
+	/*
+	 * Known host file used by JSch
+	 */
 	private File knownHosts;
+	
+	/*
+	 * Session used to open Sftp Channel
+	 */
+	private Session session;
 
 	/**
 	 * The SFTP channel created once connected. 
@@ -73,83 +78,162 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 		this.knownHosts = new File(System.getProperty("user.home"), "/.ssh/known_hosts");
 	}
 
-	/**
-	 * Check the authentication context is sane, and print warning when inconsistency are found
-	 */
-	private void checkAuthContextSanity(){
-		if(StringUtils.isNotEmpty(getContext().getAuthContext().getPrivateKey())){
-			File key = new File(getContext().getAuthContext().getPrivateKey());
-			if(!key.isFile() || !key.canRead()){
-				logger.warn("Key {} does not exists or cannot be read", key.getPath());
-			}
-		}
-	}
-
-	public boolean connect() throws JSchException {
-		disconnect();
-
-		checkAuthContextSanity();
-
+	@Override
+	protected void doInitialise() throws InitializationException {
 		try{
-
-			JSch jsch = initJSch();
-			//JSch.setLogger(new DebugLogger());
-
-			//add private key if existing
-			if(getContext().getAuthContext().getPrivateKey() != null){
-				if(getContext().getAuthContext().getPrivateKeyPassword() != null){
-					jsch.addIdentity(getContext().getAuthContext().getPrivateKey(), 
-							getContext().getAuthContext().getPrivateKeyPassword());
-				} else {
-					jsch.addIdentity(getContext().getAuthContext().getPrivateKey());
-				}
-			}
-
-
-			Session session = jsch.getSession(getContext().getAuthContext().getLogin(),
-					getContext().getHost(), getContext().getPort());
-			session.setPassword(getContext().getAuthContext().getPassword());
-			session.setConfig(getContext().getOptions());
-			session.connect(sessionConnectTimeout);
-
-			Channel channel = session.openChannel(CHANNEL_SFTP);
-			channel.connect(channelConnectTimeout);
-			channelSftp = (ChannelSftp) channel;
-
-			return true;
+			JSch jsch = buildJSch();
+			session = initSession(jsch);
+			channelSftp = (ChannelSftp) initChannel(session, CHANNEL_SFTP);
 		} catch (JSchException e){
-
-			//disconnect safely upon error and rethrow
-			disconnect();
-			throw e;
+			throw new InitializationException(e);
 		}
 	}
 	
 	/**
-	 * initialize the JSch instance, providing basic configuration for our context
+	 * Initialize a new JSch instance using the configured konwnHosts file,
+	 * and setting the private key if one is available.
 	 * @return
 	 * @throws JSchException 
 	 */
-	private JSch initJSch() throws JSchException{
+	protected JSch buildJSch() throws JSchException{
 		JSch jsch = new JSch();
 		
+		//set known hosts if configured
 		if(knownHosts != null && knownHosts.exists() && knownHosts.isFile()){
-			logger.debug("Using {} as known hosts", knownHosts.getAbsolutePath());
+			logger.debug("Using known hosts: {}", knownHosts.getAbsolutePath());
 			jsch.setKnownHosts(knownHosts.getAbsolutePath());
 		} else {
-			logger.debug("No known_hosts set for {} (is null or not a file)", knownHosts);
+			logger.debug("No known hosts set for {} (is null or not a file)", knownHosts);
+		}
+		
+		//add private key if existing
+		if(getContext().getAuthContext().getPrivateKey() != null){
+			if(getContext().getAuthContext().getPrivateKeyPassword() != null){
+				jsch.addIdentity(getContext().getAuthContext().getPrivateKey(), 
+						getContext().getAuthContext().getPrivateKeyPassword());
+			} else {
+				jsch.addIdentity(getContext().getAuthContext().getPrivateKey());
+			}
 		}
 		
 		return jsch;
-		
+	}
+	
+	/**
+	 * Initialise a fresh session using the given JSch and 
+	 * this Helper's context. If an exception is thrown,
+	 * this session is safely disconnected. 
+	 * @param jsch
+	 * @return
+	 * @throws JSchException
+	 */
+	protected Session initSession(JSch jsch) throws JSchException{
+		Session session = null;
+		try{
+			session = jsch.getSession(getContext().getAuthContext().getLogin(),
+				getContext().getHost(), getContext().getPort());
+			session.setPassword(getContext().getAuthContext().getPassword());
+			session.setConfig(getContext().getOptions());
+			session.connect(sessionConnectTimeout);
+		} catch (JSchException e) {
+			if(session != null){
+				session.disconnect();
+			}
+			throw e;
+		}
+		return session;
+	}
+	
+	/**
+	 * Initialise a new channel using the given session and type.
+	 * Channel is safely disconnected on error.
+	 * @param session
+	 * @param type
+	 * @return
+	 * @throws JSchException
+	 */
+	protected Channel initChannel(Session session, String type) throws JSchException{
+		Channel channel = null;
+		try{
+			channel = session.openChannel(type);
+			channel.connect(channelConnectTimeout);	
+		} catch(JSchException e){
+			if(channel != null){
+				channel.disconnect();
+			}
+			throw e;
+		}
+		return channel;
 	}
 
-	public boolean disconnect(){		
-		if(this.channelSftp != null){
-			this.channelSftp.disconnect();
+	@Override
+	protected void doDispose() {
+		if(session != null){
+			session.disconnect();
 		}
-		return true;
+		if(channelSftp != null){
+			channelSftp.disconnect();
+		}
 	}
+
+//	/**
+//	 * Check the authentication context is sane, and print warning when inconsistency are found
+//	 */
+//	private void checkAuthContextSanity(){
+//		if(StringUtils.isNotEmpty(getContext().getAuthContext().getPrivateKey())){
+//			File key = new File(getContext().getAuthContext().getPrivateKey());
+//			if(!key.isFile() || !key.canRead()){
+//				logger.warn("Key {} does not exists or cannot be read", key.getPath());
+//			}
+//		}
+//	}
+
+//	public boolean connect() throws JSchException {
+//		disconnect();
+//
+//		checkAuthContextSanity();
+//
+//		try{
+//
+//			JSch jsch = buildJSch();
+//			//JSch.setLogger(new DebugLogger());
+//
+//			//add private key if existing
+//			if(getContext().getAuthContext().getPrivateKey() != null){
+//				if(getContext().getAuthContext().getPrivateKeyPassword() != null){
+//					jsch.addIdentity(getContext().getAuthContext().getPrivateKey(), 
+//							getContext().getAuthContext().getPrivateKeyPassword());
+//				} else {
+//					jsch.addIdentity(getContext().getAuthContext().getPrivateKey());
+//				}
+//			}
+//
+//
+//			Session session = jsch.getSession(getContext().getAuthContext().getLogin(),
+//					getContext().getHost(), getContext().getPort());
+//			session.setPassword(getContext().getAuthContext().getPassword());
+//			session.setConfig(getContext().getOptions());
+//			session.connect(sessionConnectTimeout);
+//
+//			Channel channel = session.openChannel(CHANNEL_SFTP);
+//			channel.connect(channelConnectTimeout);
+//			channelSftp = (ChannelSftp) channel;
+//
+//			return true;
+//		} catch (JSchException e){
+//
+//			//disconnect safely upon error and rethrow
+//			disconnect();
+//			throw e;
+//		}
+//	}
+
+//	public boolean disconnect(){		
+//		if(this.channelSftp != null){
+//			this.channelSftp.disconnect();
+//		}
+//		return true;
+//	}
 
 	public boolean upload(InputStream stream, String dest, int mode) throws SftpException {
 		int jschMode = 0;

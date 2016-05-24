@@ -75,7 +75,7 @@ public class FileHelper extends AbstractHelper<FileContext> implements Helper {
 		getContext().setCharset(charset);
 		return this;
 	}
-	
+
 	/**
 	 * A FileHelper is ready if its File context defines a non-null file.
 	 */

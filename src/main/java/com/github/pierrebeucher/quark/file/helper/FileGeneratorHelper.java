@@ -57,7 +57,7 @@ public class FileGeneratorHelper extends AbstractHelper<FileContext> {
 	public FileGeneratorHelper(FileContext context) {
 		super(context);
 	}
-	
+
 	/**
 	 * Evaluate the given XPath expression for the file managed by this helper, and replace all matching
 	 * node values by the replacement string. The returned file is written in the system

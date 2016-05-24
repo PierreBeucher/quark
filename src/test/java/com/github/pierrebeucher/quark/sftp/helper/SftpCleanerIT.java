@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -21,18 +22,28 @@ public class SftpCleanerIT {
 	private int port;
 	private String dynamicTestdir;
 	private File testFile;
+	
+	private SftpCleaner cleaner;
 
 	@BeforeClass
 	@Parameters({"sftp-host", "sftp-port", "sftp-login", "sftp-password", "sftp-filepath",
 		"sftp-dynamic-testdir"})
 	public void beforeClass(String host, int port, String login, String password, String testFile,
-			String dynamicTestdir){
+			String dynamicTestdir) throws JSchException{
 		this.login = login;
 		this.password = password;
 		this.host = host;
 		this.port = port;
 		this.dynamicTestdir = dynamicTestdir;
 		this.testFile = new File(testFile);
+		
+		this.cleaner = createSftpCleaner();
+		this.cleaner.initialise();
+	}
+	
+	@AfterClass
+	public void afterClass(){
+		this.cleaner.dispose();
 	}
 	
 	private SftpContext createSftpContext(){
@@ -43,13 +54,12 @@ public class SftpCleanerIT {
 		return new SftpCleaner(createSftpContext());
 	}
 	
-	private JSchSftpHelper createSftpHelper() throws JSchException{
-		JSchSftpHelper helper = new JSchSftpHelper(createSftpContext());
-		helper.addOption("StrictHostKeyChecking", "no");
-		helper.connect();
-		return helper;
-	}
-	
+//	private JSchSftpHelper createSftpHelper() throws JSchException{
+//		JSchSftpHelper helper = new JSchSftpHelper(createSftpContext());
+//		helper.addOption("StrictHostKeyChecking", "no");
+//		return helper;
+//	}
+//	
 	@Test
 	public void clean() throws SftpException, FileNotFoundException, JSchException {
 		//create dummy directories and files
@@ -57,7 +67,7 @@ public class SftpCleanerIT {
 		String archiveDir = dynamicTestdir + "/sftpCleaner_archiveDir";
 		String filenameToClean = "filetoClean";
 		
-		JSchSftpHelper helper = createSftpHelper();
+		JSchSftpHelper helper = cleaner.getHelper();
 		helper.mkdirIfNotExists(dirToClean);		
 		helper.mkdirIfNotExists(archiveDir); 
 		helper.upload(testFile, dirToClean + "/" + filenameToClean);
@@ -76,7 +86,7 @@ public class SftpCleanerIT {
 		String dirToClean = dynamicTestdir + "/sftpCleaner_toCleanLocal";
 		String filenameToClean = "filetoClean";
 		
-		JSchSftpHelper helper = createSftpHelper();
+		JSchSftpHelper helper = cleaner.getHelper();
 		helper.mkdirIfNotExists(dirToClean);		
 		helper.upload(testFile, dirToClean + "/" + filenameToClean);
 		

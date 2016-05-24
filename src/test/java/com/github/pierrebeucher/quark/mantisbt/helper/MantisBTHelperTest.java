@@ -6,6 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.github.pierrebeucher.quark.mantisbt.context.MantisBTContext;
 import com.github.pierrebeucher.quark.mantisbt.helper.MantisBTHelper;
 
 /**
@@ -58,5 +59,12 @@ public class MantisBTHelperTest {
 		helper.username(username);
 		
 		Assert.assertEquals(helper.getContext().getAuthContext().getLogin(), username);
+	}
+	
+	@Test
+	public void MantisBTHelperMantisBTContext() {
+		MantisBTContext ctx = new MantisBTContext();
+		MantisBTHelper helper = new MantisBTHelper(ctx);
+		Assert.assertEquals(helper.getContext(), ctx);
 	}
 }

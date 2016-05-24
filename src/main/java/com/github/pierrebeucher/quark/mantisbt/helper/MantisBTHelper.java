@@ -55,10 +55,9 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		this.cleaner = new MantisBTCleaningHelper();
 	}
 
-	public MantisBTHelper(MantisBTContext context) throws ServiceException, RemoteException {
+	public MantisBTHelper(MantisBTContext context) {
 		super(context);
 		this.cleaner = new MantisBTCleaningHelper();
-		init();
 	}
 	
 	/**
@@ -112,11 +111,11 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		return this;
 	}
 	
-	@Override
-	public MantisBTHelper init() throws ServiceException, RemoteException {
-		super.init();
-		return this;
-	}
+//	@Override
+//	public MantisBTHelper initialise() throws ServiceException, RemoteException {
+//		super.initialise();
+//		return this;
+//	}
 
 	private Set<IssueData> _getIssuesForProject(IssueFilter filter) throws RemoteException{
 		Set<IssueData> result = new HashSet<IssueData>();		
@@ -305,7 +304,8 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		this.issueRetrievingPageCount = cleanPageCount;
 	}
 
-	public class MantisBTCleaningHelper extends AbstractCleaningHelper<MantisBTContext> implements Helper, CleaningHelper{
+	//TODO externalize class
+	private class MantisBTCleaningHelper extends AbstractCleaningHelper<MantisBTContext> implements Helper, CleaningHelper{
 
 		public MantisBTCleaningHelper() {
 			super(MantisBTHelper.this.context);

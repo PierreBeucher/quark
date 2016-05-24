@@ -11,9 +11,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.result.BaseExpectingHelperResult;
 import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.core.result.ResultBuilder;
@@ -28,60 +26,56 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
  * @author Pierre Beucher
  *
  */
-public abstract class AbstractSftpHelper implements SftpHelper {
+public abstract class AbstractSftpHelper extends AbstractLifecycleHelper<SftpContext> implements SftpHelper {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	//private Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private SftpContext sftpContext;
+	//private SftpContext sftpContext;
 	
 	public AbstractSftpHelper() {
-		this.sftpContext = new SftpContext();
+		super(new SftpContext());
 	}
 
 	public AbstractSftpHelper(SftpContext sftpContext) {
-		this.sftpContext = sftpContext;
+		super(sftpContext);
 	}
-
-	public SftpContext getContext() {
-		return sftpContext;
-	}
-
+	
+	@Override
 	public SftpHelper context(SftpContext context) {
-		this.sftpContext = context;
+		setContext(context);
 		return this;
 	}
 
 	public SftpHelper host(String host) {
-		sftpContext.setHost(host);
+		context.setHost(host);
 		return this;
-		
 	}
 
 	public SftpHelper port(int port) {
-		sftpContext.setPort(port);
+		context.setPort(port);
 		return this;
 	}
 
 	public SftpHelper login(String login) {
-		sftpContext.getAuthContext().setLogin(login);
+		context.getAuthContext().setLogin(login);
 		return this;
 	}
 
 	public SftpHelper password(String password) {
-		sftpContext.getAuthContext().setPassword(password);
+		context.getAuthContext().setPassword(password);
 		return this;
 	}
 
 	public SftpHelper privateKey(String privateKey) {
-		sftpContext.getAuthContext().setPrivateKey(privateKey);
+		context.getAuthContext().setPrivateKey(privateKey);
 		return this;
 	}
 	
 	public SftpHelper addOption(String option, Object value){
-		sftpContext.getOptions().put(option, value);
+		context.getOptions().put(option, value);
 		return this;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getContext().toString();

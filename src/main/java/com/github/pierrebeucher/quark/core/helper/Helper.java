@@ -26,5 +26,4 @@ public interface Helper {
 	 * @return true if this Helper is ready, false otherwise
 	 */
 	boolean isReady();
-
 }

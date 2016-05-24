@@ -125,46 +125,17 @@ public class SftpContext extends ServerContext {
 		return this.authContext.getPrivateKeyPassword();
 	}
 
+	/**
+	 * Attempts to call getUri().toString(). If an URISyntaxException is thrown,
+	 * generate a String like: sftp://[login]@[host]:[port]
+	 */
 	@Override
 	public String toString() {
-		StringBuilder buf = new StringBuilder();
-		
 		try {
-			buf.append(toUri().toString());
+			return toUri().toString();
 		} catch (URISyntaxException e) {
-			//TODO try to build manually with warning?
-			e.printStackTrace();
-			buf.append("[URISyntaxException]");
+			return "sftp://" + getLogin() + "@" + getHost() + ":" + getPort();
 		}
-		
-//		buf.append(" (");
-//		if(StringUtils.isEmpty(getAuthContext().getPassword())
-//				&& StringUtils.isEmpty(getAuthContext().getPrivateKey())){
-//			buf.append("anonymous");
-//		} else {
-//			buf.append("password:");
-//			buf.append(StringUtils.isEmpty(getAuthContext().getPassword()) ? "no" : "yes");
-//			buf.append(",key:");
-//			if(!StringUtils.isEmpty(getAuthContext().getPrivateKey())){
-//				buf.append("yes");
-//				if(StringUtils.isEmpty(getAuthContext().getPrivateKeyPassword())){
-//					buf.append("(no passphrase)");
-//				}
-//			} else {
-//				buf.append("no");
-//			}
-//			
-//		}
-//		buf.append(")");
-		
-//		.append(StringUtils.isNotEmpty(getAuthContext().getPassword()))
-//		.append(",key:")
-//		.append(getAuthContext().getPrivateKey())
-//		.append(",keyPassphrase:")
-//		.append(StringUtils.isNotEmpty(getAuthContext().getPrivateKeyPassword()))
-//		.append(")");
-		
-		return buf.toString();
 	}
 
 	@Override

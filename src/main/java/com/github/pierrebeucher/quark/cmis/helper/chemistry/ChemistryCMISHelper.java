@@ -20,22 +20,20 @@ import org.apache.chemistry.opencmis.commons.SessionParameter;
 import org.apache.chemistry.opencmis.commons.enums.BaseTypeId;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisContentAlreadyExistsException;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.pierrebeucher.quark.cmis.context.CMISBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISContext;
 import com.github.pierrebeucher.quark.cmis.helper.CMISHelper;
 import com.github.pierrebeucher.quark.cmis.util.ChemistryCMISUtils;
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.helper.Helper;
+import com.github.pierrebeucher.quark.core.helper.InitializationException;
 import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.core.result.ResultBuilder;
 import com.github.pierrebeucher.quark.core.waiter.SimpleWaiter;
 
-public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements Helper, CMISHelper{
+public class ChemistryCMISHelper extends AbstractLifecycleHelper<CMISContext> implements Helper, CMISHelper{
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	//private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private Session session;
 	
@@ -56,6 +54,17 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 		super(context);
 	}
 	
+	@Override
+	protected void doInitialise() throws InitializationException {
+		this.bindingContextHandler = createBindingContextHandler();
+		this.session = createSession();
+	}
+	
+	@Override
+	protected void doDispose() {
+		this.session.clear();
+	}
+
 	/**
 	 * Init the BindingContextHandler depending on the concrete BindingContext managed by this Helper.
 	 */
@@ -82,15 +91,15 @@ public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements 
 		} 
 	}
 	
-	/**
-	 * Initialize this Helper, creating a CMIS session
-	 * @return
-	 */
-	public ChemistryCMISHelper init(){
-		this.bindingContextHandler = createBindingContextHandler();
-		this.session = createSession();
-		return this;
-	}
+//	/**
+//	 * Initialize this Helper, creating a CMIS session
+//	 * @return
+//	 */
+//	public ChemistryCMISHelper initialise(){
+//		this.bindingContextHandler = createBindingContextHandler();
+//		this.session = createSession();
+//		return this;
+//	}
 	
 	public ChemistryCMISHelper bindingContext(CMISBindingContext bindingContext){
 		context.setBindingContext(bindingContext);

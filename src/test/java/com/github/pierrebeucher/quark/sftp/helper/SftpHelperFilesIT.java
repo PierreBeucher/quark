@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -18,9 +18,7 @@ import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.core.result.ExpectingHelperResult;
 import com.github.pierrebeucher.quark.sftp.context.SftpAuthContext;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
-import com.github.pierrebeucher.quark.sftp.helper.JSchSftpHelperBuilder;
 import com.github.pierrebeucher.quark.sftp.helper.SftpHelper;
-import com.github.pierrebeucher.quark.sftp.helper.SftpHelperBuilder;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.SftpException;
@@ -40,11 +38,9 @@ public class SftpHelperFilesIT {
 	 */
 	private static final String TESTFILE_CHECKSUM = "79f0583f98948d3587b33bbb6183c6ae";
 	
-	private SftpHelperBuilder builder;
+	//private SftpHelperBuilder builder;
 	
 	private File testFile;
-	
-	//private String testDir;
 	
 	/*
 	 * This directory contains static files: they are always present on the machine
@@ -56,43 +52,72 @@ public class SftpHelperFilesIT {
 	 * This directory is dynamic and cleanded before each test run
 	 */
 	private String dynamicSftpDir;
-
-	public SftpHelperFilesIT(SftpHelperBuilder builder, File testFile, String staticSftpDir,
-			String dynamicSftpDir) {
-		super();
-		this.builder = builder;
-		this.testFile = testFile;
-		this.staticSftpDir = staticSftpDir;
-		this.dynamicSftpDir = dynamicSftpDir;
-	}
 	
-	@Factory
+	private JSchSftpHelper helper;
+
+//	public SftpHelperFilesIT(SftpHelperBuilder builder, File testFile, String staticSftpDir,
+//			String dynamicSftpDir) {
+//		super();
+//		//this.builder = builder;
+//		this.testFile = testFile;
+//		this.staticSftpDir = staticSftpDir;
+//		this.dynamicSftpDir = dynamicSftpDir;
+//		
+//		this.helper =  (JSchSftpHelper) builder.build().addOption("StrictHostKeyChecking", "no");
+//		this.helper.initialise();
+//	}
+	
+
+	@BeforeClass
 	@Parameters({"sftp-host", "sftp-port", "sftp-login", "sftp-password",
 		"sftp-key", "sftp-key-passphrase", "sftp-filepath", "sftp-static-testdir",
 		"sftp-dynamic-testdir"})
-	public static Object[] createInstances(String host, int port, String login,
+	public void beforeClass(String host, int port, String login,
 			String password, String key, String keyPassphrase, String filePath,
-			String staticSftpDir, String dynamicSftpDir){
+			String staticSftpDir, String dynamicSftpDir) throws SftpException{
+		
+		this.testFile = new File(filePath);
+		this.staticSftpDir = staticSftpDir;
+		this.dynamicSftpDir = dynamicSftpDir;
 	
-		//SftpAuthContext passwordAuthContext = new SftpAuthContext(login, password);
 		SftpAuthContext publicKeyAuthContext = new SftpAuthContext(login, key, keyPassphrase);
+		helper = new JSchSftpHelper(new SftpContext(host, port, publicKeyAuthContext));
+		helper.initialise();
+		this.rmBeforeClass(helper.getChannelSftp(), dynamicSftpDir);
 		
-		//SftpHelperBuilder passwordAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, testFile, passwordAuthContext));
-		SftpHelperBuilder publicKeyAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, publicKeyAuthContext));
-		
-		return new Object[] {
-			//new SftpHelperFilesIT(passwordAuthBuilder, new File(filePath), staticSftpDir, dynamicSftpDir),
-			new SftpHelperFilesIT(publicKeyAuthBuilder, new File(filePath), staticSftpDir, dynamicSftpDir),
-		};
 	}
 	
-	@BeforeClass
-	@Parameters
-	public void beforeClass() throws Exception{
-		//clean the dynamic directory, without using our helper directly
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
-		ChannelSftp channelSftp = helper.getChannelSftp();
-		this.rmBeforeClass(channelSftp, dynamicSftpDir);
+//	@BeforeClass
+//	@Parameters({"sftp-host", "sftp-port", "sftp-login", "sftp-password",
+//		"sftp-key", "sftp-key-passphrase", "sftp-filepath", "sftp-static-testdir",
+//		"sftp-dynamic-testdir"})
+//	public static Object[] createInstances(String host, int port, String login,
+//			String password, String key, String keyPassphrase, String filePath,
+//			String staticSftpDir, String dynamicSftpDir){
+//	
+//		//SftpAuthContext passwordAuthContext = new SftpAuthContext(login, password);
+//		SftpAuthContext publicKeyAuthContext = new SftpAuthContext(login, key, keyPassphrase);
+//		
+//		//SftpHelperBuilder passwordAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, testFile, passwordAuthContext));
+//		SftpHelperBuilder publicKeyAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, publicKeyAuthContext));
+//		
+//		return new Object[] {
+//			//new SftpHelperFilesIT(passwordAuthBuilder, new File(filePath), staticSftpDir, dynamicSftpDir),
+//			new SftpHelperFilesIT(publicKeyAuthBuilder, new File(filePath), staticSftpDir, dynamicSftpDir),
+//		};
+//	}
+//	
+//	@BeforeClass
+//	@Parameters
+//	public void beforeClass() throws Exception{
+//		//clean the dynamic directory
+//		ChannelSftp channelSftp = helper.getChannelSftp();
+//		this.rmBeforeClass(channelSftp, dynamicSftpDir);
+//	}
+	
+	@AfterClass
+	public void afterClass(){
+		helper.dispose();
 	}
 	
 	private void rmBeforeClass(ChannelSftp channelSftp, String rmDir) throws SftpException{
@@ -115,19 +140,17 @@ public class SftpHelperFilesIT {
 		}
 	}
 	
-	private SftpHelper buildNonStrictHostCheckingHelper() throws Exception{
-		SftpHelper helper = builder.build().addOption("StrictHostKeyChecking", "no");
-		
-		logger.debug("Connect {}", helper);
-		
-		helper.connect();
-		return helper;
-	}
+//	private SftpHelper buildNonStrictHostCheckingHelper() throws Exception{
+//		SftpHelper helper = builder.build().addOption("StrictHostKeyChecking", "no");
+//		
+//		logger.debug("Connect {}", helper);
+//		
+//		helper.connect();
+//		return helper;
+//	}
 	
 	@Test
 	public void list() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
-		helper.connect();
 		Vector<LsEntry> ls = helper.list(staticSftpDir + "/containsTwoFilesOneDir");
 		
 		//. .. directory file1 file2
@@ -136,7 +159,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void listDirectoryNominal() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		Vector<LsEntry> ls = helper.listDirectories(staticSftpDir + "/containsOneDirectory");
 		
 		// . .. dir
@@ -145,7 +167,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void listDirectoryNegative() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		Vector<LsEntry> ls = helper.listDirectories(staticSftpDir + "/containsOneFile");
 		
 		// . ..
@@ -154,7 +175,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void listFilesNominal() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		Vector<LsEntry> ls = helper.listFiles(staticSftpDir + "/containsOneFile");
 		
 		// file
@@ -163,7 +183,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void listFilesNegative() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		Vector<LsEntry> ls = helper.listFiles(staticSftpDir + "/containsOneDirectory");
 		
 		// file
@@ -172,7 +191,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void listFilesMatching() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		Vector<LsEntry> result = helper.listFiles(staticSftpDir + "/containsMultipleFiles", Pattern.compile(".*\\.log"));
 		boolean success = result.size() == 1 && result.get(0).getFilename().equals("file2.log");
 		Assert.assertEquals(success, true, "Result: " + result + " does not contains expected file matching.");
@@ -180,7 +198,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void remove() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		String fileToRemove = dynamicSftpDir + "/fileToRemove";
 		helper.upload(testFile, fileToRemove);
 		
@@ -190,7 +207,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void removeDir() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		String dirToRemove = dynamicSftpDir + "/dirToRemove";
 		helper.mkdirIfNotExists(dirToRemove);
 		
@@ -200,14 +216,12 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void getChecksum() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		String checksum = helper.getChecksum(staticSftpDir + "/file.xml");
 		Assert.assertEquals(checksum, TESTFILE_CHECKSUM, "Checksum for SFTP test file and original file does not match.");
 	}
 	
 	@Test 
 	public void compareChecksumStream() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		InputStream stream = new FileInputStream(testFile);
 		ExpectingHelperResult<?, ?> result = helper.compareChecksum(stream, staticSftpDir + "/file.xml");
 		Assert.assertEquals(result.isSuccess(), true, "Checksum does not match, actual:" + result.getActual() + ", expected:" + result.getExpected());
@@ -215,7 +229,6 @@ public class SftpHelperFilesIT {
 	
 	@Test 
 	public void compareChecksumFile() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		ExpectingHelperResult<?, ?> result = helper.compareChecksum(testFile, staticSftpDir + "/file.xml");
 		Assert.assertEquals(result.isSuccess(), true, "Checksum does not match, actual:" + result.getActual() + ", expected:" + result.getExpected());
 	}
@@ -223,8 +236,6 @@ public class SftpHelperFilesIT {
 	@Test
 	public void uploadSimple() throws Exception{
 		String uploadAs = "simpleUpload.txt";
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
-		helper.connect();
 				
 		helper.upload(testFile, dynamicSftpDir + "/" + uploadAs);
 		
@@ -243,8 +254,6 @@ public class SftpHelperFilesIT {
 	@Test
 	public void uploadOverwrite() throws Exception{
 		String uploadAs = "simpleUploadOverwrite.txt";
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
-		helper.connect();
 		
 		//upload and overwrite
 		helper.upload(testFile, dynamicSftpDir + "/" + uploadAs);
@@ -254,7 +263,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void waitForContainsFile() throws Exception{
-		final SftpHelper helper = buildNonStrictHostCheckingHelper();
 		final String uploadAs = "simpleWaitedUpload.txt";
 		
 		
@@ -283,8 +291,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void waitForContainsFileNegative() throws Exception{
-		final SftpHelper helper = buildNonStrictHostCheckingHelper();
-		
 		Pattern pattern = Pattern.compile("NonExistingFile.txt");
 		BaseHelperResult<Vector<LsEntry>> result = helper.waitForContainsFile(dynamicSftpDir, pattern, 3000, 500);
 		
@@ -294,7 +300,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void waitForContainsFileCount() throws Exception{
-		final SftpHelper helper = buildNonStrictHostCheckingHelper();
 		final String uploadAs1 = "simpleWaitedUpload1.txt";
 		final String uploadAs2 = "simpleWaitedUpload2.txt";
 		final String uploadAs3 = "simpleWaitedUpload3.txt";
@@ -327,35 +332,30 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void existsStringPositive() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		boolean result = helper.exists(staticSftpDir + "/" + testFile.getName());
 		Assert.assertEquals(result, true);
 	}
 	
 	@Test
 	public void existsStringNegative() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		boolean result = helper.exists(staticSftpDir + "/" + "DoNotExists");
 		Assert.assertEquals(result, false);
 	}
 	
 	@Test
 	public void existsStringStringPositive() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		boolean result = helper.exists(staticSftpDir, testFile.getName());
 		Assert.assertEquals(result, true);
 	}
 	
 	@Test
 	public void existsStringStringNegative() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		boolean result = helper.exists(staticSftpDir, "DoNotExists");
 		Assert.assertEquals(result, false);
 	}
 	
 	@Test
 	public void mkdirIfNotExists() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
 		String dirname = "Dir_mkdirIfNotExists";
 
 		logger.info("Creating {} if not exists.", dirname);
@@ -369,8 +369,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void moveDirectory() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
-		
 		//prepare: clean and create dummy file
 		String originName = "dirToMove";
 		String origin = dynamicSftpDir + "/" + originName;
@@ -385,8 +383,6 @@ public class SftpHelperFilesIT {
 	
 	@Test
 	public void moveDirectoryContent() throws Exception{
-		SftpHelper helper = buildNonStrictHostCheckingHelper();
-		
 		//prepare: create complex directory tree
 		String dest = dynamicSftpDir + "/moveDirectoryContentDest";
 		String origin = dynamicSftpDir + "/moveDirectoryContentOrigin";

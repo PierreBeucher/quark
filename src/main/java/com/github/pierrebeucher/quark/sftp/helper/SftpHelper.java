@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.github.pierrebeucher.quark.core.helper.Helper;
+import com.github.pierrebeucher.quark.core.helper.Lifecycle;
 import com.github.pierrebeucher.quark.core.result.BaseExpectingHelperResult;
 import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
@@ -21,7 +22,7 @@ import com.jcraft.jsch.SftpException;
  * @author Pierre Beucher
  *
  */
-public interface SftpHelper extends Helper {
+public interface SftpHelper extends Helper, Lifecycle {
 
 	/**
 	 * Defautl checksum algorithm used when comparing files
@@ -95,22 +96,22 @@ public interface SftpHelper extends Helper {
 	 */
 	public SftpHelper addOption(String option, Object value);
 	
-	/**
-	 * Connect to the SFTP server using the available context. Return result as
-	 * success or failure.
-	 * @return result as success or failure
-	 * @throws Exception
-	 */
-	public boolean connect() throws Exception;
-	
-	/**
-	 * Disconnect the underlying client from the SFTP server. Will return
-	 * success if the client is correctly disconnected. If the client
-	 * is not connected when calling, failure is returned.
-	 * @return result as success or failure
-	 * @throws Exception
-	 */
-	public boolean disconnect() throws Exception;
+//	/**
+//	 * Connect to the SFTP server using the available context. Return result as
+//	 * success or failure.
+//	 * @return result as success or failure
+//	 * @throws Exception
+//	 */
+//	public boolean connect() throws Exception;
+//	
+//	/**
+//	 * Disconnect the underlying client from the SFTP server. Will return
+//	 * success if the client is correctly disconnected. If the client
+//	 * is not connected when calling, failure is returned.
+//	 * @return result as success or failure
+//	 * @throws Exception
+//	 */
+//	public boolean disconnect() throws Exception;
 	
 	/**
 	 * Upload content using a file
