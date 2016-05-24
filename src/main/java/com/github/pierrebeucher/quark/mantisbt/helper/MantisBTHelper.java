@@ -118,7 +118,7 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		return this;
 	}
 
-	private Set<IssueData> _getIssuesForProject() throws RemoteException{
+	private Set<IssueData> _getIssuesForProject(IssueFilter filter) throws RemoteException{
 		Set<IssueData> result = new HashSet<IssueData>();		
 		
 		//retrieve issue on each page
@@ -131,7 +131,9 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 			}
 			
 			for(IssueData issue : issueArray){
-				result.add(issue);
+				if(filter.accept(issue)){
+					result.add(issue);
+				}
 			}
 		}
 		
@@ -231,7 +233,7 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	 * @throws RemoteException 
 	 */
 	public Set<IssueData> getProjectIssues() throws RemoteException{
-		return _getIssuesForProject();
+		return _getIssuesForProject(IssueFilter.allAcceptingFilterInstance());
 	}
 	
 	/**
@@ -321,7 +323,8 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		 */
 		@Override
 		protected void cleanSafe() throws Exception {
-			Set<IssueData> issueSet = _getIssuesForProject();
+			//only close non closed issues
+			Set<IssueData> issueSet = _getIssuesForProject(IssueFilter.nonClosedFilterInstance());
 			for(IssueData issue : issueSet){
 				updateIssue(issue, IssueStatus.CLOSED);
 			}
@@ -334,7 +337,8 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		 */
 		@Override
 		protected void cleanHard() throws Exception {
-			Set<IssueData> issueSet = _getIssuesForProject();
+			//get all issues regardless of there states
+			Set<IssueData> issueSet = _getIssuesForProject(IssueFilter.allAcceptingFilterInstance());
 			for(IssueData issue : issueSet){
 				deleteIssue(issue);
 			}
