@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Vector;
 
-import com.github.pierrebeucher.quark.core.helper.InitializationException;
+import com.github.pierrebeucher.quark.core.helper.Helper;
+import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
+import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
+import com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -20,7 +24,7 @@ import com.jcraft.jsch.SftpException;
  * @author Pierre Beucher
  *
  */
-public class JSchSftpHelper extends AbstractSftpHelper {
+public class JSchSftpHelper extends AbstractSftpHelper implements Initialisable, Disposable, Helper{
 
 	//private Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -42,6 +46,8 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 	public static final int DEFAULT_CHANNEL_CONNECT_TIMEOUT = 60000;
 
 	private static final String CHANNEL_SFTP = "sftp";
+	
+	private LifecycleManager lifecycleManager;
 	
 	/*
 	 * Known host file used by JSch
@@ -69,23 +75,24 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 	private int channelConnectTimeout = DEFAULT_CHANNEL_CONNECT_TIMEOUT;
 
 	public JSchSftpHelper() {
-		super();
-		this.knownHosts = new File(System.getProperty("user.home"), "/.ssh/known_hosts");
+		this(new SftpContext());
 	}
 
 	public JSchSftpHelper(SftpContext sftpContext) {
 		super(sftpContext);
+		this.lifecycleManager = new LifecycleManager();
 		this.knownHosts = new File(System.getProperty("user.home"), "/.ssh/known_hosts");
 	}
 
 	@Override
-	protected void doInitialise() throws InitializationException {
+	public void initialise() throws InitialisationException {
+		lifecycleManager.initialise();
 		try{
 			JSch jsch = buildJSch();
 			session = initSession(jsch);
 			channelSftp = (ChannelSftp) initChannel(session, CHANNEL_SFTP);
 		} catch (JSchException e){
-			throw new InitializationException(e);
+			throw new InitialisationException(e);
 		}
 	}
 	
@@ -167,7 +174,9 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 	}
 
 	@Override
-	protected void doDispose() {
+	public void dispose() {
+		lifecycleManager.dispose();
+		
 		if(session != null){
 			session.disconnect();
 		}
@@ -176,64 +185,13 @@ public class JSchSftpHelper extends AbstractSftpHelper {
 		}
 	}
 
-//	/**
-//	 * Check the authentication context is sane, and print warning when inconsistency are found
-//	 */
-//	private void checkAuthContextSanity(){
-//		if(StringUtils.isNotEmpty(getContext().getAuthContext().getPrivateKey())){
-//			File key = new File(getContext().getAuthContext().getPrivateKey());
-//			if(!key.isFile() || !key.canRead()){
-//				logger.warn("Key {} does not exists or cannot be read", key.getPath());
-//			}
-//		}
-//	}
+	public boolean isDisposed() {
+		return lifecycleManager.isDisposed();
+	}
 
-//	public boolean connect() throws JSchException {
-//		disconnect();
-//
-//		checkAuthContextSanity();
-//
-//		try{
-//
-//			JSch jsch = buildJSch();
-//			//JSch.setLogger(new DebugLogger());
-//
-//			//add private key if existing
-//			if(getContext().getAuthContext().getPrivateKey() != null){
-//				if(getContext().getAuthContext().getPrivateKeyPassword() != null){
-//					jsch.addIdentity(getContext().getAuthContext().getPrivateKey(), 
-//							getContext().getAuthContext().getPrivateKeyPassword());
-//				} else {
-//					jsch.addIdentity(getContext().getAuthContext().getPrivateKey());
-//				}
-//			}
-//
-//
-//			Session session = jsch.getSession(getContext().getAuthContext().getLogin(),
-//					getContext().getHost(), getContext().getPort());
-//			session.setPassword(getContext().getAuthContext().getPassword());
-//			session.setConfig(getContext().getOptions());
-//			session.connect(sessionConnectTimeout);
-//
-//			Channel channel = session.openChannel(CHANNEL_SFTP);
-//			channel.connect(channelConnectTimeout);
-//			channelSftp = (ChannelSftp) channel;
-//
-//			return true;
-//		} catch (JSchException e){
-//
-//			//disconnect safely upon error and rethrow
-//			disconnect();
-//			throw e;
-//		}
-//	}
-
-//	public boolean disconnect(){		
-//		if(this.channelSftp != null){
-//			this.channelSftp.disconnect();
-//		}
-//		return true;
-//	}
+	public boolean isInitialised() {
+		return lifecycleManager.isInitialised();
+	}
 
 	public boolean upload(InputStream stream, String dest, int mode) throws SftpException {
 		int jschMode = 0;

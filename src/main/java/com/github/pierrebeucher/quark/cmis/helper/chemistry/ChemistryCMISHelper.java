@@ -24,16 +24,19 @@ import com.github.pierrebeucher.quark.cmis.context.CMISBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISContext;
 import com.github.pierrebeucher.quark.cmis.helper.CMISHelper;
 import com.github.pierrebeucher.quark.cmis.util.ChemistryCMISUtils;
-import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
 import com.github.pierrebeucher.quark.core.helper.Helper;
-import com.github.pierrebeucher.quark.core.helper.InitializationException;
+import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
+import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
+import com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager;
 import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.core.result.ResultBuilder;
 import com.github.pierrebeucher.quark.core.waiter.SimpleWaiter;
 
-public class ChemistryCMISHelper extends AbstractLifecycleHelper<CMISContext> implements Helper, CMISHelper{
+public class ChemistryCMISHelper extends AbstractHelper<CMISContext> implements Helper, CMISHelper,
+		Initialisable, Disposable{
 
-	//private Logger logger = LoggerFactory.getLogger(getClass());
+	private LifecycleManager lifecycleManager;
 	
 	private Session session;
 	
@@ -52,17 +55,26 @@ public class ChemistryCMISHelper extends AbstractLifecycleHelper<CMISContext> im
 
 	public ChemistryCMISHelper(CMISContext context) {
 		super(context);
+		this.lifecycleManager = new LifecycleManager();
 	}
 	
-	@Override
-	protected void doInitialise() throws InitializationException {
+	public void dispose() {
+		lifecycleManager.dispose();
+		this.session.clear();
+	}
+
+	public boolean isDisposed() {
+		return lifecycleManager.isDisposed();
+	}
+
+	public void initialise() {
+		lifecycleManager.initialise();
 		this.bindingContextHandler = createBindingContextHandler();
 		this.session = createSession();
 	}
-	
-	@Override
-	protected void doDispose() {
-		this.session.clear();
+
+	public boolean isInitialised() {
+		return lifecycleManager.isInitialised();
 	}
 
 	/**

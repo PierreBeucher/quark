@@ -16,6 +16,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.mantisbt.context.MantisBTContext;
 import com.github.pierrebeucher.quark.mantisbt.helper.MantisBTHelper;
 import com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClient.IssueStatus;
@@ -37,7 +38,7 @@ public class MantisBTHelperIT {
 	@Parameters({ "mantisbt-url", "mantisbt-username", "mantisbt-password", "mantisbt-project", "mantisbt-project-clean-hard" })
 	@BeforeClass
 	public void beforeClass(String url, String username, String password, String project, String projectCleanHard)
-			throws MalformedURLException, ServiceException, RemoteException {
+			throws InitialisationException, MalformedURLException {
 //		this.url = new URL(url);
 //		this.username = username;
 //		this.password = password;
@@ -53,7 +54,7 @@ public class MantisBTHelperIT {
 	
 	@AfterClass
 	public void afterClass(){
-		helper.dispose();
+		//helper.dispose();
 	}
 	
 //	/**

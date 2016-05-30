@@ -8,7 +8,8 @@ import org.testng.annotations.Test;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
-import com.github.pierrebeucher.quark.core.helper.InitializationException;
+import com.github.pierrebeucher.quark.core.lifecycle.DisposeException;
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.github.pierrebeucher.quark.sftp.helper.AbstractSftpHelper;
 import com.github.pierrebeucher.quark.sftp.helper.SftpHelper;
@@ -57,10 +58,18 @@ public class AbstractSftpHelperTest {
 			public void removeDir(String dirpath) throws SftpException {
 			}
 			@Override
-			protected void doInitialise() throws InitializationException {
+			public void initialise() throws InitialisationException {
 			}
 			@Override
-			protected void doDispose() {
+			public boolean isInitialised() {
+				return false;
+			}
+			@Override
+			public void dispose() throws DisposeException {
+			}
+			@Override
+			public boolean isDisposed() {
+				return false;
 			}
 		};
 	}

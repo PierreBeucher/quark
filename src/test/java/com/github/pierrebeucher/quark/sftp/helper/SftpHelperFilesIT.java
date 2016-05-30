@@ -12,6 +12,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.core.result.ExpectingHelperResult;
 import com.github.pierrebeucher.quark.sftp.context.SftpAuthContext;
@@ -70,7 +71,7 @@ public class SftpHelperFilesIT extends BaseSftpIT<SftpHelper>{
 	
 	@Override
 	@BeforeTest
-	public void beforeClass() {
+	public void beforeClass() throws InitialisationException {
 		super.beforeClass();
 		try {
 			rmBeforeTest(helper.getChannelSftp(), this.dynamicSftpDir);

@@ -12,17 +12,19 @@ import org.apache.chemistry.opencmis.client.api.Session;
 
 import com.github.pierrebeucher.quark.cmis.context.CMISContext;
 import com.github.pierrebeucher.quark.cmis.util.ChemistryCMISUtils;
-import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
 import com.github.pierrebeucher.quark.core.helper.FileCleaner;
-import com.github.pierrebeucher.quark.core.helper.InitializationException;
+import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
+import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
 
-public class ChemistryCMISCleaner extends AbstractLifecycleHelper<CMISContext>
-	implements FileCleaner {
+public class ChemistryCMISCleaner extends AbstractHelper<CMISContext> 
+	implements FileCleaner, Initialisable, Disposable {
 	
 	private ChemistryCMISHelper helper;
 
 	public ChemistryCMISCleaner(CMISContext context) {
 		super(context);
+		helper = createCmisHelper();
 	}
 
 	@Override
@@ -30,15 +32,20 @@ public class ChemistryCMISCleaner extends AbstractLifecycleHelper<CMISContext>
 		return true;
 	}
 
-	@Override
-	protected void doInitialise() throws InitializationException {
-		helper = createCmisHelper();
+	public void dispose() {
+		helper.dispose();
+	}
+
+	public boolean isDisposed() {
+		return helper.isDisposed();
+	}
+
+	public void initialise() {
 		helper.initialise();
 	}
 
-	@Override
-	protected void doDispose() {
-		helper.dispose();
+	public boolean isInitialised() {
+		return helper.isInitialised();
 	}
 
 	@Override

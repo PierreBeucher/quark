@@ -3,37 +3,50 @@ package com.github.pierrebeucher.quark.jdbc.helper;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
 import com.github.pierrebeucher.quark.core.helper.Helper;
-import com.github.pierrebeucher.quark.core.helper.InitializationException;
+import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
+import com.github.pierrebeucher.quark.core.lifecycle.DisposeException;
+import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
+import com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager;
 import com.github.pierrebeucher.quark.jdbc.context.JdbcContext;
 
-public class JdbcHelper extends AbstractLifecycleHelper<JdbcContext> implements Helper{
+public class JdbcHelper extends AbstractHelper<JdbcContext> implements Helper, Initialisable, Disposable{
 	
-	//	private Logger logger = LoggerFactory.getLogger(getClass());
+	private LifecycleManager lifecycleManager;
 	
 	private Connection connection;
 
 	public JdbcHelper(JdbcContext context) {
 		super(context);
+		this.lifecycleManager = new LifecycleManager();
 	}
 	
-	@Override
-	protected void doInitialise() throws InitializationException {
+	public void initialise() throws InitialisationException {
+		lifecycleManager.initialise();
 		try {
 			connect();
 		} catch (SQLException e) {
-			throw new InitializationException(e);
+			throw new InitialisationException(e);
 		}
 	}
 
-	@Override
-	protected void doDispose() {
+	public boolean isInitialised() {
+		return lifecycleManager.isInitialised();
+	}
+	
+	public void dispose() throws DisposeException {
+		lifecycleManager.dispose();
 		try {
 			close();
 		} catch (SQLException e) {
-			throw new InitializationException(e);
+			throw new DisposeException(e);
 		}
+	}
+
+	public boolean isDisposed() {
+		return lifecycleManager.isDisposed();
 	}
 
 	/**

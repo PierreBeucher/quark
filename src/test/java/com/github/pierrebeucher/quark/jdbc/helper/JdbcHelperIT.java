@@ -13,6 +13,8 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.github.pierrebeucher.quark.core.lifecycle.DisposeException;
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.jdbc.context.JdbcContext;
 import com.github.pierrebeucher.quark.jdbc.helper.JdbcHelper;
 
@@ -29,7 +31,7 @@ public class JdbcHelperIT {
 
 	@Parameters({ "db-host", "db-port", "db-login", "db-password" })
 	@BeforeTest
-	public void beforeTest(String host, int port, String login, String password) {
+	public void beforeTest(String host, int port, String login, String password) throws InitialisationException {
 		this.host = host;
 		this.port = port;
 		this.login = login;
@@ -42,7 +44,7 @@ public class JdbcHelperIT {
 	}
 	
 	@AfterTest
-	public void afterTest(){
+	public void afterTest() throws DisposeException{
 		helper.dispose();
 	}
 

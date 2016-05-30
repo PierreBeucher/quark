@@ -14,6 +14,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
+
 public class FtpHelperIT {
 
 	private String testFileContent;
@@ -29,7 +31,7 @@ public class FtpHelperIT {
 
 	@BeforeClass
 	@Parameters({"ftp-host", "ftp-port", "ftp-login", "ftp-password"})
-	public void beforeClass(String host, int port, String login, String password) throws IOException{
+	public void beforeClass(String host, int port, String login, String password) throws IOException, InitialisationException{
 		this.host = host;
 		this.login = login;
 		this.port = port;

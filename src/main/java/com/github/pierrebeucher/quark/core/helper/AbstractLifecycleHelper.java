@@ -13,6 +13,7 @@ import com.github.pierrebeucher.quark.core.context.base.HelperContext;
  *
  * @param <E>
  */
+@Deprecated
 public abstract class AbstractLifecycleHelper<E extends HelperContext> extends AbstractHelper<E>
 		implements Lifecycle{
 

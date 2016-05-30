@@ -4,51 +4,46 @@ import java.math.BigInteger;
 import java.rmi.RemoteException;
 import javax.xml.rpc.ServiceException;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
 import com.github.pierrebeucher.quark.core.helper.Helper;
-import com.github.pierrebeucher.quark.core.helper.InitializationException;
+import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
+import com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager;
 import com.github.pierrebeucher.quark.mantisbt.context.MantisBTContext;
 import com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClient;
 
-public class AbstractMantisBTHelper extends AbstractLifecycleHelper<MantisBTContext> implements Helper {
+public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> implements Helper, Initialisable {
 
+	private LifecycleManager lifecycleManager;
+	
 	protected MantisBTClient client;
 	
 	protected BigInteger projectId;
 	
 	public AbstractMantisBTHelper() {
-		super(new MantisBTContext());
+		this(new MantisBTContext());
 	}
 
 	public AbstractMantisBTHelper(MantisBTContext context) {
 		super(context);
+		this.lifecycleManager = new LifecycleManager();
 	}
-	
+
 	@Override
-	protected void doInitialise() throws InitializationException {
+	public void initialise() throws InitialisationException {
+		lifecycleManager.initialise();
 		try{
 			this.client = buildClient();
 			this.projectId = initProjectId();
 		} catch(ServiceException | RemoteException e){
-			throw new InitializationException(e);
+			throw new InitialisationException(e);
 		}
 	}
 
 	@Override
-	protected void doDispose() {
-		//do nothing
+	public boolean isInitialised() {
+		return lifecycleManager.isInitialised();
 	}
-
-//	/**
-//	 * Init this Helper using its current context.
-//	 * @throws ServiceException 
-//	 * @throws RemoteException 
-//	 */
-//	public AbstractMantisBTHelper initialise() throws ServiceException, RemoteException{
-//		this.client = buildClient();
-//		this.projectId = initProjectId();
-//		return this;
-//	}
 	
 	/**
 	 * Create a new MantisBTClient if this Helper is ready.

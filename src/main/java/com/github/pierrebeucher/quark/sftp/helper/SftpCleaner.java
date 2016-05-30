@@ -5,9 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
-import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
+
+import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
 import com.github.pierrebeucher.quark.core.helper.FileCleaner;
-import com.github.pierrebeucher.quark.core.helper.InitializationException;
+import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
+import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSchException;
@@ -20,7 +23,7 @@ import com.jcraft.jsch.SftpException;
  * @author pierreb
  *
  */
-public class SftpCleaner extends AbstractLifecycleHelper<SftpContext> implements FileCleaner{
+public class SftpCleaner extends AbstractHelper<SftpContext> implements FileCleaner, Initialisable, Disposable{
 	
 	//private Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -28,17 +31,23 @@ public class SftpCleaner extends AbstractLifecycleHelper<SftpContext> implements
 	
 	public SftpCleaner(SftpContext context) {
 		super(context);
+		helper = new JSchSftpHelper(context);
 	}
 
-	@Override
-	protected void doInitialise() throws InitializationException {
-		helper = new JSchSftpHelper(context);
+	public void initialise() throws InitialisationException {
 		helper.initialise();
 	}
 
-	@Override
-	protected void doDispose() {
+	public void dispose() {
 		helper.dispose();
+	}
+
+	public boolean isDisposed() {
+		return helper.isDisposed();
+	}
+
+	public boolean isInitialised() {
+		return helper.isInitialised();
 	}
 	
 	/**

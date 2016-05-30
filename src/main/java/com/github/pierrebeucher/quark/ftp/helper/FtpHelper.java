@@ -8,15 +8,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
-import com.github.pierrebeucher.quark.core.helper.InitializationException;
+import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
+import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
+import com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager;
 import com.github.pierrebeucher.quark.ftp.context.FtpContext;
 
-public class FtpHelper extends AbstractLifecycleHelper<FtpContext>{
-
-	//private Logger logger = LoggerFactory.getLogger(getClass());
+public class FtpHelper extends AbstractHelper<FtpContext> implements Initialisable, Disposable{
 	
 	private FTPClient ftpClient;
+	
+	private LifecycleManager lifecycleManager;
 	
 	public FtpHelper() {
 		this(new FtpContext());
@@ -24,6 +27,7 @@ public class FtpHelper extends AbstractLifecycleHelper<FtpContext>{
 	
 	public FtpHelper(FtpContext context) {
 		super(context);
+		this.lifecycleManager = new LifecycleManager();
 	}
 	
 	public FtpHelper context(FtpContext ctx){
@@ -51,8 +55,25 @@ public class FtpHelper extends AbstractLifecycleHelper<FtpContext>{
 		return this;
 	}
 	
-	@Override
-	protected void doInitialise() throws InitializationException {
+	public void dispose() {
+		lifecycleManager.dispose();
+		doDispose();
+	}
+
+	public boolean isDisposed() {
+		return lifecycleManager.isDisposed();
+	}
+
+	public void initialise() throws InitialisationException {
+		lifecycleManager.initialise();
+		doInitialise();
+	}
+
+	public boolean isInitialised() {
+		return lifecycleManager.isInitialised();
+	}
+
+	protected void doInitialise() throws InitialisationException {
 		FTPClient _ftpClient = null;
 		try{
 			_ftpClient = new FTPClient();
@@ -73,11 +94,10 @@ public class FtpHelper extends AbstractLifecycleHelper<FtpContext>{
 				logger.error("Initialisation error for FTPClient but failed to clean up,"
 						+ " an FTP connection may still be active: " + e.getMessage(), e);
 			}
-			throw new InitializationException(e);
+			throw new InitialisationException(e);
 		} 
 	}
 
-	@Override
 	protected void doDispose() {
 		try{
 			if(ftpClient != null){

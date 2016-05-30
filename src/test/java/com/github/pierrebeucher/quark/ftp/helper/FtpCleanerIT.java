@@ -13,6 +13,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.ftp.context.FtpContext;
 
 public class FtpCleanerIT {
@@ -24,7 +25,7 @@ public class FtpCleanerIT {
 	
 	@BeforeClass
 	@Parameters({"ftp-host", "ftp-port", "ftp-login", "ftp-password"})
-	public void beforeClass(String host, int port, String login, String password) throws IOException{
+	public void beforeClass(String host, int port, String login, String password) throws IOException, InitialisationException{
 		//create dummy testfile
 		testFile = File.createTempFile("quarkftp", null);
 		Files.write(testFile.toPath(), "somecontent".getBytes());

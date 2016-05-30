@@ -4,8 +4,10 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
-import com.github.pierrebeucher.quark.core.helper.InitializationException;
+import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
+import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.SftpException;
 
@@ -14,7 +16,7 @@ import com.jcraft.jsch.SftpException;
  * @author pierreb
  *
  */
-public class SftpServiceHelper extends AbstractLifecycleHelper<SftpContext> {
+public class SftpServiceHelper extends AbstractHelper<SftpContext> implements Disposable, Initialisable{
 
 	private JSchSftpHelper helper;
 	
@@ -30,14 +32,20 @@ public class SftpServiceHelper extends AbstractLifecycleHelper<SftpContext> {
 		helper = new JSchSftpHelper(context);
 	}
 	
-	@Override
-	protected void doInitialise() throws InitializationException {
+	public void initialise() throws InitialisationException {
 		helper.initialise();
 	}
 
-	@Override
-	protected void doDispose() {
+	public void dispose() {
 		helper.dispose();
+	}
+
+	public boolean isDisposed() {
+		return helper.isDisposed();
+	}
+
+	public boolean isInitialised() {
+		return helper.isInitialised();
 	}
 
 	/**

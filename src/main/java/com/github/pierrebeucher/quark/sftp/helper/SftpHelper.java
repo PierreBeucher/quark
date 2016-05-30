@@ -10,7 +10,8 @@ import java.util.regex.Pattern;
 
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.github.pierrebeucher.quark.core.helper.Helper;
-import com.github.pierrebeucher.quark.core.helper.Lifecycle;
+import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
+import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
 import com.github.pierrebeucher.quark.core.result.BaseExpectingHelperResult;
 import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
@@ -22,7 +23,7 @@ import com.jcraft.jsch.SftpException;
  * @author Pierre Beucher
  *
  */
-public interface SftpHelper extends Helper, Lifecycle {
+public interface SftpHelper extends Helper, Initialisable, Disposable {
 
 	/**
 	 * Defautl checksum algorithm used when comparing files
