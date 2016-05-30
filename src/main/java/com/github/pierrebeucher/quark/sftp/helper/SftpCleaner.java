@@ -32,7 +32,7 @@ public class SftpCleaner extends AbstractLifecycleHelper<SftpContext> implements
 
 	@Override
 	protected void doInitialise() throws InitializationException {
-		helper = createSftpHelper();
+		helper = new JSchSftpHelper(context);
 		helper.initialise();
 	}
 
@@ -40,10 +40,7 @@ public class SftpCleaner extends AbstractLifecycleHelper<SftpContext> implements
 	protected void doDispose() {
 		helper.dispose();
 	}
-
-	private JSchSftpHelper createSftpHelper(){
-		return new JSchSftpHelper(context);
-	}
+	
 	/**
 	 * <p>Clean the given directory by copying
 	 * its content into a sub-directory named <i>.quark_trash</i> (such as
@@ -81,7 +78,7 @@ public class SftpCleaner extends AbstractLifecycleHelper<SftpContext> implements
 	 */
 	public void clean(String dirToClean, String archiveDir) throws SftpHelperException{
 		try {
-			_clean(dirToClean, archiveDir, createSftpHelper());
+			_clean(dirToClean, archiveDir, helper);
 		} catch (SftpException e) {
 			throw new SftpHelperException(e);
 		}

@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -14,52 +13,33 @@ import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 
-public class SftpCleanerIT {
+public class SftpCleanerIT extends BaseSftpIT<SftpCleaner> {
+
+	@Factory
+	@Parameters({"sftp-host", "sftp-port", "sftp-login", "sftp-password", "sftp-filepath",
+		"sftp-dynamic-testdir"})
+	public static Object[] beforeClass(String host, int port, String login, String password, String testFile,
+			String dynamicTestdir) throws JSchException{
+		
+		return new Object[]{
+			new SftpCleanerIT(
+				new SftpCleaner(new SftpContext(host, port, new SftpAuthContext(login, password))),
+				testFile,
+				dynamicTestdir
+			)
+		};
+	}
 	
-	private String login;
-	private String password;
-	private String host;
-	private int port;
 	private String dynamicTestdir;
 	private File testFile;
 	
-	private SftpCleaner cleaner;
+	public SftpCleanerIT(SftpCleaner helper, String testfilePath, String testDir) {
+		super(helper);
+		this.testFile = new File(testfilePath);
+		this.dynamicTestdir = testDir;
+	}
 
-	@BeforeClass
-	@Parameters({"sftp-host", "sftp-port", "sftp-login", "sftp-password", "sftp-filepath",
-		"sftp-dynamic-testdir"})
-	public void beforeClass(String host, int port, String login, String password, String testFile,
-			String dynamicTestdir) throws JSchException{
-		this.login = login;
-		this.password = password;
-		this.host = host;
-		this.port = port;
-		this.dynamicTestdir = dynamicTestdir;
-		this.testFile = new File(testFile);
-		
-		this.cleaner = createSftpCleaner();
-		this.cleaner.initialise();
-	}
 	
-	@AfterClass
-	public void afterClass(){
-		this.cleaner.dispose();
-	}
-	
-	private SftpContext createSftpContext(){
-		return new SftpContext(host, port, new SftpAuthContext(login, password));
-	}
-	
-	private SftpCleaner createSftpCleaner(){
-		return new SftpCleaner(createSftpContext());
-	}
-	
-//	private JSchSftpHelper createSftpHelper() throws JSchException{
-//		JSchSftpHelper helper = new JSchSftpHelper(createSftpContext());
-//		helper.addOption("StrictHostKeyChecking", "no");
-//		return helper;
-//	}
-//	
 	@Test
 	public void clean() throws SftpException, FileNotFoundException, JSchException {
 		//create dummy directories and files
@@ -67,17 +47,16 @@ public class SftpCleanerIT {
 		String archiveDir = dynamicTestdir + "/sftpCleaner_archiveDir";
 		String filenameToClean = "filetoClean";
 		
-		JSchSftpHelper helper = cleaner.getHelper();
-		helper.mkdirIfNotExists(dirToClean);		
-		helper.mkdirIfNotExists(archiveDir); 
-		helper.upload(testFile, dirToClean + "/" + filenameToClean);
+		helper.getHelper().mkdirIfNotExists(dirToClean);		
+		helper.getHelper().mkdirIfNotExists(archiveDir); 
+		helper.getHelper().upload(testFile, dirToClean + "/" + filenameToClean);
 		
 		//run test
-		SftpCleaner cleaner = createSftpCleaner();
-		cleaner.clean(dirToClean, archiveDir);
+		logger.info("Cleaning: {}", helper);
+		helper.clean(dirToClean, archiveDir);
 		
-		Assert.assertEquals(helper.exists(dirToClean, filenameToClean), false);
-		Assert.assertEquals(helper.exists(archiveDir, filenameToClean), true);
+		Assert.assertEquals(helper.getHelper().exists(dirToClean, filenameToClean), false);
+		Assert.assertEquals(helper.getHelper().exists(archiveDir, filenameToClean), true);
 	}
 
 	@Test
@@ -86,21 +65,17 @@ public class SftpCleanerIT {
 		String dirToClean = dynamicTestdir + "/sftpCleaner_toCleanLocal";
 		String filenameToClean = "filetoClean";
 		
-		JSchSftpHelper helper = cleaner.getHelper();
-		helper.mkdirIfNotExists(dirToClean);		
-		helper.upload(testFile, dirToClean + "/" + filenameToClean);
-		
-		//run test
-		SftpCleaner cleaner = createSftpCleaner();
-		String archiveDir = cleaner.cleanToLocalDir(dirToClean);
-		
-		Assert.assertEquals(helper.exists(dirToClean, filenameToClean), false);
-		Assert.assertEquals(helper.exists(dirToClean + "/." + SftpCleaner.DEFAULT_CLEAN_DIR), true);
-		Assert.assertEquals(helper.exists(archiveDir), true);
-	}
+		helper.getHelper().mkdirIfNotExists(dirToClean);		
+		helper.getHelper().upload(testFile, dirToClean + "/" + filenameToClean);
 
-//	@Test
-//	public void cleanToTempDir() {
-//		throw new RuntimeException("Test not implemented");
-//	}
+
+		String archiveDir = helper.cleanToLocalDir(dirToClean);
+		
+		Assert.assertEquals(helper.getHelper().exists(dirToClean, filenameToClean), false,
+				filenameToClean + " should not exists in " + dirToClean);
+		Assert.assertEquals(helper.getHelper().exists(dirToClean + "/" + SftpCleaner.DEFAULT_CLEAN_DIR), true,
+				SftpCleaner.DEFAULT_CLEAN_DIR + " should have been created as archive folder in " + dirToClean);
+		Assert.assertEquals(helper.getHelper().exists(archiveDir), true,
+				archiveDir + " should not be null and point to a valid archive directory ");
+	}
 }

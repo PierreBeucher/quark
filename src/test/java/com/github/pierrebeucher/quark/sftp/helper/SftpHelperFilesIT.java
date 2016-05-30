@@ -6,11 +6,9 @@ import java.io.InputStream;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -28,17 +26,26 @@ import com.jcraft.jsch.SftpException;
  * @author Pierre Beucher
  *
  */
-public class SftpHelperFilesIT {
+public class SftpHelperFilesIT extends BaseSftpIT<SftpHelper>{
 	
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	@Factory
+	@Parameters({"sftp-host", "sftp-port", "sftp-login", "sftp-password",
+		"sftp-filepath", "sftp-static-testdir", "sftp-dynamic-testdir"})
+	public static Object[] factory(String host, int port, String login, String password,
+			String filePath,String staticSftpDir, String dynamicSftpDir){
+		return new Object[]{
+			new SftpHelperFilesIT(
+				new JSchSftpHelper(new SftpContext(host, port, new SftpAuthContext(login, password))),
+				filePath, staticSftpDir, dynamicSftpDir
+			)
+		};
+	}
 	
 	/**
 	 * Checksum for src/test/resources/files/file.xml
 	 * TODO replace with parameter
 	 */
 	private static final String TESTFILE_CHECKSUM = "79f0583f98948d3587b33bbb6183c6ae";
-	
-	//private SftpHelperBuilder builder;
 	
 	private File testFile;
 	
@@ -52,75 +59,27 @@ public class SftpHelperFilesIT {
 	 * This directory is dynamic and cleanded before each test run
 	 */
 	private String dynamicSftpDir;
-	
-	private JSchSftpHelper helper;
 
-//	public SftpHelperFilesIT(SftpHelperBuilder builder, File testFile, String staticSftpDir,
-//			String dynamicSftpDir) {
-//		super();
-//		//this.builder = builder;
-//		this.testFile = testFile;
-//		this.staticSftpDir = staticSftpDir;
-//		this.dynamicSftpDir = dynamicSftpDir;
-//		
-//		this.helper =  (JSchSftpHelper) builder.build().addOption("StrictHostKeyChecking", "no");
-//		this.helper.initialise();
-//	}
-	
-
-	@BeforeClass
-	@Parameters({"sftp-host", "sftp-port", "sftp-login", "sftp-password",
-		"sftp-key", "sftp-key-passphrase", "sftp-filepath", "sftp-static-testdir",
-		"sftp-dynamic-testdir"})
-	public void beforeClass(String host, int port, String login,
-			String password, String key, String keyPassphrase, String filePath,
-			String staticSftpDir, String dynamicSftpDir) throws SftpException{
-		
-		this.testFile = new File(filePath);
+	public SftpHelperFilesIT(SftpHelper helper, String testfilePath, String staticSftpDir,
+			String dynamicSftpDir) {
+		super(helper);
+		this.testFile = new File(testfilePath);
 		this.staticSftpDir = staticSftpDir;
 		this.dynamicSftpDir = dynamicSftpDir;
-	
-		SftpAuthContext publicKeyAuthContext = new SftpAuthContext(login, key, keyPassphrase);
-		helper = new JSchSftpHelper(new SftpContext(host, port, publicKeyAuthContext));
-		helper.initialise();
-		this.rmBeforeClass(helper.getChannelSftp(), dynamicSftpDir);
-		
 	}
 	
-//	@BeforeClass
-//	@Parameters({"sftp-host", "sftp-port", "sftp-login", "sftp-password",
-//		"sftp-key", "sftp-key-passphrase", "sftp-filepath", "sftp-static-testdir",
-//		"sftp-dynamic-testdir"})
-//	public static Object[] createInstances(String host, int port, String login,
-//			String password, String key, String keyPassphrase, String filePath,
-//			String staticSftpDir, String dynamicSftpDir){
-//	
-//		//SftpAuthContext passwordAuthContext = new SftpAuthContext(login, password);
-//		SftpAuthContext publicKeyAuthContext = new SftpAuthContext(login, key, keyPassphrase);
-//		
-//		//SftpHelperBuilder passwordAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, testFile, passwordAuthContext));
-//		SftpHelperBuilder publicKeyAuthBuilder = new JSchSftpHelperBuilder(new SftpContext(host, port, publicKeyAuthContext));
-//		
-//		return new Object[] {
-//			//new SftpHelperFilesIT(passwordAuthBuilder, new File(filePath), staticSftpDir, dynamicSftpDir),
-//			new SftpHelperFilesIT(publicKeyAuthBuilder, new File(filePath), staticSftpDir, dynamicSftpDir),
-//		};
-//	}
-//	
-//	@BeforeClass
-//	@Parameters
-//	public void beforeClass() throws Exception{
-//		//clean the dynamic directory
-//		ChannelSftp channelSftp = helper.getChannelSftp();
-//		this.rmBeforeClass(channelSftp, dynamicSftpDir);
-//	}
-	
-	@AfterClass
-	public void afterClass(){
-		helper.dispose();
+	@Override
+	@BeforeTest
+	public void beforeClass() {
+		super.beforeClass();
+		try {
+			rmBeforeTest(helper.getChannelSftp(), this.dynamicSftpDir);
+		} catch (SftpException e) {
+			logger.error("Cannot clean before test: " + e.getMessage(), e);
+		}
 	}
 	
-	private void rmBeforeClass(ChannelSftp channelSftp, String rmDir) throws SftpException{
+	private void rmBeforeTest(ChannelSftp channelSftp, String rmDir) throws SftpException{
 		for(Object o : channelSftp.ls(rmDir)) {
 			LsEntry entry = ((LsEntry) o);
 			if(".".equals(entry.getFilename()) || "..".equals(entry.getFilename())){
@@ -129,10 +88,10 @@ public class SftpHelperFilesIT {
 			
 			String rmPath = rmDir + "/" + entry.getFilename();
 			
-			logger.info("beforeClass: Removing {}", rmPath);
+			logger.info("beforeTest: Removing {}", rmPath);
 			
 			if(entry.getAttrs().isDir()){
-				rmBeforeClass(channelSftp, rmPath);
+				rmBeforeTest(channelSftp, rmPath);
 				channelSftp.rmdir(rmPath);
 			} else {
 				channelSftp.rm(rmPath);
@@ -140,15 +99,7 @@ public class SftpHelperFilesIT {
 		}
 	}
 	
-//	private SftpHelper buildNonStrictHostCheckingHelper() throws Exception{
-//		SftpHelper helper = builder.build().addOption("StrictHostKeyChecking", "no");
-//		
-//		logger.debug("Connect {}", helper);
-//		
-//		helper.connect();
-//		return helper;
-//	}
-	
+
 	@Test
 	public void list() throws Exception{
 		Vector<LsEntry> ls = helper.list(staticSftpDir + "/containsTwoFilesOneDir");
@@ -377,6 +328,7 @@ public class SftpHelperFilesIT {
 		helper.mkdirIfNotExists(destination);
 		
 		//test
+		logger.info("Moving {} to {}/{}", origin, destination, originName);
 		helper.move(origin, destination + "/" + originName);
 		helper.exists(destination, originName);
 	}

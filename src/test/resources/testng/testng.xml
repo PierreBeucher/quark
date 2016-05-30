@@ -39,8 +39,10 @@
 	
 	<test name="SftpHelperTest">
 		<classes>
+			<class name="com.github.pierrebeucher.quark.sftp.helper.BaseSftpIT"/>
 			<class name="com.github.pierrebeucher.quark.sftp.helper.SftpHelperFilesIT"/>
 			<class name="com.github.pierrebeucher.quark.sftp.helper.SftpHelperAuthIT"/>
+			<class name="com.github.pierrebeucher.quark.sftp.helper.SftpServiceHelperIT"/>
 		</classes>
 	</test>
 	<test name="FileHelperTest">

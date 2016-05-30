@@ -4,9 +4,9 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
+import com.github.pierrebeucher.quark.core.helper.InitializationException;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
-import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 
 /**
@@ -14,28 +14,41 @@ import com.jcraft.jsch.SftpException;
  * @author pierreb
  *
  */
-public class SftpServiceHelper extends AbstractHelper<SftpContext> {
+public class SftpServiceHelper extends AbstractLifecycleHelper<SftpContext> {
 
-	private JSchSftpHelper sftpHelper;
+	private JSchSftpHelper helper;
 	
 	/**
 	 * The empty constructor cannot be used, as the underlying Helper is initialized on construction.
 	 */
 	private SftpServiceHelper(){
-		super(null);
+		super(new SftpContext());
 	}
 	
-	public SftpServiceHelper(SftpContext context) throws JSchException {
+	public SftpServiceHelper(SftpContext context) {
 		super(context);
-		this.sftpHelper = new JSchSftpHelper(context);
-		this.sftpHelper.connect();
+		helper = new JSchSftpHelper(context);
 	}
 	
-	public void produceFile(Map<InputStream, String> dataMap) throws SftpException{
-		JSchSftpHelper helper = getSftpHelper();
-		
+	@Override
+	protected void doInitialise() throws InitializationException {
+		helper.initialise();
+	}
+
+	@Override
+	protected void doDispose() {
+		helper.dispose();
+	}
+
+	/**
+	 * Produce a set of file in the given destination directory.
+	 * @param dataMap map of data to produce, key is stream data, value is filename to produce
+	 * @param destDir destination directory
+	 * @throws SftpException
+	 */
+	public void produceFile(Map<InputStream, String> dataMap, String destDir) throws SftpException{
 		for(Entry<InputStream, String> e : dataMap.entrySet()){
-			helper.upload(e.getKey(), e.getValue());
+			produceFile(e.getKey(), destDir, e.getValue());
 		}
 	}
 	
@@ -50,11 +63,11 @@ public class SftpServiceHelper extends AbstractHelper<SftpContext> {
 	}
 	
 	protected JSchSftpHelper getSftpHelper(){
-		return sftpHelper;
+		return helper;
 	}
 
 	@Override
 	public boolean isReady() {
-		return sftpHelper.isReady();
+		return helper.isReady();
 	}
 }
