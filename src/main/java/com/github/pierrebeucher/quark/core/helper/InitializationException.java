@@ -6,6 +6,7 @@ package com.github.pierrebeucher.quark.core.helper;
  * @author pierreb
  *
  */
+@Deprecated
 public class InitializationException extends HelperException {
 
 	/**

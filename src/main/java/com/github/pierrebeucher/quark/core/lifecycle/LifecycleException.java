@@ -1,15 +1,13 @@
 package com.github.pierrebeucher.quark.core.lifecycle;
 
-public class LifecycleException extends Exception {
+import com.github.pierrebeucher.quark.core.helper.HelperException;
+
+public class LifecycleException extends HelperException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1517092455685508427L;
-
-	public LifecycleException() {
-		super();
-	}
 
 	public LifecycleException(String message, Throwable cause) {
 		super(message, cause);

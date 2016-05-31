@@ -7,10 +7,6 @@ public class InitialisationException extends LifecycleException {
 	 */
 	private static final long serialVersionUID = 4265706147116487506L;
 
-	public InitialisationException() {
-		super();
-	}
-
 	public InitialisationException(String message, Throwable cause) {
 		super(message, cause);
 	}
