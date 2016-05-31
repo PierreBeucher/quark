@@ -4,51 +4,27 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.github.pierrebeucher.quark.core.lifecycle.DisposeException;
 import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.jdbc.context.JdbcContext;
 import com.github.pierrebeucher.quark.jdbc.helper.JdbcHelper;
 
-public class JdbcHelperIT {
-	
-	private Logger logger = LoggerFactory.getLogger(getClass());
-	
-	private String host;
-	private int port;
-	private String login;
-	private String password;
-	
-	private JdbcHelper helper;
+public class JdbcHelperIT extends BaseJdbcHelperIT<JdbcHelper> {
 
 	@Parameters({ "db-host", "db-port", "db-login", "db-password" })
-	@BeforeTest
-	public void beforeTest(String host, int port, String login, String password) throws InitialisationException {
-		this.host = host;
-		this.port = port;
-		this.login = login;
-		this.password = password;
-		
-		logger.info("Testing with host={}, port={}, login={}, password={}", host, port, login, password);
-		
-		this.helper = createHelper();
-		this.helper.initialise();
-	}
-	
-	@AfterTest
-	public void afterTest() throws DisposeException{
-		helper.dispose();
+	@Factory
+	public static Object[] beforeTest(String host, int port, String login, String password) throws InitialisationException {
+		return new Object[]{
+			new JdbcHelperIT(createHelper(host, port, login, password))
+		};
 	}
 
-	private JdbcHelper createHelper(){
+	private static JdbcHelper createHelper(String host, int port, String login, String password){
 		String url = "jdbc:mysql://" + host + ":" + port;
 		DriverManagerDataSource dataSource = new DriverManagerDataSource(url, login, password);
 		
@@ -59,58 +35,14 @@ public class JdbcHelperIT {
 		
 		return new JdbcHelper(new JdbcContext(dataSource));
 	}
-
-//	@Test
-//	public void connect() throws SQLException {
-//		JdbcHelper helper = createHelper();
-//		helper.connect();
-//	}
-
-//	@Test
-//	public void connectStringString() throws SQLException {
-//		JdbcHelper helper = createHelper();
-//		helper.connect(login, password);
-//	}
+	
+	public JdbcHelperIT(JdbcHelper helper) {
+		super(helper);
+	}
 
 	@Test
 	public void getConnection() throws SQLException {
-		JdbcHelper helper = createHelper();
 		Connection c = helper.getConnection();
 		Assert.assertNotNull(c);
 	}
-	
-//	@Test
-//	public void getConnectionStringString() throws SQLException {
-//		JdbcHelper helper = createHelper();
-//		Connection c = helper.getConnection(login, password);
-//		Assert.assertNotNull(c);
-//	}
-	
-//	@Test
-//	public void close() throws SQLException {
-//		JdbcHelper helper = createHelper();
-//		helper.connect();
-//		helper.close();
-//	}
-//
-//	@Test
-//	public void isReadyPositive() throws SQLException {
-//		JdbcHelper helper = createHelper();
-//		helper.connect();
-//		Assert.assertEquals(helper.isReady(), true);
-//	}
-//	
-//	@Test
-//	public void isReadyNegativeNoConnect() throws SQLException {
-//		JdbcHelper helper = createHelper();
-//		Assert.assertEquals(helper.isReady(), false);
-//	}
-//	
-//	@Test
-//	public void isReadyNegativeDisconnect() throws SQLException {
-//		JdbcHelper helper = createHelper();
-//		helper.connect();
-//		helper.close();
-//		Assert.assertEquals(helper.isReady(), false);
-//	}
 }

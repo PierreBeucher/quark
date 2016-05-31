@@ -6,93 +6,43 @@ import java.net.SocketException;
 import java.nio.file.Files;
 
 import org.apache.commons.net.ftp.FTPFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
+import com.github.pierrebeucher.quark.ftp.context.FtpContext;
 
-public class FtpHelperIT {
+public class FtpHelperIT extends BaseFtpHelperIT<FtpHelper> {
 
-	private String testFileContent;
-	private File testFile;
-
-	private String host;
-	private String login;
-	private String password;
-	private int port;
-	private Logger logger = LoggerFactory.getLogger(getClass());
-
-	private FtpHelper helper;
-
-	@BeforeClass
+	@Factory
 	@Parameters({"ftp-host", "ftp-port", "ftp-login", "ftp-password"})
-	public void beforeClass(String host, int port, String login, String password) throws IOException, InitialisationException{
-		this.host = host;
-		this.login = login;
-		this.port = port;
-		this.password = password;
-		this.testFileContent = "abcd";
-
-		//create dummy testfile
-		testFile = File.createTempFile("quarkftp", null);
-		Files.write(testFile.toPath(), testFileContent.getBytes());
-
-		//init helper
-		this.helper = this.createFtpHelper();
-		this.helper.initialise();
+	public static Object[] beforeClass(String host, int port, String login, String password) throws IOException, InitialisationException{
+		String testFileContent = "abcd";
+		return new Object[]{
+			new FtpHelperIT(new FtpHelper(new FtpContext(host, port, login, password)), createDummyFile(testFileContent))
+		};
 	}
 	
+	private static File createDummyFile(String content) throws IOException{
+		File testFile = File.createTempFile("quarkftp", null);
+		Files.write(testFile.toPath(), content.getBytes()); 
+		return testFile;
+	}
+
+	private File testFile;
+	
+	public FtpHelperIT(FtpHelper helper, File testFile) {
+		super(helper);
+		this.testFile = testFile;
+	}
+
 	@AfterClass
 	public void afterClass(){
 		helper.dispose();
 	}
-
-	private FtpHelper createFtpHelper(){
-		return new FtpHelper().host(host)
-				.port(port)
-				.login(login)
-				.password(password);
-	}
-
-	//	private FtpCleaner createCleaner(){
-	//		return new FtpCleaner(new FtpContext(host, port, login, password));
-	//	}
-
-	//	@Test
-	//	public void connect() throws IOException {
-	//		FtpHelper helper = createFtpHelper();
-	//		try{
-	//			helper.connect();
-	//		} finally {
-	//			helper.disconnect();
-	//		}
-	//	}
-	//
-	//	@Test
-	//	public void login() throws IOException {
-	//		FtpHelper helper = createFtpHelper();
-	//		try{
-	//			helper.connect();
-	//			helper.login();
-	//		} finally {
-	//			helper.disconnect();
-	//		}
-	//	}
-	//
-	//	@Test
-	//	public void init() throws IOException {
-	//		FtpHelper helper = createFtpHelper();
-	//		try{
-	//			helper.initialise();
-	//		} finally {
-	//			helper.disconnect();
-	//		}
-	//	}
 
 	@Test
 	public void upload() throws IOException{

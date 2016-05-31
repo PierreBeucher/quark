@@ -8,85 +8,32 @@ import java.util.regex.Pattern;
 
 import javax.xml.rpc.ServiceException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.mantisbt.context.MantisBTContext;
 import com.github.pierrebeucher.quark.mantisbt.helper.MantisBTHelper;
 import com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClient.IssueStatus;
 
 import biz.futureware.mantis.rpc.soap.client.IssueData;
 
-public class MantisBTHelperIT {
+public class MantisBTHelperIT extends BaseMantisBTHelperIT<MantisBTHelper>{
 	
-	Logger logger = LoggerFactory.getLogger(getClass());
-
-//	private URL url;
-//	private String username;
-//	private String password;
-//	private String standardProject;
-	//private String projectCleanHard;
-	
-	private MantisBTHelper helper;
-
 	@Parameters({ "mantisbt-url", "mantisbt-username", "mantisbt-password", "mantisbt-project", "mantisbt-project-clean-hard" })
-	@BeforeClass
-	public void beforeClass(String url, String username, String password, String project, String projectCleanHard)
-			throws InitialisationException, MalformedURLException {
-//		this.url = new URL(url);
-//		this.username = username;
-//		this.password = password;
-//		this.standardProject = project;
-//		this.projectCleanHard = projectCleanHard;
+	@Factory
+	public static Object[] factory(String url, String username, String password, String project, String projectCleanHard)
+			throws MalformedURLException{
+		return new Object[] {
+				new MantisBTHelperIT(new MantisBTHelper(new MantisBTContext(new URL(url), username, password, project)))
+		};
+	}
+	
+	public MantisBTHelperIT(MantisBTHelper helper) {
+		super(helper);
+	}
 
-		this.helper = new MantisBTHelper(new MantisBTContext(new URL(url), username, password, project));
-		
-		logger.info("Testing with {}", helper);
-		
-		this.helper.initialise();
-	}
-	
-	@AfterClass
-	public void afterClass(){
-		//helper.dispose();
-	}
-	
-//	/**
-//	 * Create a Helper for the given project
-//	 * @param project
-//	 * @return
-//	 * @throws RemoteException
-//	 * @throws ServiceException
-//	 */
-//	private MantisBTHelper buildHelper(String project) throws RemoteException, ServiceException{
-//		return new MantisBTHelper(buildContext());
-//	}
-//	
-//	private MantisBTContext buildContext(){
-//		return new MantisBTContext(url, username, password, standardProject);
-//	}
-	
-	@Test
-	public void MantisBTHelper() {
-		MantisBTHelper helper = new MantisBTHelper();
-		Assert.assertNotNull(helper.getContext());
-	}
-	
-//	@Test
-//	public void isReady() throws Exception {
-//		MantisBTHelper helper = new MantisBTHelper();
-//		Assert.assertFalse(helper.isReady());
-//		
-//		helper.setContext(buildContext());
-//		Assert.assertTrue(helper.isReady());
-//	}
-//	
 	@Test
 	public void addDummyIssue() throws RemoteException, ServiceException{
 		IssueData created = helper.addDummyIssue();
@@ -134,39 +81,6 @@ public class MantisBTHelperIT {
 		Assert.assertEquals(foundIssue.getStatus().getId(), IssueStatus.ACKNOWLEDGED.getId(),
 				"Issue found is not in expected status ");
 	}
-	
-//	@Test
-//	public void waitForIssueWithAttachment() throws Exception{
-//		
-//		final String attachment = "fileWithWait.txt";
-//		final MantisBTHelper helper = buildHelper(standardProject);
-//		Thread issueCreatorThread = new Thread(){
-//			@Override
-//			public void run() {
-//				try {
-//					Thread.sleep(2000);
-//					
-//					//create a dummy issue with attachment
-//					IssueData issue = helper.addDummyIssue();
-//					helper.getClient().mc_issue_attachment_add(issue.getId(), attachment, "txt", "Test content".getBytes());
-//				} catch (Exception e) {
-//					logger.error("Error on issue creator thread: {}", e);
-//				}
-//			}
-//		};
-//		
-//		issueCreatorThread.start();
-//		
-//		//check the issue is found
-//		Pattern pattern = Pattern.compile(attachment);
-//		BaseHelperResult<Set<IssueData>> result = helper.waitForIssueWithAttachment(pattern, 5000, 250);
-//		
-//		logger.info("result after wait for issue with attachment: " + result);
-//		
-//		Assert.assertTrue(result.isSuccess(), "Result after waiting for issue with attachent" + attachment + "' should be success");
-//		Assert.assertEquals(result.getActual().size(), 1, "Only 1 issue should be found after waiting for issue with attachment");
-//		
-//	}
 	
 	@Test
 	public void updateIssue() throws RemoteException, ServiceException{

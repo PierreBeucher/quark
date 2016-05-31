@@ -13,15 +13,13 @@ import org.apache.chemistry.opencmis.client.api.CmisObject;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.client.api.ItemIterable;
-import org.apache.chemistry.opencmis.client.api.Repository;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.client.util.FileUtils;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -38,43 +36,14 @@ import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
  * @author Pierre Beucher
  *
  */
-public class ChemistryCMISHelperIT {
-
-	private Logger logger = LoggerFactory.getLogger(getClass());
-
-//	private String user;
-//	private String password;
-//	
-//	private URL wsBaseUrl;
-//	private URL atomPubUrl;
+public class ChemistryCMISHelperIT extends BaseCMISHelperIT<ChemistryCMISHelper>{
 	
-	private String testFolder = "testQuarkFolder";
-	private String parentTestFolder = "/";
-	
-	private ChemistryCMISHelper helper;
-	
-	@BeforeClass
+	@Factory
 	@Parameters({ "chemistry-user", "chemistry-password", "chemistry-atompub-url", "chemistry-ws-base-url" })
-	public void beforeClass(String user, String password, String atomPubUrl, String wsBaseUrl) throws MalformedURLException{
-//		this.user = user;
-//		this.password = password;
-//		this.atomPubUrl = new URL(atomPubUrl);
-//		this.wsBaseUrl = new URL(wsBaseUrlStr);
-		
-		//remove any previous file
-		helper = buildTestHelper(new WebServiceBindingContext(user, password, new URL(wsBaseUrl)));
-		helper.initialise();
-		for(Document d : helper.listDocumentsMatching("/", Pattern.compile("quark"))){
-			logger.info("Removing {} before class", d.getName());
-			//d.cancelCheckOut()
-			//d.refresh();
-			d.deleteAllVersions();
-		}
-	}
-	
-	@AfterClass
-	public void afterClass(){
-		helper.dispose();
+	public static Object[] factory(String user, String password, String atomPubUrl, String wsBaseUrl) throws MalformedURLException{		
+		return new Object[]{
+			new ChemistryCMISHelperIT(buildTestHelper(new WebServiceBindingContext(user, password, new URL(wsBaseUrl))))
+		};
 	}
 	
 	/**
@@ -83,42 +52,35 @@ public class ChemistryCMISHelperIT {
 	 * @param bindingContext
 	 * @return
 	 */
-	private ChemistryCMISHelper buildTestHelper(CMISBindingContext bindingContext){
+	private static ChemistryCMISHelper buildTestHelper(CMISBindingContext bindingContext){
 		String repo = retrieveFirstAvailableRepositoryID(bindingContext);
 		CMISContext ctx = new CMISContext(bindingContext, repo);
 		ChemistryCMISHelper helper = new ChemistryCMISHelper(ctx);
 		
-		logger.debug("Built test helper {}", helper);
-		
 		return helper;
 	}
 
-	/**
-	 * Return the repositoryID of the first available repository, or '-default-' if not repository is found.
-	 * @param baseContext
-	 * @return
-	 */
-	private String retrieveFirstAvailableRepositoryID(CMISBindingContext bindingcontext){
-		List<Repository> repositories = ChemistryCMISUtils.getRepositories(bindingcontext);
-		
-		if(repositories.size() == 0){
-			logger.warn("No repository found for {}. Returning -default- by default.");
-			return "-default-";
-		}
-		
-		return repositories.get(0).getId();
+	private String testFolder = "testQuarkFolder";
+	private String parentTestFolder = "/";
+	
+	public ChemistryCMISHelperIT(ChemistryCMISHelper helper) {
+		super(helper);
 	}
 	
-//	@DataProvider(name = "chemistry-cmis-helper")
-//	public Object[][] dataProvider() throws MalformedURLException {
-//		WebServiceBindingContext wsBindingContext = new WebServiceBindingContext(user, password, wsBaseUrl);
-//		AtomPubBindingContext atomPubBindingContext = new AtomPubBindingContext(user, password, atomPubUrl);
-//
-//		return new Object[][] {
-//			{ buildTestHelper(atomPubBindingContext) },
-//			{ buildTestHelper(wsBindingContext) },
-//		};
-//	}
+	@BeforeClass
+	public void beforeClass() {
+		super.beforeClass();
+		
+		for(Document d : helper.listDocumentsMatching("/", Pattern.compile("quark"))){
+			logger.info("Removing {} before class", d.getName());
+			d.deleteAllVersions();
+		}
+	}
+
+	@AfterClass
+	public void afterClass(){
+		super.afterClass();
+	}
 
 	private Document createDocumentFromFileIfNotExists(String parent, File file, Session session) throws FileNotFoundException{
 		return FileUtils.createDocumentFromFile(parent, file, null, VersioningState.MINOR, session);
@@ -201,8 +163,6 @@ public class ChemistryCMISHelperIT {
 	
 	@Test
 	public void listDocumentMatching() throws IOException{
-		helper.initialise();
-		
 		String pattern = "MatchThis " + System.currentTimeMillis();
 		final File tmpFile = File.createTempFile("quark" + pattern, null);
 		tmpFile.deleteOnExit();
@@ -215,8 +175,6 @@ public class ChemistryCMISHelperIT {
 	
 	@Test
 	public void clean() throws IOException{
-		helper.initialise();
-		
 		//create dummy files and folders
 		String cleanFolderName = "quarkCleanFolder";
 		Folder cleanFolder = helper.createFolderIfNotExists(parentTestFolder, 

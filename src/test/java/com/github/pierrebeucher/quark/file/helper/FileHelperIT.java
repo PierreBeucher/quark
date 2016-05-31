@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.github.pierrebeucher.quark.core.result.HelperResult;
 import com.github.pierrebeucher.quark.file.helper.FileHelper;
 
-public class FileHelperIT {
+public class FileHelperIT extends BaseFileHelperIT<FileHelper>{
 	
 	/*
 	 * String repeated in test files
@@ -25,61 +25,48 @@ public class FileHelperIT {
 	 */
 	private static final int REPEAT_STRING_COUNT = 3;
 	
-	/*
-	 * File used to perform basic testing
-	 */
-	private File baseFile;
-	
-	/*
-	 * File used to perform comparison with base file
-	 */
-	private File compareFile;
-	
-	/*
-	 * Charset used for testing
-	 */
-	private Charset charset;	
-	
-	public FileHelperIT(File baseFile, File compareFile, Charset charset) {
-		super();
-		this.baseFile = baseFile;
-		this.compareFile = compareFile;
-		this.charset = charset;
-	}
-
 	@Factory
 	@Parameters({"file-utf-8", "file-iso-8859-1"})
-	public static Object[] createInstances(String utf_8_file, String iso_8859_1_file){
+	public static Object[] createInstances(String utf8Filepath, String iso88591Filepath){
 	
-		File utf8 = new File(utf_8_file);
-		File iso88591 = new File(iso_8859_1_file);
+		File utf8File = new File(utf8Filepath);
+		File iso88591File = new File(iso88591Filepath);
 		return new Object[]{
-				new FileHelperIT(utf8, iso88591, Charset.forName("UTF-8")),
-				new FileHelperIT(iso88591, utf8, Charset.forName("ISO-8859-1"))
+				new FileHelperIT(createHelper(utf8File, Charset.forName("UTF-8")), iso88591File),
+				new FileHelperIT(createHelper(iso88591File, Charset.forName("ISO-8859-1")), utf8File)
 			};
 	}
 
-	private FileHelper createHelper(){
-		return FileHelper.helper(baseFile, charset);
+	private static FileHelper createHelper(File file, Charset charset){
+		return FileHelper.helper(file, charset);
+	}
+	
+	/*
+	 * File used to perform comparison with base file. This file have
+	 * the same content but different encoding than the tested file,
+	 * and should be detected as different
+	 */
+	private File compareFile;	
+	
+	public FileHelperIT(FileHelper helper, File compareFile) {
+		super(helper);
+		this.compareFile = compareFile;
 	}
 
 	@Test
 	public void containsString() throws IOException {
-		FileHelper helper = createHelper();
 		boolean result = helper.contains("Banana");
 		Assert.assertEquals(result, true, "File should contain 'Banana'");
 	}
 	
 	@Test
 	public void containsStringNegative() throws IOException {
-		FileHelper helper = createHelper();
 		boolean result = helper.contains("DoNotExist");
 		Assert.assertEquals(result, false, "File does not contain 'DoNotExist', but helper return success for this assertion");
 	}
 
 	@Test
 	public void containsStringintPositive() throws IOException {
-		FileHelper helper = createHelper();
 		HelperResult<?> result = helper.contains(REPEAT_STRING, 3);
 		Assert.assertEquals(result.isSuccess(), true, "File contains 'Repeat' " + REPEAT_STRING_COUNT + " times"
 				+ " but helper returns failure for this assertion");
@@ -87,7 +74,6 @@ public class FileHelperIT {
 	
 	@Test
 	public void containsStringintNegative() throws IOException {
-		FileHelper helper = createHelper();
 		HelperResult<?> result = helper.contains(REPEAT_STRING, 78);
 		Assert.assertEquals(result.isSuccess(), false, "File contains 'Repeat' " + REPEAT_STRING_COUNT + " times"
 				+ " but helper returns success when asserting a different count");
@@ -95,22 +81,18 @@ public class FileHelperIT {
 
 	@Test
 	public void countMatchesString() throws IOException {
-		FileHelper helper = createHelper();
 		int result = helper.countMatches(REPEAT_STRING);
 		Assert.assertEquals(result, 4, "Repeated string should be matched 3 times");
 	}
 	
 	@Test
 	public void countMatchesStringint() throws IOException {
-		FileHelper helper = createHelper();
 		int result = helper.countMatches(REPEAT_STRING, 2);
 		Assert.assertEquals(result, 2, "Repeated string with maximum occurence defined should be matched 2 times");
 	}
 
 	@Test
 	public void matchPositive() throws IOException {
-		FileHelper helper = createHelper();
-		
 		//create tmp file deleted on exit cloning our managed file
 		File tmpFile = File.createTempFile("quarktest", null);
 		tmpFile.deleteOnExit();
@@ -124,7 +106,6 @@ public class FileHelperIT {
 	
 	@Test
 	public void matchNegative() throws IOException {
-		FileHelper helper = createHelper();
 		boolean result = helper.match(compareFile);
 		Assert.assertEquals(result, false, helper.getContext().getFile().getName() + " should not match " 
 				+ compareFile.getName());

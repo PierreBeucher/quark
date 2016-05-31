@@ -1,9 +1,9 @@
 package com.github.pierrebeucher.quark.sftp.helper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+
+import com.github.pierrebeucher.quark.BaseHelperIT;
 import com.github.pierrebeucher.quark.core.helper.Helper;
 import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
 import com.github.pierrebeucher.quark.core.lifecycle.DisposeException;
@@ -16,22 +16,19 @@ import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
  * @author pierreb
  *
  */
-public abstract class BaseSftpIT<H extends Helper & Disposable & Initialisable> {
-	
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+public abstract class BaseSftpIT<H extends Helper & Disposable & Initialisable> extends BaseHelperIT<H> {
 
-	protected H helper;
-	
 	public BaseSftpIT(H helper) {
-		this.helper = helper;
+		super(helper);
 	}
 
 	/**
-	 * Initialize this test Helper
+	 * Initialise the Helper under test.
 	 * @throws InitialisationException 
 	 */
 	@BeforeClass
 	public void beforeClass() throws InitialisationException{
+		super.beforeClass();
 		initHelper();
 	}
 	
@@ -41,6 +38,7 @@ public abstract class BaseSftpIT<H extends Helper & Disposable & Initialisable> 
 	 */
 	@AfterClass
 	public void afterClass() throws DisposeException{
+		super.afterClass();
 		disposeHelper();
 	}
 	
