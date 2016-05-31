@@ -3,10 +3,10 @@ package com.github.pierrebeucher.quark.core.helper;
 import com.github.pierrebeucher.quark.core.context.base.HelperContext;
 
 /**
- * Test Helper interface. All test Helpers inherit this class.
- * 
- * A Test Helper is used to perform test actions in a defined environment.
- * TODO should not be parameterized with generic, and use Object instead 
+ * <code>Helper</code> is the base interface for all Helpers. It provides
+ * basic functions defining the <code>Helper</code> principle: a <code>HelperContext</code>
+ * under which perform test actions. 
+ *  
  * @author Pierre Beucher
  *
  */
@@ -14,16 +14,17 @@ public interface Helper {
 	
 	/**
 	 * 
-	 * @return The Descriptor representing this Helper context
+	 * @return The <code>HelperContext</code> managed by this <code>Helper</code>
 	 */
 	HelperContext getContext();
 	
 	/**
-	 * Check whether or not this Helper is ready for work.
-	 * To be ready for work, a Helper should have a properly
-	 * configured Context. If some parameters or elements are missing
-	 * in its Context, the Helper is not ready.
-	 * @return true if this Helper is ready, false otherwise
+	 * <p>Check whether or not this <code>Helper</code> is ready for work.
+	 * Depending on the implementation, various conditions may
+	 * be required for the <code>Helper</code> to be ready.</p>
+	 * <p>A <code>Helper</code> is ready for work if its test functions 
+	 * can be used without further configuration or initialization.
+	 * @return true if this Helper is ready for work, false otherwise
 	 */
 	boolean isReady();
 }

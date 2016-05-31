@@ -8,18 +8,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
 import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
 import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
-import com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager;
 import com.github.pierrebeucher.quark.ftp.context.FtpContext;
 
-public class FtpHelper extends AbstractHelper<FtpContext> implements Initialisable, Disposable{
+public class FtpHelper extends AbstractLifecycleHelper<FtpContext> implements Initialisable, Disposable{
 	
 	private FTPClient ftpClient;
-	
-	private LifecycleManager lifecycleManager;
 	
 	public FtpHelper() {
 		this(new FtpContext());
@@ -27,7 +24,6 @@ public class FtpHelper extends AbstractHelper<FtpContext> implements Initialisab
 	
 	public FtpHelper(FtpContext context) {
 		super(context);
-		this.lifecycleManager = new LifecycleManager();
 	}
 	
 	public FtpHelper context(FtpContext ctx){

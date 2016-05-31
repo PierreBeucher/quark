@@ -8,7 +8,6 @@ import com.github.pierrebeucher.quark.core.helper.Helper;
 import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
 import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
 import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
-import com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -25,8 +24,6 @@ import com.jcraft.jsch.SftpException;
  *
  */
 public class JSchSftpHelper extends AbstractSftpHelper implements Initialisable, Disposable, Helper{
-
-	//private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	/*
 	 * SFTP error codes
@@ -46,8 +43,6 @@ public class JSchSftpHelper extends AbstractSftpHelper implements Initialisable,
 	public static final int DEFAULT_CHANNEL_CONNECT_TIMEOUT = 60000;
 
 	private static final String CHANNEL_SFTP = "sftp";
-	
-	private LifecycleManager lifecycleManager;
 	
 	/*
 	 * Known host file used by JSch
@@ -80,7 +75,6 @@ public class JSchSftpHelper extends AbstractSftpHelper implements Initialisable,
 
 	public JSchSftpHelper(SftpContext sftpContext) {
 		super(sftpContext);
-		this.lifecycleManager = new LifecycleManager();
 		this.knownHosts = new File(System.getProperty("user.home"), "/.ssh/known_hosts");
 	}
 

@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.result.BaseExpectingHelperResult;
 import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.core.result.ResultBuilder;
@@ -27,12 +27,8 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
  * @author Pierre Beucher
  *
  */
-public abstract class AbstractSftpHelper extends AbstractHelper<SftpContext> implements SftpHelper {
+public abstract class AbstractSftpHelper extends AbstractLifecycleHelper<SftpContext> implements SftpHelper {
 
-	//private Logger logger = LoggerFactory.getLogger(getClass());
-	
-	//private SftpContext sftpContext;
-	
 	public AbstractSftpHelper() {
 		super(new SftpContext());
 	}

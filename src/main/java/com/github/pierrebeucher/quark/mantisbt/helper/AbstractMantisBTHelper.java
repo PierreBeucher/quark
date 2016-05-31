@@ -4,17 +4,14 @@ import java.math.BigInteger;
 import java.rmi.RemoteException;
 import javax.xml.rpc.ServiceException;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.helper.Helper;
 import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
 import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
-import com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager;
 import com.github.pierrebeucher.quark.mantisbt.context.MantisBTContext;
 import com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClient;
 
-public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> implements Helper, Initialisable {
-
-	private LifecycleManager lifecycleManager;
+public class AbstractMantisBTHelper extends AbstractLifecycleHelper<MantisBTContext> implements Helper, Initialisable {
 	
 	protected MantisBTClient client;
 	
@@ -26,7 +23,6 @@ public class AbstractMantisBTHelper extends AbstractHelper<MantisBTContext> impl
 
 	public AbstractMantisBTHelper(MantisBTContext context) {
 		super(context);
-		this.lifecycleManager = new LifecycleManager();
 	}
 
 	@Override

@@ -1,88 +1,27 @@
 package com.github.pierrebeucher.quark.core.helper;
 
 import com.github.pierrebeucher.quark.core.context.base.HelperContext;
+import com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager;
+import com.github.pierrebeucher.quark.core.lifecycle.LifecycleState;
 
 /**
- * <p>Base class for LifecycleHelper classes. Implements most of the lifecycle
- * contract, requiring extending classes to only implement  {@link #doInitialise()}
- * and {@link #doDispose()}</p>
- * <p>The current implementation maintain the current state of the Helper (initialised 
- * or disposed), and log a warning if the Helper has been initialised and not disposed
- * when {@link #finalize()} is called. (to avoid allocated leaving out allocated resources) </p>
- * @author pierreb
+ * Abstract <code>LifecycleHelper</code> implementation providing a {@link com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager}
  *
  * @param <E>
  */
-@Deprecated
 public abstract class AbstractLifecycleHelper<E extends HelperContext> extends AbstractHelper<E>
-		implements Lifecycle{
+		implements LifecycleHelper{
 
-	private boolean initialised;
-	
-	private boolean disposed;
+	protected LifecycleManager lifecycleManager;
 	
 	public AbstractLifecycleHelper(E context) {
 		super(context);
-		this.initialised = false;
-		this.disposed = false;
-	}
-	
-	/**
-	 * Change the state of this Helper to initialised. 
-	 * @param initialised
-	 */
-	protected void setInitialised(boolean initialised) {
-		this.initialised = initialised;
-	}
-
-	/**
-	 * Change the state of this Helper to disposed.
-	 * @param disposed
-	 */
-	protected void setDisposed(boolean disposed) {
-		this.disposed = disposed;
-	}
-	
-	/**
-	 * This method is called by {@link #initialise()} immediately before setting the Helper as initialised.
-	 * Perform resources allocations for this helper. 
-	 */
-	protected abstract void doInitialise() throws InitializationException;
-	
-	/**
-	 * This method is called by {@link #dispose()} immediately after setting the helper as disposed.
-	 * It should not thrown any RuntimeException as it would prevent other resources to be
-	 * freed, but log encountered errors instead. 
-	 * Perform freeing-up of resources for this Helper. 
-	 */
-	protected abstract void doDispose();
-
-	@Override
-	public void initialise() throws InitializationException {
-		if(isInitialised()) return;
-		if(isDisposed()) throw new InitializationException("Cannot initialise a disposed Helper");
-		
-		doInitialise();
-		setInitialised(true);
-	}
-	
-	@Override
-	public void dispose() {
-		if(isDisposed()) return;
-		
-		doDispose();
-		setDisposed(true);
-		setInitialised(false);
-	}
-	
-	@Override
-	public boolean isInitialised() {
-		return initialised && !disposed;
+		this.lifecycleManager = new LifecycleManager(this);
 	}
 
 	@Override
-	public boolean isDisposed() {
-		return disposed;
+	public LifecycleState getState() {
+		return lifecycleManager.getState();
 	}
 
 	@Override
@@ -94,12 +33,26 @@ public abstract class AbstractLifecycleHelper<E extends HelperContext> extends A
 	}
 	
 	/**
-	 * The Helper is ready to be finalised if it has either not been initialised, or it has been initialised
-	 * and disposed. 
+	 * <p>Check whether this <code>Helper</code> is ready to be finalised or not.
+	 * A <code>Helper</code> is ready to be finalised if all resources allocated
+	 * has been freed properly.</p>
+	 * <p>Current implementation behavior is as follow:
+	 * <ul>
+	 * <li>Always returns false if the {@link com.github.pierrebeucher.quark.core.lifecycle.Disposable} is not implemented</li>
+	 * <li>If the {@link com.github.pierrebeucher.quark.core.lifecycle.Disposable} is implemented, then:</li>
+	 * 	<ul>
+	 * 	<li>Returns true if the current state is {@link com.github.pierrebeucher.quark.core.lifecycle.LifecycleState#DISPOSED}</li>
+	 * 	<li>Returns true if the <code>Helper</code> is in its default state (e.g. its lifecycle never began)</li>
+	 * 	<li>Returns false if the <code>Helper</code> is not in its default state (e.g. its lifecycle began, meaning resources
+	 * 	may has been allocated)</li>
+	 * 	</ul>
+	 * </ul>Current implementation will check if the {@link com.github.pierrebeucher.quark.core.lifecycle.Disposable}
+	 * interface is implemented. f it is, then the <code>Helper</code> should either be disposed or being in its initial state.  
 	 * @return true if this Helper is ready to be finalised.
 	 */
 	public boolean isFinaliseReady(){
-		return !isInitialised() || isDisposed();
+		return lifecycleManager.isDisposable() &&
+				( lifecycleManager.isDisposed() || !lifecycleManager.isInitialised());
 	}
 
 }

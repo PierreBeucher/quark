@@ -3,24 +3,20 @@ package com.github.pierrebeucher.quark.jdbc.helper;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.helper.Helper;
 import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
 import com.github.pierrebeucher.quark.core.lifecycle.DisposeException;
 import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
 import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
-import com.github.pierrebeucher.quark.core.lifecycle.LifecycleManager;
 import com.github.pierrebeucher.quark.jdbc.context.JdbcContext;
 
-public class JdbcHelper extends AbstractHelper<JdbcContext> implements Helper, Initialisable, Disposable{
-	
-	private LifecycleManager lifecycleManager;
+public class JdbcHelper extends AbstractLifecycleHelper<JdbcContext> implements Helper, Initialisable, Disposable{
 	
 	private Connection connection;
 
 	public JdbcHelper(JdbcContext context) {
 		super(context);
-		this.lifecycleManager = new LifecycleManager();
 	}
 	
 	public void initialise() throws InitialisationException {
