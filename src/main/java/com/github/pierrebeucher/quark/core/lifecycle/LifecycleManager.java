@@ -112,7 +112,7 @@ public class LifecycleManager implements Initialisable, Disposable{
 	 * @return true if the DISPOSED state is available.
 	 */
 	public boolean isDisposable(){
-		return isCurrentState(LifecycleState.DISPOSED);
+		return isStateAvailable(LifecycleState.DISPOSED);
 	}
 
 	@Override

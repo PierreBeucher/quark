@@ -24,6 +24,10 @@ public abstract class AbstractLifecycleHelper<E extends HelperContext> extends A
 		return lifecycleManager.getState();
 	}
 
+	public LifecycleManager getLifecycleManager() {
+		return lifecycleManager;
+	}
+
 	@Override
 	protected void finalize() throws Throwable {
 		if(!isFinaliseReady()){
@@ -51,8 +55,11 @@ public abstract class AbstractLifecycleHelper<E extends HelperContext> extends A
 	 * @return true if this Helper is ready to be finalised.
 	 */
 	public boolean isFinaliseReady(){
-		return lifecycleManager.isDisposable() &&
-				( lifecycleManager.isDisposed() || !lifecycleManager.isInitialised());
+		//if does not implement Disposable, always finalise ready
+		//otherwise, should be disposed
+		return !lifecycleManager.isDisposable() ||
+				(lifecycleManager.isDisposable() &&
+						( lifecycleManager.isDisposed() || !lifecycleManager.isInitialised()));
 	}
 
 }
