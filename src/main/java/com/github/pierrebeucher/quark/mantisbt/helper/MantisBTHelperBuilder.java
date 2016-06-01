@@ -49,7 +49,7 @@ public class MantisBTHelperBuilder extends AbstractHelperBuilder<MantisBTContext
 	 * @throws ServiceException 
 	 * @throws RemoteException 
 	 */
-	public MantisBTHelper build() throws RemoteException, ServiceException{
+	public MantisBTHelper build(){
 		return buildBaseHelper();
 	}
 	
@@ -61,7 +61,7 @@ public class MantisBTHelperBuilder extends AbstractHelperBuilder<MantisBTContext
 	 * @throws ServiceException 
 	 * @throws RemoteException 
 	 */
-	public MantisBTHelper build(URL url) throws RemoteException, ServiceException{
+	public MantisBTHelper build(URL url){
 		MantisBTHelper helper = buildBaseHelper().url(url);
 		return helper;
 	}
@@ -75,7 +75,7 @@ public class MantisBTHelperBuilder extends AbstractHelperBuilder<MantisBTContext
 	 * @throws RemoteException
 	 * @throws ServiceException
 	 */
-	public MantisBTHelper build(String username, String password) throws RemoteException, ServiceException{
+	public MantisBTHelper build(String username, String password){
 		MantisBTHelper helper = buildBaseHelper().username(username).password(password);
 		return helper;
 	}

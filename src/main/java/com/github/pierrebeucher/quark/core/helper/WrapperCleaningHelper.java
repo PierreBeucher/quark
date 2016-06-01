@@ -2,13 +2,13 @@ package com.github.pierrebeucher.quark.core.helper;
 
 import com.github.pierrebeucher.quark.core.context.base.HelperContext;
 
-@Deprecated
-public abstract class AbstractCleaningHelper<E extends HelperContext> extends AbstractHelper<E> implements Helper, CleaningHelper {
+public abstract class WrapperCleaningHelper<C extends HelperContext, H extends Helper> extends AbstractWrapperHelper<C, H>
+		implements CleaningHelper {
 
-	public AbstractCleaningHelper(E context) {
-		super(context);
+	public WrapperCleaningHelper(C context, H h) {
+		super(context, h);
 	}
-
+	
 	@Override
 	public void clean() throws Exception {
 		clean(CleaningHelper.DEFAULT_CLEAN_METHOD);
@@ -49,5 +49,6 @@ public abstract class AbstractCleaningHelper<E extends HelperContext> extends Ab
 	protected void cleanNone(){
 		
 	}
+
 
 }

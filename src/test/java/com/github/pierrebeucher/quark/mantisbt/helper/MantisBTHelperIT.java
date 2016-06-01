@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import javax.xml.rpc.ServiceException;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -34,6 +35,19 @@ public class MantisBTHelperIT extends BaseMantisBTHelperIT<MantisBTHelper>{
 		super(helper);
 	}
 
+	@BeforeClass
+	@Override
+	public void beforeClass() {
+		super.beforeClass();
+		
+		//clean safe before test
+		try {
+			new MantisBTCleaner(helper).cleanSafe();
+		} catch (Exception e) {
+			logger.error("Cannot clean before test: " + e.getMessage(), e);
+		}
+	}
+
 	@Test
 	public void addDummyIssue() throws RemoteException, ServiceException{
 		IssueData created = helper.addDummyIssue();
@@ -54,6 +68,9 @@ public class MantisBTHelperIT extends BaseMantisBTHelperIT<MantisBTHelper>{
 		Set<IssueData> result = helper.getIssuesWithAttachment(pattern);
 		
 		Assert.assertEquals(result.size(), 1, "Incorrect number of issue found with attachment '" + attachment + "'");
+		
+		//cleanup after test
+		helper.updateIssue(issue, IssueStatus.CLOSED);
 	}
 	
 	@Test
@@ -80,6 +97,9 @@ public class MantisBTHelperIT extends BaseMantisBTHelperIT<MantisBTHelper>{
 		IssueData foundIssue = (IssueData) result.toArray()[0];
 		Assert.assertEquals(foundIssue.getStatus().getId(), IssueStatus.ACKNOWLEDGED.getId(),
 				"Issue found is not in expected status ");
+		
+		//cleanup after test
+		helper.updateIssue(issueOpen, IssueStatus.CLOSED);
 	}
 	
 	@Test
@@ -105,22 +125,22 @@ public class MantisBTHelperIT extends BaseMantisBTHelperIT<MantisBTHelper>{
 		}
 	}
 	
-	@Test
-	public void cleanSoft() throws Exception{
-		
-		//clean a first time, ensure no issues are present, create dummy and re-clean
-		helper.clean();
-		Assert.assertEquals(helper.getProjectIssues().size(), 0, "Issues can still be retrieved after cleaning.");
-		
-		IssueData issue = helper.addDummyIssue();
-		helper.clean();
-		Assert.assertEquals(helper.getProjectIssues().size(), 0, "Issues can still be retrieved after cleaning.");
-		
-		//soft cleaning should not completely delete issue
-		IssueData afterCleanIssue = helper.getClient().mc_issue_get(issue.getId());
-		Assert.assertNotNull(afterCleanIssue, "Issue should still be retrievable by ID after soft cleaning");
-		Assert.assertEquals(afterCleanIssue.getSummary(), issue.getSummary(), "Issue summary is not the same after soft cleaning");
-	}
+//	@Test
+//	public void cleanSoft() throws Exception{
+//		
+//		//clean a first time, ensure no issues are present, create dummy and re-clean
+//		helper.clean();
+//		Assert.assertEquals(helper.getProjectIssues().size(), 0, "Issues can still be retrieved after cleaning.");
+//		
+//		IssueData issue = helper.addDummyIssue();
+//		helper.clean();
+//		Assert.assertEquals(helper.getProjectIssues().size(), 0, "Issues can still be retrieved after cleaning.");
+//		
+//		//soft cleaning should not completely delete issue
+//		IssueData afterCleanIssue = helper.getClient().mc_issue_get(issue.getId());
+//		Assert.assertNotNull(afterCleanIssue, "Issue should still be retrievable by ID after soft cleaning");
+//		Assert.assertEquals(afterCleanIssue.getSummary(), issue.getSummary(), "Issue summary is not the same after soft cleaning");
+//	}
 	
 	//TODO create Cleaner test
 //	/**

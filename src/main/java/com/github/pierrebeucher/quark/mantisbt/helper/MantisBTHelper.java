@@ -9,12 +9,10 @@ import java.util.regex.Pattern;
 
 import javax.xml.rpc.ServiceException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.github.pierrebeucher.quark.core.helper.AbstractCleaningHelper;
-import com.github.pierrebeucher.quark.core.helper.CleaningHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.helper.Helper;
+import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
+import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.mantisbt.context.MantisBTContext;
 import com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClient;
 import com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClient.IssueStatus;
@@ -29,37 +27,93 @@ import biz.futureware.mantis.rpc.soap.client.ObjectRef;
  * @author Pierre Beucher
  *
  */
-public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, CleaningHelper{
+public class MantisBTHelper extends AbstractLifecycleHelper<MantisBTContext> implements Helper, Initialisable{
 
 	/**
 	 * Default number of pages scanned when cleaning. The issues
 	 * on the first DEFAULT_CLEAN_PAGE_COUNT will be cleaned.
 	 */
 	public static final long DEFAULT_ISSUE_RETRIEVING_PAGE_COUNT = 10;
-	
+
 	/**
 	 * Default number of issues per pages.
 	 */
 	public static final long DEFAULT_ISSUE_RETRIEVING_PAGE_SIZE = 50;
-	
-	private Logger logger = LoggerFactory.getLogger(getClass());
-	
+
 	private long issueRetrievingPageSize = DEFAULT_ISSUE_RETRIEVING_PAGE_SIZE;
-	
+
 	private long issueRetrievingPageCount = DEFAULT_ISSUE_RETRIEVING_PAGE_COUNT;
-	
-	private MantisBTCleaningHelper cleaner;
-	
+
+	protected MantisBTClient client;
+
+	protected BigInteger projectId;
+
+	//private MantisBTCleaningHelper cleaner;
+
 	public MantisBTHelper() {
-		super();
-		this.cleaner = new MantisBTCleaningHelper();
+		this(new MantisBTContext());
+		//this.cleaner = new MantisBTCleaningHelper();
 	}
 
 	public MantisBTHelper(MantisBTContext context) {
 		super(context);
-		this.cleaner = new MantisBTCleaningHelper();
+		//this.cleaner = new MantisBTCleaningHelper();
 	}
-	
+
+	@Override
+	public void initialise() throws InitialisationException {
+		lifecycleManager.initialise();
+		try{
+			this.client = buildClient();
+			this.projectId = initProjectId();
+		} catch(MantisHelperException e){
+			throw new InitialisationException(e);
+		}
+	}
+
+	@Override
+	public boolean isInitialised() {
+		return lifecycleManager.isInitialised();
+	}
+
+	/**
+	 * Create a new MantisBTClient if this Helper is ready.
+	 * @return a new client
+	 * @throws ServiceException 
+	 */
+	protected MantisBTClient buildClient() throws MantisHelperException{
+		try {
+			return new MantisBTClient(context.getUrl(),
+					context.getAuthContext().getLogin(),
+					context.getAuthContext().getPassword());
+		} catch (ServiceException e) {
+			throw new MantisHelperException(e);
+		}
+	}
+
+	/**
+	 * Use the Helper client to retrieve the projectID using the configured project name. 
+	 * @return
+	 * @throws RemoteException
+	 */
+	protected BigInteger initProjectId() throws MantisHelperException{
+		try {
+			return this.client.mc_project_get_id_from_name(context.getProjectName());
+		} catch (RemoteException e) {
+			throw new MantisHelperException(e);
+		}
+	}
+
+	/**
+	 * MantisBTHelper is ready if its URL, username and password are set properly.
+	 */
+	@Override
+	public boolean isReady() {
+		return context.getAuthContext().getLogin() != null
+				&& context.getAuthContext().getPassword() != null
+				&& context.getUrl() != null;
+	}
+
 	/**
 	 * Update the URL managed by this helper.
 	 * It is required to call init() after a call to this function
@@ -73,7 +127,7 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		getContext().setUrl(url);
 		return this;
 	}
-	
+
 	/**
 	 * Update the username managed by this helper. It is required to call init() after a call to this function
 	 * to ensure the Helper get initialized using the newly configured parameters.
@@ -86,7 +140,7 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		getContext().getAuthContext().setLogin(username);
 		return this;
 	}
-	
+
 	/**
 	 * Update the password managed by this helper. It is required to call init() after a call to this function
 	 * to ensure the Helper get initialized using the newly configured parameters.
@@ -99,7 +153,7 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		getContext().getAuthContext().setPassword(password);
 		return this;
 	}
-	
+
 	/**
 	 * Update the project managed by this helper.
 	 * @param projectName
@@ -110,32 +164,34 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 		getContext().setProjectName(projectName);
 		return this;
 	}
-	
-//	@Override
-//	public MantisBTHelper initialise() throws ServiceException, RemoteException {
-//		super.initialise();
-//		return this;
-//	}
 
-	private Set<IssueData> _getIssuesForProject(IssueFilter filter) throws RemoteException{
+	public Set<IssueData> getIssuesForProject(IssueFilter filter) throws MantisHelperException{
+		return _getIssuesForProject(filter);
+	}
+
+	private Set<IssueData> _getIssuesForProject(IssueFilter filter) throws MantisHelperException{
 		Set<IssueData> result = new HashSet<IssueData>();		
-		
-		//retrieve issue on each page
-		//stop at the first empty page
-		for(int page=1; page<=getCleanPageCount(); page++){
-			IssueData[] issueArray = client.mc_project_get_issues(projectId, BigInteger.valueOf(page), BigInteger.valueOf(getPageSize()));
-			
-			if(issueArray.length == 0){
-				break;
-			}
-			
-			for(IssueData issue : issueArray){
-				if(filter.accept(issue)){
-					result.add(issue);
+
+		try{
+			//retrieve issue on each page
+			//stop at the first empty page
+			for(int page=1; page<=getCleanPageCount(); page++){
+				IssueData[] issueArray = client.mc_project_get_issues(projectId, BigInteger.valueOf(page), BigInteger.valueOf(getPageSize()));
+
+				if(issueArray.length == 0){
+					break;
+				}
+
+				for(IssueData issue : issueArray){
+					if(filter.accept(issue)){
+						result.add(issue);
+					}
 				}
 			}
+		} catch(RemoteException e){
+			throw new MantisHelperException(e);
 		}
-		
+
 		return result;
 	}
 
@@ -145,49 +201,27 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	 * @return found issues containing the given attachment.
 	 * @throws RemoteException 
 	 */
-	public Set<IssueData> getIssuesWithAttachment(Pattern pattern) throws RemoteException{
+	public Set<IssueData> getIssuesWithAttachment(Pattern pattern) throws MantisHelperException{
 		return getIssuesWithAttachment(pattern, IssueFilter.allAcceptingFilterInstance());
 	}
-	
-	public Set<IssueData> getIssuesWithAttachment(Pattern pattern, IssueFilter filter) throws RemoteException{
-		IssueData[] issueArray = client.mc_project_get_issues(projectId, BigInteger.valueOf(1), BigInteger.valueOf(DEFAULT_ISSUE_RETRIEVING_PAGE_SIZE));
-		Set<IssueData> result = new HashSet<IssueData>();
-		for(IssueData issue : issueArray){
-			AttachmentData[] attachArray = issue.getAttachments();
-			for(AttachmentData attach : attachArray){
-				if(filter.accept(issue) && pattern.matcher(attach.getFilename()).find()){
-					result.add(issue);
+
+	public Set<IssueData> getIssuesWithAttachment(Pattern pattern, IssueFilter filter) throws MantisHelperException{
+		try{
+			IssueData[] issueArray = client.mc_project_get_issues(projectId, BigInteger.valueOf(1), BigInteger.valueOf(DEFAULT_ISSUE_RETRIEVING_PAGE_SIZE));
+			Set<IssueData> result = new HashSet<IssueData>();
+			for(IssueData issue : issueArray){
+				AttachmentData[] attachArray = issue.getAttachments();
+				for(AttachmentData attach : attachArray){
+					if(filter.accept(issue) && pattern.matcher(attach.getFilename()).find()){
+						result.add(issue);
+					}
 				}
 			}
+			return result;
+		} catch(RemoteException e){
+			throw new MantisHelperException(e);
 		}
-		return result;}
-	
-//	/**
-//	 * Wait for an issue with an attachment matching pattern to be found. Will success
-//	 * once one or more issues matching the given pattern is found, or fail after
-//	 * timeout. 
-//	 * @param pattern
-//	 * @param timeout
-//	 * @param period
-//	 * @return
-//	 * @throws InterruptedException  
-//	 */
-//	public BaseHelperResult<Set<IssueData>> waitForIssueWithAttachment(final Pattern pattern, long timeout, long period) throws InterruptedException {
-//		Waiter<BaseHelperResult<Set<IssueData>>> waiter = new SimpleWaiter<BaseHelperResult<Set<IssueData>>>(timeout, period){
-//			@Override
-//			public BaseHelperResult<Set<IssueData>> performCheck(BaseHelperResult<Set<IssueData>> latestResult) {
-//				Set<IssueData> result;
-//				try {
-//					result = getIssuesWithAttachment(pattern);
-//				} catch (RemoteException e) {
-//					throw new MantisHelperException(e);
-//				}
-//				return ResultBuilder.result(!result.isEmpty(), result, "Waiting for issue with attachment '" + pattern.pattern() + "'");
-//			}
-//		};
-//		return waiter.call();
-//	}
-	
+	}
 	/**
 	 * Generate a dummy issue on the MantisBT server managed by this Helper.
 	 * The dummy issue is added to the project managed by this Helper, with a description and summary
@@ -195,12 +229,18 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	 * @return the ID of the generated issue
 	 * @throws RemoteException 
 	 */
-	public IssueData addDummyIssue() throws RemoteException{
+	public IssueData addDummyIssue() throws MantisHelperException{
 		IssueData dummy = generateDummyIssueData();
-		BigInteger created = client.mc_issue_add(dummy);
-		return client.mc_issue_get(created);
+		BigInteger created;
+		try {
+			created = client.mc_issue_add(dummy);
+			return client.mc_issue_get(created);
+		} catch (RemoteException e) {
+			throw new MantisHelperException(e);
+		}
+
 	}
-	
+
 	/**
 	 * Generate a dummy issue data containing automatically generated minimal configuration
 	 * (description, summary and category).
@@ -209,32 +249,37 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	 * @return 
 	 * @throws RemoteException 
 	 */
-	public IssueData generateDummyIssueData() throws RemoteException{
-		String[] categories = client.mc_project_get_categories(projectId);
-		if(categories.length == 0){
-			throw new RuntimeException("There is no categories available of the MantisBT server. A category is required to create issues.");
+	public IssueData generateDummyIssueData() throws MantisHelperException{
+		try {
+			String[] categories = client.mc_project_get_categories(projectId);
+
+			if(categories.length == 0){
+				throw new RuntimeException("There is no categories available of the MantisBT server. A category is required to create issues.");
+			}
+
+			String category = categories[0];
+			ObjectRef projRef = new ObjectRef(projectId, context.getProjectName());
+
+			IssueData issue = new IssueData();
+			issue.setDescription("Dummy issue created by " + this.toString() + " at [" + System.currentTimeMillis() + "]");
+			issue.setSummary("Dummy issue [" + System.currentTimeMillis() + "]");
+			issue.setProject(projRef);
+			issue.setCategory(category);
+			return issue;
+		} catch (RemoteException e) {
+			throw new MantisHelperException(e);
 		}
-		
-		String category = categories[0];
-		ObjectRef projRef = new ObjectRef(projectId, context.getProjectName());
-		
-		IssueData issue = new IssueData();
-		issue.setDescription("Dummy issue created by " + this.toString() + " at [" + System.currentTimeMillis() + "]");
-		issue.setSummary("Dummy issue [" + System.currentTimeMillis() + "]");
-		issue.setProject(projRef);
-		issue.setCategory(category);
-		return issue;
 	}
-	
+
 	/**
 	 * Retrieve all the issues from the managed context project.
 	 * @return
 	 * @throws RemoteException 
 	 */
-	public Set<IssueData> getProjectIssues() throws RemoteException{
+	public Set<IssueData> getProjectIssues() throws MantisHelperException{
 		return _getIssuesForProject(IssueFilter.allAcceptingFilterInstance());
 	}
-	
+
 	/**
 	 * Add a note on the given issue.
 	 * @param issue
@@ -243,41 +288,35 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	 * @throws RemoteException
 	 * @throws ServiceException
 	 */
-	public IssueNoteData addNote(IssueData issue, String noteText) throws RemoteException, ServiceException{
+	public IssueNoteData addNote(IssueData issue, String noteText) throws MantisHelperException{
 		IssueNoteData noteData = new IssueNoteData();
 		noteData.setText(noteText);
-		
-		client.mc_issue_note_add(issue.getId(), noteData);
-		
+
+		try {
+			client.mc_issue_note_add(issue.getId(), noteData);
+		} catch (RemoteException e) {
+			throw new MantisHelperException(e);
+		}
+
 		return noteData;
 	}
-	
+
 	public void deleteIssue(IssueData issue) throws RemoteException{
 		logger.debug("Deleting issue: {}", issue.getId());
 		client.mc_issue_delete(issue.getId());
 	}
-	
-	public void updateIssue(IssueData issue, IssueStatus status) throws RemoteException{
+
+	public void updateIssue(IssueData issue, IssueStatus status) throws MantisHelperException{
 		ObjectRef newStatus = new ObjectRef(status.getId(), status.name());
-		
+
 		logger.debug("Updating issue {} to {}", issue.getId(), status.name());
-		
+
 		issue.setStatus(newStatus);
-		client.mc_issue_update(issue.getId(), issue);
-	}
-
-	@Override
-	public void clean() throws Exception {
-		cleaner.clean();
-	}
-
-	@Override
-	public void clean(CleaningMethod cleaningMethod) throws Exception {
-		cleaner.clean(cleaningMethod);
-	}
-
-	public void setClient(MantisBTClient client) {
-		this.client = client;
+		try {
+			client.mc_issue_update(issue.getId(), issue);
+		} catch (RemoteException e) {
+			throw new MantisHelperException(e);
+		}
 	}
 
 	public MantisBTClient getClient() {
@@ -287,7 +326,7 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 	public BigInteger getProjectId() {
 		return projectId;
 	}
-	
+
 	public long getPageSize() {
 		return issueRetrievingPageSize;
 	}
@@ -302,48 +341,6 @@ public class MantisBTHelper extends AbstractMantisBTHelper implements Helper, Cl
 
 	public void setCleanPageCount(long cleanPageCount) {
 		this.issueRetrievingPageCount = cleanPageCount;
-	}
-
-	//TODO externalize class
-	private class MantisBTCleaningHelper extends AbstractCleaningHelper<MantisBTContext> implements Helper, CleaningHelper{
-
-		public MantisBTCleaningHelper() {
-			super(MantisBTHelper.this.context);
-		}
-
-		@Override
-		public boolean isReady() {
-			return MantisBTHelper.this.isReady();
-		}
-
-		/**
-		 * Safe cleaning will close the most recent issues.
-		 * The issues represented on the first getCleanPageCount() pages
-		 * with getPageSize() issues par pages are cleaned
-		 */
-		@Override
-		protected void cleanSafe() throws Exception {
-			//only close non closed issues
-			Set<IssueData> issueSet = _getIssuesForProject(IssueFilter.nonClosedFilterInstance());
-			for(IssueData issue : issueSet){
-				updateIssue(issue, IssueStatus.CLOSED);
-			}
-		}
-
-		/**
-		 * Hard cleaning will delete the most recent issues.
-		 * The issues represented on the first getCleanPageCount() pages
-		 * with getPageSize() issues par pages are cleaned
-		 */
-		@Override
-		protected void cleanHard() throws Exception {
-			//get all issues regardless of there states
-			Set<IssueData> issueSet = _getIssuesForProject(IssueFilter.allAcceptingFilterInstance());
-			for(IssueData issue : issueSet){
-				deleteIssue(issue);
-			}
-		}
-		
 	}
 
 
