@@ -47,16 +47,16 @@ public class SftpCleanerIT extends BaseSftpIT<SftpCleaner> {
 		String archiveDir = dynamicTestdir + "/sftpCleaner_archiveDir";
 		String filenameToClean = "filetoClean";
 		
-		helper.getHelper().mkdirIfNotExists(dirToClean);		
-		helper.getHelper().mkdirIfNotExists(archiveDir); 
-		helper.getHelper().upload(testFile, dirToClean + "/" + filenameToClean);
+		helper.getWrappedHelper().mkdirIfNotExists(dirToClean);		
+		helper.getWrappedHelper().mkdirIfNotExists(archiveDir); 
+		helper.getWrappedHelper().upload(testFile, dirToClean + "/" + filenameToClean);
 		
 		//run test
 		logger.info("Cleaning: {}", helper);
 		helper.clean(dirToClean, archiveDir);
 		
-		Assert.assertEquals(helper.getHelper().exists(dirToClean, filenameToClean), false);
-		Assert.assertEquals(helper.getHelper().exists(archiveDir, filenameToClean), true);
+		Assert.assertEquals(helper.getWrappedHelper().exists(dirToClean, filenameToClean), false);
+		Assert.assertEquals(helper.getWrappedHelper().exists(archiveDir, filenameToClean), true);
 	}
 
 	@Test
@@ -65,17 +65,17 @@ public class SftpCleanerIT extends BaseSftpIT<SftpCleaner> {
 		String dirToClean = dynamicTestdir + "/sftpCleaner_toCleanLocal";
 		String filenameToClean = "filetoClean";
 		
-		helper.getHelper().mkdirIfNotExists(dirToClean);		
-		helper.getHelper().upload(testFile, dirToClean + "/" + filenameToClean);
+		helper.getWrappedHelper().mkdirIfNotExists(dirToClean);		
+		helper.getWrappedHelper().upload(testFile, dirToClean + "/" + filenameToClean);
 
 
 		String archiveDir = helper.cleanToLocalDir(dirToClean);
 		
-		Assert.assertEquals(helper.getHelper().exists(dirToClean, filenameToClean), false,
+		Assert.assertEquals(helper.getWrappedHelper().exists(dirToClean, filenameToClean), false,
 				filenameToClean + " should not exists in " + dirToClean);
-		Assert.assertEquals(helper.getHelper().exists(dirToClean + "/" + SftpCleaner.DEFAULT_CLEAN_DIR), true,
+		Assert.assertEquals(helper.getWrappedHelper().exists(dirToClean + "/" + SftpCleaner.DEFAULT_CLEAN_DIR), true,
 				SftpCleaner.DEFAULT_CLEAN_DIR + " should have been created as archive folder in " + dirToClean);
-		Assert.assertEquals(helper.getHelper().exists(archiveDir), true,
+		Assert.assertEquals(helper.getWrappedHelper().exists(archiveDir), true,
 				archiveDir + " should not be null and point to a valid archive directory ");
 	}
 }

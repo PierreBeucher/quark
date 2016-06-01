@@ -17,7 +17,6 @@ import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.core.result.ExpectingHelperResult;
 import com.github.pierrebeucher.quark.sftp.context.SftpAuthContext;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
-import com.github.pierrebeucher.quark.sftp.helper.SftpHelper;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.SftpException;
@@ -36,7 +35,7 @@ public class SftpHelperFilesIT extends BaseSftpIT<SftpHelper>{
 			String filePath,String staticSftpDir, String dynamicSftpDir){
 		return new Object[]{
 			new SftpHelperFilesIT(
-				new JSchSftpHelper(new SftpContext(host, port, new SftpAuthContext(login, password))),
+				new SftpHelper(new SftpContext(host, port, new SftpAuthContext(login, password))),
 				filePath, staticSftpDir, dynamicSftpDir
 			)
 		};
@@ -209,8 +208,7 @@ public class SftpHelperFilesIT extends BaseSftpIT<SftpHelper>{
 		
 		//upload and overwrite
 		helper.upload(testFile, dynamicSftpDir + "/" + uploadAs);
-		boolean result = helper.upload(testFile, dynamicSftpDir + "/" + uploadAs, SftpHelper.MODE_OVERWRITE);
-		Assert.assertEquals(result, true, "File upload failed.");
+		helper.upload(testFile, dynamicSftpDir + "/" + uploadAs, SftpHelper.MODE_OVERWRITE);
 	}
 	
 	@Test

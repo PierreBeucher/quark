@@ -9,11 +9,16 @@ import com.github.pierrebeucher.quark.sftp.context.SftpContext;
  *
  * @param <E> the concrete SftpHelper type used by this Builder
  */
-public abstract class SftpHelperBuilder 
+public class SftpHelperBuilder 
 		extends AbstractHelperBuilder<SftpContext, SftpHelper> {
 
 	public SftpHelperBuilder(SftpContext baseContext) {
 		super(baseContext);
+	}
+	
+	@Override
+	protected SftpHelper buildBaseHelper() {
+		return new SftpHelper(new SftpContext(baseContext));
 	}
 
 	/**
@@ -76,6 +81,5 @@ public abstract class SftpHelperBuilder
 	public void setBaseContext(SftpContext baseContext) {
 		this.baseContext = baseContext;
 	}
-	
 
 }

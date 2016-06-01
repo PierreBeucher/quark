@@ -18,7 +18,7 @@ import com.jcraft.jsch.SftpException;
  */
 public class SftpServiceHelper extends AbstractHelper<SftpContext> implements Disposable, Initialisable{
 
-	private JSchSftpHelper helper;
+	private SftpHelper helper;
 	
 	/**
 	 * The empty constructor cannot be used, as the underlying Helper is initialized on construction.
@@ -29,7 +29,7 @@ public class SftpServiceHelper extends AbstractHelper<SftpContext> implements Di
 	
 	public SftpServiceHelper(SftpContext context) {
 		super(context);
-		helper = new JSchSftpHelper(context);
+		helper = new SftpHelper(context);
 	}
 	
 	public void initialise() throws InitialisationException {
@@ -61,16 +61,14 @@ public class SftpServiceHelper extends AbstractHelper<SftpContext> implements Di
 	}
 	
 	public void produceFile(InputStream data, String destination, String asFilename) throws SftpException{
-		JSchSftpHelper helper = getSftpHelper();
 		helper.upload(data, destination + "/" + asFilename);
 	}
 	
 	public boolean fileExists(String parent, String filename) throws SftpException{
-		JSchSftpHelper helper = getSftpHelper();
 		return helper.exists(parent, filename);
 	}
 	
-	protected JSchSftpHelper getSftpHelper(){
+	public SftpHelper getSftpHelper(){
 		return helper;
 	}
 

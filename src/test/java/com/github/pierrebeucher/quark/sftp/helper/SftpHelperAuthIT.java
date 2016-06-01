@@ -14,7 +14,7 @@ import com.jcraft.jsch.SftpException;
  * @author Pierre Beucher
  *
  */
-public class SftpHelperAuthIT extends BaseSftpIT<JSchSftpHelper> {
+public class SftpHelperAuthIT extends BaseSftpIT<SftpHelper> {
 
 	@Factory
 	@Parameters({"sftp-host", "sftp-port", "sftp-login", "sftp-password",
@@ -25,8 +25,8 @@ public class SftpHelperAuthIT extends BaseSftpIT<JSchSftpHelper> {
 		SftpAuthContext passwordAuthContext = new SftpAuthContext(login, password);
 		SftpAuthContext publicKeyAuthContext = new SftpAuthContext(login, key, keyPassphrase);
 		
-		JSchSftpHelper passwordAuthHelper = new JSchSftpHelper(new SftpContext(host, port, passwordAuthContext));
-		JSchSftpHelper publicKeyAuthHelper = new JSchSftpHelper(new SftpContext(host, port, publicKeyAuthContext));
+		SftpHelper passwordAuthHelper = new SftpHelper(new SftpContext(host, port, passwordAuthContext));
+		SftpHelper publicKeyAuthHelper = new SftpHelper(new SftpContext(host, port, publicKeyAuthContext));
 		
 		return new Object[] {
 			new SftpHelperAuthIT(passwordAuthHelper),
@@ -34,7 +34,7 @@ public class SftpHelperAuthIT extends BaseSftpIT<JSchSftpHelper> {
 		};
 	}
 	
-	public SftpHelperAuthIT(JSchSftpHelper helper) {
+	public SftpHelperAuthIT(SftpHelper helper) {
 		super(helper);
 	}
 	

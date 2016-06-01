@@ -3,12 +3,11 @@ package com.github.pierrebeucher.quark.sftp.helper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.github.pierrebeucher.quark.core.helper.HelperBuilderTestBase;
 import com.github.pierrebeucher.quark.sftp.context.SftpContext;
-import com.github.pierrebeucher.quark.sftp.helper.JSchSftpHelper;
-import com.github.pierrebeucher.quark.sftp.helper.SftpHelper;
 import com.github.pierrebeucher.quark.sftp.helper.SftpHelperBuilder;
 
-public class SftpHelperBuilderTest {
+public class SftpHelperBuilderTest extends HelperBuilderTestBase {
 	
 	private static final String HOST = "host";
 	private static final String LOGIN = "login";
@@ -21,9 +20,23 @@ public class SftpHelperBuilderTest {
 		return new SftpHelperBuilder(null){
 			@Override
 			protected SftpHelper buildBaseHelper() {
-				return new JSchSftpHelper(new SftpContext());
+				return new SftpHelper(new SftpContext());
 			}
 		};
+	}
+	
+	@Test
+	public void JSchSftpHelperBuilder() {
+		SftpContext ctx = new SftpContext();
+		SftpHelperBuilder builder = new SftpHelperBuilder(ctx);
+		Assert.assertEquals(builder.getBaseContext(), ctx);
+	}
+
+	@Test
+	public void buildBaseHelper() {
+		SftpContext ctx = new SftpContext();
+		SftpHelperBuilder builder = new SftpHelperBuilder(ctx);
+		testNoReuseBaseContext(builder);
 	}
 
 	@Test
@@ -73,7 +86,7 @@ public class SftpHelperBuilderTest {
 		SftpHelperBuilder builder = new SftpHelperBuilder(ctx){
 			@Override
 			protected SftpHelper buildBaseHelper() {
-				return new JSchSftpHelper(new SftpContext());
+				return new SftpHelper(new SftpContext());
 			}
 		};
 		Assert.assertEquals(builder.getBaseContext(), ctx);

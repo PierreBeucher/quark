@@ -4,9 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractWrapperHelper;
 import com.github.pierrebeucher.quark.core.helper.FileCleaner;
 import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
 import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
@@ -23,29 +21,28 @@ import com.jcraft.jsch.SftpException;
  * @author pierreb
  *
  */
-public class SftpCleaner extends AbstractHelper<SftpContext> implements FileCleaner, Initialisable, Disposable{
-	
-	//private Logger logger = LoggerFactory.getLogger(getClass());
-	
-	private JSchSftpHelper helper;
+public class SftpCleaner extends AbstractWrapperHelper<SftpContext, SftpHelper> implements FileCleaner, Initialisable, Disposable{
 	
 	public SftpCleaner(SftpContext context) {
-		super(context);
-		helper = new JSchSftpHelper(context);
+		super(context, new SftpHelper(context));
 	}
 
+	@Override
 	public void initialise() throws InitialisationException {
 		helper.initialise();
 	}
 
+	@Override
 	public void dispose() {
 		helper.dispose();
 	}
 
+	@Override
 	public boolean isDisposed() {
 		return helper.isDisposed();
 	}
 
+	@Override
 	public boolean isInitialised() {
 		return helper.isInitialised();
 	}
@@ -123,18 +120,4 @@ public class SftpCleaner extends AbstractHelper<SftpContext> implements FileClea
 		throw new RuntimeException("Not implemented yet.");
 	}
 
-	@Override
-	public boolean isReady() {
-		return context.getAuthContext().getLogin() != null
-				&& !StringUtils.isEmpty(context.getHost())
-				&& context.getPort() > 0;
-	}
-
-	/**
-	 * 
-	 * @return the underlying Helper used by this Cleaner
-	 */
-	public JSchSftpHelper getHelper() {
-		return helper;
-	}
 }
