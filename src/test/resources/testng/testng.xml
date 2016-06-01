@@ -39,15 +39,16 @@
 	
 	<test name="SftpHelperTest">
 		<classes>
-			<class name="com.github.pierrebeucher.quark.sftp.helper.BaseSftpIT"/>
 			<class name="com.github.pierrebeucher.quark.sftp.helper.SftpHelperFilesIT"/>
 			<class name="com.github.pierrebeucher.quark.sftp.helper.SftpHelperAuthIT"/>
+			<class name="com.github.pierrebeucher.quark.sftp.helper.SftpCleanerIT"/>
 			<class name="com.github.pierrebeucher.quark.sftp.helper.SftpServiceHelperIT"/>
 		</classes>
 	</test>
 	<test name="FileHelperTest">
 		<classes>
 			<class name="com.github.pierrebeucher.quark.file.helper.FileHelperIT"/>
+			<class name="com.github.pierrebeucher.quark.file.helper.FileGeneratorHelperIT"/>
 		</classes>
 	</test>
 	<test name="JdbcHelperTest">
@@ -60,6 +61,7 @@
 			<class name="com.github.pierrebeucher.quark.mantisbt.utils.MantisBTClientIT"/>
 			<class name="com.github.pierrebeucher.quark.mantisbt.helper.MantisBTHelperIT"/>
 			<class name="com.github.pierrebeucher.quark.mantisbt.helper.MantisBTHelperBuilderIT"/>
+			<class name="com.github.pierrebeucher.quark.mantisbt.helper.MantisBTCleanerIT"/>
 		</classes>
 	</test>
 	<test name="CMISHelperTest">
@@ -72,6 +74,7 @@
 	<test name="FtpHelperTest">
 		<classes>
 			<class name="com.github.pierrebeucher.quark.ftp.helper.FtpHelperIT"/>
+			<class name="com.github.pierrebeucher.quark.ftp.helper.FtpCleanerIT"/>
 		</classes>
 	</test>
 	
