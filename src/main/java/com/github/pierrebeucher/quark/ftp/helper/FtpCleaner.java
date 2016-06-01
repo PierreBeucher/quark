@@ -8,40 +8,40 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPFile;
 
-import com.github.pierrebeucher.quark.core.helper.AbstractHelper;
+import com.github.pierrebeucher.quark.core.helper.AbstractWrapperHelper;
 import com.github.pierrebeucher.quark.core.helper.FileCleaner;
 import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
 import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
 import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
 import com.github.pierrebeucher.quark.ftp.context.FtpContext;
 
-public class FtpCleaner extends AbstractHelper<FtpContext> implements
+public class FtpCleaner extends AbstractWrapperHelper<FtpContext, FtpHelper> implements
 		FileCleaner, Initialisable, Disposable{
 
-	//private Logger logger = LoggerFactory.getLogger(getClass());
-
-	/*
-	 * Helper used to perform cleaning
-	 */
-	private FtpHelper helper;
-
 	public FtpCleaner(FtpContext context) {
-		super(context);
-		this.helper = new FtpHelper(context);
+		super(context, new FtpHelper(context));
+	}
+	
+	public FtpCleaner(FtpHelper helper) {
+		super(helper.getContext(), helper);
 	}
 
+	@Override
 	public void dispose() {
 		helper.dispose();
 	}
 
+	@Override
 	public boolean isDisposed() {
 		return helper.isDisposed();
 	}
 
+	@Override
 	public void initialise() throws InitialisationException {
 		helper.initialise();
 	}
 
+	@Override
 	public boolean isInitialised() {
 		return helper.isInitialised();
 	}
@@ -96,9 +96,5 @@ public class FtpCleaner extends AbstractHelper<FtpContext> implements
 	public FtpHelper getHelper() {
 		return helper;
 	}
-
-	//	private FtpHelper createFtpHelper(){
-	//		return new FtpHelper(context);
-	//	}
 
 }

@@ -2,6 +2,7 @@ package com.github.pierrebeucher.quark.ftp.helper;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -51,20 +52,24 @@ public class FtpHelper extends AbstractLifecycleHelper<FtpContext> implements In
 		return this;
 	}
 	
+	@Override
 	public void dispose() {
 		lifecycleManager.dispose();
 		doDispose();
 	}
 
+	@Override
 	public boolean isDisposed() {
 		return lifecycleManager.isDisposed();
 	}
 
+	@Override
 	public void initialise() throws InitialisationException {
 		lifecycleManager.initialise();
 		doInitialise();
 	}
 
+	@Override
 	public boolean isInitialised() {
 		return lifecycleManager.isInitialised();
 	}
@@ -111,69 +116,32 @@ public class FtpHelper extends AbstractLifecycleHelper<FtpContext> implements In
 				&& !StringUtils.isEmpty(context.getLogin());
 	}
 	
-//	/**
-//	 * Instanciate, connect and login the underlying FTP client used by this Helper.
-//	 * Same as calling connect() and login() in this order. Any existing client will be
-//	 * reinitialized.
-//	 * @throws IOException 
-//	 * @throws SocketException 
-//	 * @throws FtpHelperException
-//	 */
-//	public void initialise() throws SocketException, IOException{
-//		initClient();
-//		connect();
-//		boolean success = login();
-//		if(!success){
-//			throw new FtpHelperException("Login failed for " + context);
-//		}
-//	}
-	
-//	public void connect() throws IOException{
-//		if(ftpClient == null){
-//			initClient();
-//		}
-//		
-//		try{
-//			ftpClient.connect(context.getHost(), context.getPort());
-//			ftpClient.enterLocalPassiveMode();
-//		} catch(IOException e){
-//			if(ftpClient != null){
-//				ftpClient.disconnect();
-//			}
-//			throw e;
-//		}
-//	}
-//	
-//	public boolean login() throws IOException{
-//		return ftpClient.login(context.getLogin(), context.getPassword());
-//	}
-//	
-//	public boolean logout() throws IOException{
-//		return ftpClient.logout();
-//	}
-//	
-//	public void disconnect() throws IOException{
-//		ftpClient.disconnect();
-//	}
-	
 	/**
 	 * List files in the given directory
 	 * @param dest
 	 * @return
-	 * @throws IOException
+	 * @throws FtpHelperException
 	 */
-	public FTPFile[] listFiles(String parent) throws IOException{
-		return ftpClient.listFiles(parent);
+	public FTPFile[] listFiles(String parent) throws FtpHelperException{
+		try {
+			return ftpClient.listFiles(parent);
+		} catch (IOException e) {
+			throw new FtpHelperException(e);
+		}
 	}
 	
 	/**
 	 * List directories in the given directory
 	 * @param parent
 	 * @return
-	 * @throws IOException
+	 * @throws FtpHelperException
 	 */
-	public FTPFile[] listDirectories(String parent) throws IOException{
-		return ftpClient.listDirectories(parent);
+	public FTPFile[] listDirectories(String parent) throws FtpHelperException{
+		try {
+			return ftpClient.listDirectories(parent);
+		} catch (IOException e) {
+			throw new FtpHelperException(e);
+		}
 	}
 	
 	/**
@@ -182,9 +150,10 @@ public class FtpHelper extends AbstractLifecycleHelper<FtpContext> implements In
 	 * @param file
 	 * @param dest
 	 * @return true if successfully completed, false if not.
-	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 * @throws FtpHelperException 
 	 */
-	public void upload(File file, String dest) throws IOException{
+	public void upload(File file, String dest) throws FtpHelperException, FileNotFoundException{
 		upload(new FileInputStream(file), dest);
 	}
 	
@@ -193,10 +162,16 @@ public class FtpHelper extends AbstractLifecycleHelper<FtpContext> implements In
 	 * @param content
 	 * @param dest
 	 * @return true if successfully completed, false if not.
-	 * @throws IOException
+	 * @throws FtpHelperException
 	 */
-	public void upload(InputStream content, String dest) throws IOException{
-		boolean success = ftpClient.storeFile(dest, content);
+	public void upload(InputStream content, String dest) throws FtpHelperException{
+		boolean success;
+		try {
+			success = ftpClient.storeFile(dest, content);
+		} catch (IOException e) {
+			throw new FtpHelperException(e);
+		}
+		
 		if(!success){
 			throw new FtpHelperException("Upload of " + dest + " failed.");
 		}
@@ -206,50 +181,70 @@ public class FtpHelper extends AbstractLifecycleHelper<FtpContext> implements In
 	 * Check if the specified file exists.
 	 * @param path
 	 * @return true if path is a file
-	 * @throws IOException 
+	 * @throws FtpHelperException 
 	 */
-	public boolean isFile(String path) throws IOException{
-		return ftpClient.listFiles(path).length == 1;
+	public boolean isFile(String path) throws FtpHelperException{
+		return listFiles(path).length == 1;
 	}
 	
 	/**
 	 * Check if the specified file exists.
 	 * @param path
 	 * @return true if path is a file
-	 * @throws IOException 
+	 * @throws FtpHelperException 
 	 */
-	public boolean isDirectory(String parent) throws IOException{
-		return ftpClient.changeWorkingDirectory(parent);
+	public boolean isDirectory(String parent) throws FtpHelperException{
+		try {
+			return ftpClient.changeWorkingDirectory(parent);
+		} catch (IOException e) {
+			throw new FtpHelperException(e);
+		}
 	}
 	
 	/**
 	 * Create the directory if it does not already exists. Does nothing
 	 * if directory already exists.
 	 * @param path
-	 * @throws IOException
+	 * @throws FtpHelperException
 	 */
-	public void makeDirectory(String path) throws IOException{
+	public void makeDirectory(String path) throws FtpHelperException{
 		if(isDirectory(path)) return;
 		
-		boolean success = ftpClient.makeDirectory(path);
+		boolean success;
+		try {
+			success = ftpClient.makeDirectory(path);
+		} catch (IOException e) {
+			throw new FtpHelperException(e);
+		}
+		
 		if(!success){
 			throw new FtpHelperException("Directory creation of " + path + " failed.");
 		}
 	}
 
-	public boolean rename(String from, String to) throws IOException {
-		return ftpClient.rename(from, to);
+	/**
+	 * Rename the given file or folder
+	 * @param from
+	 * @param to
+	 * @return
+	 * @throws FtpHelperException
+	 */
+	public boolean rename(String from, String to) throws FtpHelperException {
+		try {
+			return ftpClient.rename(from, to);
+		} catch (IOException e) {
+			throw new FtpHelperException(e);
+		}
 	}
 	
 	/**
 	 * Move the file from the given path to its destination. 
 	 * @param from
 	 * @param to
-	 * @throws IOException
 	 * @throws FtpHelperException 
 	 */
-	public void move(String from, String to) throws IOException, FtpHelperException {
-		boolean result = ftpClient.rename(from, to);
+	public void move(String from, String to) throws FtpHelperException {
+		boolean result = rename(from, to);
 		if(!result){
 			throw new FtpHelperException("Cannot move " + from + " to "+ to +
 					" (" + ftpClient.getReplyCode() + ": " + ftpClient.getReplyString() + ")");
