@@ -64,7 +64,9 @@
 	</test>
 	<test name="CMISHelperTest">
 		<classes>
-			<class name="com.github.pierrebeucher.quark.cmis.helper.ChemistryCMISHelperIT"/>
+			<class name="com.github.pierrebeucher.quark.cmis.helper.CMISHelperIT"/>
+			<class name="com.github.pierrebeucher.quark.cmis.helper.CMISCleanerIT"/>
+			<class name="com.github.pierrebeucher.quark.cmis.helper.CmisBindingIT"/>
 		</classes>
 	</test>
 	<test name="FtpHelperTest">

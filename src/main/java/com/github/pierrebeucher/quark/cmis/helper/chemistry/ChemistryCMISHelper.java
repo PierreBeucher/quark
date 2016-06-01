@@ -22,8 +22,8 @@ import org.apache.chemistry.opencmis.commons.exceptions.CmisContentAlreadyExists
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
 import com.github.pierrebeucher.quark.cmis.context.CMISBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISContext;
-import com.github.pierrebeucher.quark.cmis.helper.CMISHelper;
-import com.github.pierrebeucher.quark.cmis.util.ChemistryCMISUtils;
+import com.github.pierrebeucher.quark.cmis.helper.SessionHandler;
+import com.github.pierrebeucher.quark.cmis.util.CMISUtils;
 import com.github.pierrebeucher.quark.core.helper.AbstractLifecycleHelper;
 import com.github.pierrebeucher.quark.core.helper.Helper;
 import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
@@ -32,7 +32,8 @@ import com.github.pierrebeucher.quark.core.result.BaseHelperResult;
 import com.github.pierrebeucher.quark.core.result.ResultBuilder;
 import com.github.pierrebeucher.quark.core.waiter.SimpleWaiter;
 
-public class ChemistryCMISHelper extends AbstractLifecycleHelper<CMISContext> implements Helper, CMISHelper,
+@Deprecated
+public class ChemistryCMISHelper extends AbstractLifecycleHelper<CMISContext> implements Helper, /*CMISHelper,*/
 		Initialisable, Disposable{
 	
 	private Session session;
@@ -77,7 +78,7 @@ public class ChemistryCMISHelper extends AbstractLifecycleHelper<CMISContext> im
 	 * Init the BindingContextHandler depending on the concrete BindingContext managed by this Helper.
 	 */
 	private SessionHandler createBindingContextHandler(){
-		return ChemistryCMISUtils.getSessionHandler(context);
+		return CMISUtils.getSessionHandler(context);
 	}
 	
 	private Session createSession(){
@@ -159,7 +160,7 @@ public class ChemistryCMISHelper extends AbstractLifecycleHelper<CMISContext> im
 	public List<Document> listDocumentsMatching(String path, Pattern pattern){
 		List<Document> result = new ArrayList<Document>();
 		for(CmisObject o : listDirectory(path)){
-			if(ChemistryCMISUtils.isDocument(o)
+			if(CMISUtils.isDocument(o)
 					&& (pattern.matcher(o.getName()).find())){
 				result.add((Document) o);
 			}

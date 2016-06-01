@@ -1,4 +1,4 @@
-package com.github.pierrebeucher.quark.cmis.helper.chemistry;
+package com.github.pierrebeucher.quark.cmis.helper;
 
 import java.util.Map;
 

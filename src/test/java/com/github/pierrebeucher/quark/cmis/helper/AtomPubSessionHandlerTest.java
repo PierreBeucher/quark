@@ -1,4 +1,4 @@
-package com.github.pierrebeucher.quark.cmis.helper.chemistry;
+package com.github.pierrebeucher.quark.cmis.helper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import com.github.pierrebeucher.quark.cmis.context.AtomPubBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISContext;
-import com.github.pierrebeucher.quark.cmis.helper.chemistry.AtomPubSessionHandler;
+import com.github.pierrebeucher.quark.cmis.helper.AtomPubSessionHandler;
 
 public class AtomPubSessionHandlerTest {
 	

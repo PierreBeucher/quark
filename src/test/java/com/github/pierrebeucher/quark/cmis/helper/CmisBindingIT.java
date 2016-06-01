@@ -11,9 +11,8 @@ import com.github.pierrebeucher.quark.cmis.context.AtomPubBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISContext;
 import com.github.pierrebeucher.quark.cmis.context.WebServiceBindingContext;
-import com.github.pierrebeucher.quark.cmis.helper.chemistry.ChemistryCMISHelper;
 
-public class CmisBindingIT extends BaseCMISHelperIT<ChemistryCMISHelper> {
+public class CmisBindingIT extends BaseCMISHelperIT<CMISHelper> {
 
 	@Factory
 	@Parameters({ "chemistry-user", "chemistry-password", "chemistry-atompub-url", "chemistry-ws-base-url" })
@@ -30,15 +29,15 @@ public class CmisBindingIT extends BaseCMISHelperIT<ChemistryCMISHelper> {
 		};
 	}
 	
-	private static ChemistryCMISHelper createHelper(CMISBindingContext bindingContext){
+	private static CMISHelper createHelper(CMISBindingContext bindingContext){
 		String repo = retrieveFirstAvailableRepositoryID(bindingContext);
 		CMISContext ctx = new CMISContext(bindingContext, repo);
-		ChemistryCMISHelper helper = new ChemistryCMISHelper(ctx);
+		CMISHelper helper = new CMISHelper(ctx);
 		
 		return helper;
 	}
 	
-	public CmisBindingIT(ChemistryCMISHelper helper) {
+	public CmisBindingIT(CMISHelper helper) {
 		super(helper);
 	}
 	

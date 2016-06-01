@@ -1,4 +1,4 @@
-package com.github.pierrebeucher.quark.cmis.helper.chemistry;
+package com.github.pierrebeucher.quark.cmis.helper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import com.github.pierrebeucher.quark.cmis.context.CMISBindingContext;
 import com.github.pierrebeucher.quark.cmis.context.CMISContext;
 import com.github.pierrebeucher.quark.cmis.context.WebServiceBindingContext;
-import com.github.pierrebeucher.quark.cmis.helper.chemistry.WebServiceSessionHandler;
+import com.github.pierrebeucher.quark.cmis.helper.WebServiceSessionHandler;
 
 public class WebServiceBindingHandlerTest {
 	
