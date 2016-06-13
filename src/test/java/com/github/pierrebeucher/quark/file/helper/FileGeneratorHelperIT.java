@@ -39,7 +39,7 @@ public class FileGeneratorHelperIT {
 	public void beforeClass() throws IOException{
 		//create a dummy template file to perform our tests
 		charset = Charset.forName("UTF-8");
-		templateContent = "abcydge aaTOKEN1 cdhddesuc TOKEN2éb\n cjechfue -\"egATOKENd42ez éçà&&&";
+		templateContent = "abcydge aaTOKEN1 cdhddesuc TOKEN2â‚¬b\n cjechfue -\"egATOKENd42ez Ã©Ã¨Ã &&&";
 		
 		//build xml template
 		xmlToXPathReplace = "ToReplace";
