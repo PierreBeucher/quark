@@ -9,6 +9,7 @@ import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
 import com.github.pierrebeucher.quark.core.lifecycle.DisposeException;
 import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
 import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
+import com.github.pierrebeucher.quark.sftp.context.SftpContext;
 
 /**
  * Base class for SFTP Helpers IT. Provide a Helper, a Logger
@@ -43,6 +44,7 @@ public abstract class BaseSftpIT<H extends Helper & Disposable & Initialisable> 
 	}
 	
 	protected void initHelper() throws InitialisationException{
+		((SftpContext) helper.getContext()).addOption("StrictHostKeyChecking", "no");
 		helper.initialise();
 	}
 	

@@ -17,8 +17,6 @@ before_install:
 - docker run --name mantisbt -p 8081:80 --link mysql-mantisbt:mysql-mantisbt -v /$(pwd)/src/test/resources/mantisbt/1.2.19/config_inc.php:/var/www/html/config_inc.php:rw -d vimagick/mantisbt
 - docker run -d --name ftpd_server -p 2121:21 -p 30000-30009:30000-30009 -e "PUBLICHOST=localhost" -v /$(pwd)/src/test/resources/ftp/pureftpd.passwd:/etc/pure-ftpd/pureftpd.passwd -v /$(pwd)/src/test/resources/ftp/pureftpd.pdb:/etc/pure-ftpd/pureftpd.pdb stilliard/pure-ftpd
 - docker ps -a
-- ssh-keyscan -t rsa -p 2022 localhost | sed -e 's/localhost\?/[localhost]:2022/' >> known_hosts
-- cat ~/.ssh/known_hosts
 
 script:
 - mvn verify
