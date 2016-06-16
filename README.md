@@ -1,6 +1,8 @@
 Quark
 ==
 
+[![Build Status](https://travis-ci.org/PierreBeucher/quark.svg?branch=master)](https://travis-ci.org/PierreBeucher/quark)
+
 Quark is a light-weight integration test framework providing easy-to-use Helpers for various transports and technologies.
 
 The idea behind Quark is to provide facility to write automated test easily and provide user-friendly test output. These principles should allow users to quickly have an overview of what happened and track potential bugs to aim directly the problematic component or piece of code.
