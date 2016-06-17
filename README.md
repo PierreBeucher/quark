@@ -37,7 +37,7 @@ The idea behind Quark is to provide facility to write automated test easily and 
 
 Quark lets you define the __Context__ under which your test is being run and provide __Helpers__ with various test-oriented functions and methods. Helpers allow you to easily run your test actions under the pre-defined Context, enabling re-usability and automation for your test infrastructure.
 
-![Quark Overview Diagram](docs/assets/img/intro-overview.jpg)
+![Quark Overview Diagram](https://github.com/PierreBeucher/quark/raw/master/docs/assets/img/intro-overview.jpg)
 
 The _Context_ define the environment in which your system under test (SUT) is running: the system itself (a web service, a server, a database...) and any component gravitating around your SUT (another server, a set of config files, authentication tokens, etc.). Quark provide a few basics Contexts and lets you create your own.
 
@@ -436,7 +436,7 @@ Overview of Quark internal design. This section will help users understand how Q
 ### Core
 We aim to keep our internal architecture simple, flexible and maintainable. The diagram below represent the core components of Quark:
 
-![architecture overview diagram](docs/assets/img/internal-design-overview.jpg)
+![architecture overview diagram](https://github.com/PierreBeucher/quark/raw/master/docs/assets/img/internal-design-overview.jpg)
 
 The Helper will interact with the SUT through the Test Controller (which will depend of the test framework or method used to run Quark). Helper is simply linked to one or more Context, which will be used when performing test actions. Also, a Helper may contain one or more child Helper to perform lower level of operations. 
 
