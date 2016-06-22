@@ -23,6 +23,7 @@ public class DirectoryFtpContext extends FtpContext{
 
 	public DirectoryFtpContext(String host, int port, String login, String password, String directory) {
 		super(host, port, login, password);
+		this.directory = directory;
 	}
 
 	public String getDirectory() {
