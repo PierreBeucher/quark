@@ -117,6 +117,20 @@ public class FtpHelper extends AbstractLifecycleHelper<FtpContext> implements In
 	}
 	
 	/**
+	 * Enabled or disable passive mode. Passive mode is enabled by default.
+	 * You must {@link #initialise()} this Helper before calling
+	 * this method, as it will change the underlying client state.
+	 * @param enabled true to use passive mode, false otherwise.
+	 */
+	public void passive(boolean enabled){
+		if(enabled){
+			ftpClient.enterLocalPassiveMode();
+		} else {
+			ftpClient.enterLocalActiveMode();
+		}
+	}
+	
+	/**
 	 * List files in the given directory
 	 * @param dest
 	 * @return
