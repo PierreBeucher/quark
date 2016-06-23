@@ -69,7 +69,7 @@ public class SftpCleanerIT extends BaseSftpIT<SftpCleaner> {
 		helper.getWrappedHelper().upload(testFile, dirToClean + "/" + filenameToClean);
 
 
-		String archiveDir = helper.cleanToLocalDir(dirToClean);
+		String archiveDir = helper.clean(dirToClean);
 		
 		Assert.assertEquals(helper.getWrappedHelper().exists(dirToClean, filenameToClean), false,
 				filenameToClean + " should not exists in " + dirToClean);

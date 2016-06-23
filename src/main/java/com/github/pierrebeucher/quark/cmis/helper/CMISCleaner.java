@@ -73,7 +73,7 @@ public class CMISCleaner extends AbstractWrapperHelper<CMISContext, CMISHelper>
 	}
 
 	@Override
-	public String cleanToLocalDir(String dirToClean) {
+	public String clean(String dirToClean) {
 		Folder folderToClean = (Folder) helper.getSession().getObjectByPath(dirToClean);
 		
 		//create the local archive directories before archiving

@@ -10,6 +10,7 @@ import org.apache.commons.net.ftp.FTPFile;
 
 import com.github.pierrebeucher.quark.core.helper.AbstractWrapperHelper;
 import com.github.pierrebeucher.quark.core.helper.FileCleaner;
+import com.github.pierrebeucher.quark.core.helper.HelperException;
 import com.github.pierrebeucher.quark.core.lifecycle.Disposable;
 import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
 import com.github.pierrebeucher.quark.core.lifecycle.InitialisationException;
@@ -17,7 +18,7 @@ import com.github.pierrebeucher.quark.ftp.context.FtpContext;
 
 public class FtpCleaner extends AbstractWrapperHelper<FtpContext, FtpHelper> implements
 		FileCleaner, Initialisable, Disposable{
-
+	
 	public FtpCleaner(FtpContext context) {
 		super(context, new FtpHelper(context));
 	}
@@ -54,6 +55,17 @@ public class FtpCleaner extends AbstractWrapperHelper<FtpContext, FtpHelper> imp
 	}
 
 	@Override
+	public String clean(String dirToClean) throws HelperException {
+		try {
+			String archiveDir = generateArchiveDir(dirToClean);
+			_clean(dirToClean, archiveDir, helper);
+			return archiveDir;
+		} catch (IOException e) {
+			throw new FtpHelperException(e);
+		}
+	}
+
+	@Override
 	public void clean(String dirToClean, String archiveDir) {
 		try {
 			_clean(dirToClean, archiveDir, helper);
@@ -62,27 +74,48 @@ public class FtpCleaner extends AbstractWrapperHelper<FtpContext, FtpHelper> imp
 		}
 	}
 
-
-	@Override
-	public String cleanToLocalDir(String dirToClean) throws FtpHelperException {
+	/**
+	 * Generate the archive directory, by happending the
+	 * {@link FileCleaner#DEFAULT_CLEAN_DIR} and the current timestamp in ms
+	 * to the given directory. Al required directories and sub-directories are created
+	 * if required.
+	 * @param dirToClean directory for which to generate archive directory path
+	 * @return archive directory for directory to clean
+	 */
+	protected String generateArchiveDir(String dirToClean){
 		DateFormat dateFormat = new SimpleDateFormat(DEFAULT_CLEAN_DIR_DATE_FORMAT);
 		String quarkTrashDir = dirToClean + "/" + DEFAULT_CLEAN_DIR;
-		String archiveDir = quarkTrashDir + "/" + dateFormat.format(new Date());
-
-		try {
-			//create directories before cleaning
-			helper.makeDirectory(quarkTrashDir);
-			helper.makeDirectory(archiveDir);
-
-			_clean(dirToClean, archiveDir, helper);
-		} catch (IOException e) {
-			throw new FtpHelperException(e);
-		}
-
+		String archiveDir = quarkTrashDir + "/" + dateFormat.format(new Date());	
+		
+		//create directories
+		helper.makeDirectory(quarkTrashDir);
+		helper.makeDirectory(archiveDir);
+		
 		return archiveDir;
 	}
 
+//	@Deprecated
+//	@Override
+//	public String clean(String dirToClean) throws FtpHelperException {
+//		DateFormat dateFormat = new SimpleDateFormat(DEFAULT_CLEAN_DIR_DATE_FORMAT);
+//		String quarkTrashDir = dirToClean + "/" + DEFAULT_CLEAN_DIR;
+//		String archiveDir = quarkTrashDir + "/" + dateFormat.format(new Date());
+//
+//		try {
+//			//create directories before cleaning
+//			helper.makeDirectory(quarkTrashDir);
+//			helper.makeDirectory(archiveDir);
+//
+//			_clean(dirToClean, archiveDir, helper);
+//		} catch (IOException e) {
+//			throw new FtpHelperException(e);
+//		}
+//
+//		return archiveDir;
+//	}
+
 	private void _clean(String dirToClean, String archiveDir, FtpHelper helper) throws FtpHelperException, IOException{
+		logger.debug("Cleaning {} on {} to {}.", dirToClean, context, archiveDir);
 		for(FTPFile file : helper.listFiles(dirToClean)){
 			helper.move(dirToClean + "/" + file.getName(),
 					archiveDir + "/" + file.getName());

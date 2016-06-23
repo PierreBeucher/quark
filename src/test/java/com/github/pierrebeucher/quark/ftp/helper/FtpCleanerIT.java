@@ -38,10 +38,9 @@ public class FtpCleanerIT {
 	public void afterClass(){
 		cleaner.dispose();
 	}
-	
 
 	@Test
-	public void clean() throws SocketException, IOException {
+	public void cleanStringString() throws SocketException, IOException {
 		String dirToClean = "/cleanerDir";
 		String archiveDir = "/cleanderArchiveDir";
 
@@ -59,14 +58,14 @@ public class FtpCleanerIT {
 	}
 
 	@Test
-	public void cleanToLocalDir() throws IOException {
+	public void cleanString() throws IOException {
 		String dirToClean = "/cleanerDirLocal";
 		
 		FtpHelper helper = cleaner.getHelper();
 		helper.makeDirectory(dirToClean);
 		helper.upload(testFile, dirToClean + "/" + testFile.getName());
 
-		String archiveDir = cleaner.cleanToLocalDir(dirToClean);
+		String archiveDir = cleaner.clean(dirToClean);
 		logger.info("{} cleaned to {}", dirToClean, archiveDir);
 
 		Assert.assertEquals(helper.isFile(dirToClean + "/" + testFile.getName()), false);

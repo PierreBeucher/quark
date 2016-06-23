@@ -46,7 +46,7 @@ public class CMISCleanerIT extends BaseCMISHelperIT<CMISCleaner> {
 		
 		CMISCleaner cleaner = new CMISCleaner(helper.getContext());
 		cleaner.initialise();
-		String archiveDir = cleaner.cleanToLocalDir(cleanFolder.getPath());
+		String archiveDir = cleaner.clean(cleanFolder.getPath());
 		
 		logger.info("Cleaned from {} to {}", cleanFolder.getPath(), archiveDir);
 		cleaner.dispose();

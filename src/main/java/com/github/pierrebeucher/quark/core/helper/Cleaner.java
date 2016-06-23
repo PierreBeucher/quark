@@ -1,18 +1,13 @@
 package com.github.pierrebeucher.quark.core.helper;
 
 /**
- * <p>Base class for a Cleaner Helper. Thiis interface
- * represents a Cleaner Helper, used to safely clean a component
- * before running test on it. Cleaning a component means ensuring
- * the component is cleaned of any data which may impact the action
- * we want to run, such as removing elements or resetting parameters.</p>
- * <p>A Cleaner should only provide <i>safe</i> functionalities, 
- * i.e. cleaning components in a non-destructive way allowing to retrieve
- * the previous state of said component easily.</p>
- * 
+ * <p><code>Cleaner</code> is capable of cleaning an environment with its current context.
+ * It guarantees a safe cleaning implementation, <b>data are not deleted
+ * permanently</b> and are either archived or backed-up. Depending on the
+ * implementation, various methods may be applied to ensure this safety.</p>
  * @author pierreb
- *
+ *  
  */
-public interface Cleaner {
+public interface Cleaner extends Helper{
 
 }

@@ -57,21 +57,33 @@ public class SftpCleaner extends AbstractWrapperHelper<SftpContext, SftpHelper> 
 	 * @throws JSchException 
 	 */
 	@Override
-	public String cleanToLocalDir(String dirToClean) throws SftpHelperException{
-		//default archive dir is /path/to/dirToClean/.quark_trash/yyyyMMddHHmmss/data...
-		DateFormat dateFormat = new SimpleDateFormat(DEFAULT_CLEAN_DIR_DATE_FORMAT);
-		String quarkTrashDir = dirToClean + "/" + DEFAULT_CLEAN_DIR;
-		String archiveDir = quarkTrashDir + "/" + dateFormat.format(new Date());
-		
+	public String clean(String dirToClean) throws SftpHelperException{
 		try {
-			helper.mkdirIfNotExists(quarkTrashDir);
-			helper.mkdirIfNotExists(archiveDir);
-		
+			String archiveDir = generateArchiveDir(dirToClean);
 			_clean(dirToClean, archiveDir, helper);
 			return archiveDir;
 		} catch (SftpException e) {
 			throw new SftpHelperException(e);
 		}
+	}
+	
+	/**
+	 * Generate the archive directory for the directory to clean.
+	 * Any sub-directories is created.
+	 * @param dirToClean directory to clean
+	 * @return archive directory generated
+	 * @throws SftpException 
+	 */
+	protected String generateArchiveDir(String dirToClean) throws SftpException{
+		//default archive dir is /path/to/dirToClean/.quark_trash/yyyyMMddHHmmss/data...
+		DateFormat dateFormat = new SimpleDateFormat(DEFAULT_CLEAN_DIR_DATE_FORMAT);
+		String quarkTrashDir = dirToClean + "/" + DEFAULT_CLEAN_DIR;
+		String archiveDir = quarkTrashDir + "/" + dateFormat.format(new Date());
+		
+		helper.mkdirIfNotExists(quarkTrashDir);
+		helper.mkdirIfNotExists(archiveDir);
+		
+		return archiveDir;
 	}
 	
 	/**
@@ -106,18 +118,18 @@ public class SftpCleaner extends AbstractWrapperHelper<SftpContext, SftpHelper> 
 		}
 	}
 	
-	/**
-	 * <p>Clean the given directory into the system temporary directory. (such as /tmp on Linux systems).
-	 * The data found in the given directory will be copied into $TMP_DIR/quark_trash/{current_timestamp}/path/to/dirToClean.
-	 * The entire directory tree will be reproduce into a sub-directory named after the current system timestamp.</p>
-	 * <p>For example, calling this method when current system time is 01-01-2010 12:34:56 (ms) using directory <i>/var/myapp/mydata</i>,
-	 * data will be archived in a directory looking like /tmp/quark_trash/01012010123456/var/myapp/mydata</p>
-	 * @param dirToClean
-	 * @return path to the local directory where data have been archived
-	 */
-	public void cleanToTempDir(String dirToClean){
-		//TODO implement
-		throw new RuntimeException("Not implemented yet.");
-	}
+//	/**
+//	 * <p>Clean the given directory into the system temporary directory. (such as /tmp on Linux systems).
+//	 * The data found in the given directory will be copied into $TMP_DIR/quark_trash/{current_timestamp}/path/to/dirToClean.
+//	 * The entire directory tree will be reproduce into a sub-directory named after the current system timestamp.</p>
+//	 * <p>For example, calling this method when current system time is 01-01-2010 12:34:56 (ms) using directory <i>/var/myapp/mydata</i>,
+//	 * data will be archived in a directory looking like /tmp/quark_trash/01012010123456/var/myapp/mydata</p>
+//	 * @param dirToClean
+//	 * @return path to the local directory where data have been archived
+//	 */
+//	public void cleanToTempDir(String dirToClean){
+//		//TODO implement
+//		throw new RuntimeException("Not implemented yet.");
+//	}
 
 }
