@@ -15,6 +15,18 @@ public class MantisBTCleaner extends WrapperCleaningHelper<MantisBTContext, Mant
 		implements Initialisable, CleaningHelper {
 	
 	/**
+	 * Clean the given context. Instanciate a MantisBTCleaner
+	 * and calls {@link #clean()} method.
+	 * @param context
+	 * @throws Exception 
+	 */
+	public static void clean(MantisBTContext context) throws Exception{
+		MantisBTCleaner cleaner = new MantisBTCleaner(context);
+		cleaner.initialise();
+		cleaner.clean();
+	}
+	
+	/**
 	 * Create a <code>MantisBTCleaner</code> using the given context.
 	 * A new <code>MantisBTHelper</code> is instanciated using the given Context 
 	 * @param context

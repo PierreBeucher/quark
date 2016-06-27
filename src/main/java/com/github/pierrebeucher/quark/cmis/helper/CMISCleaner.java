@@ -21,6 +21,21 @@ import com.github.pierrebeucher.quark.core.lifecycle.Initialisable;
 public class CMISCleaner extends AbstractWrapperHelper<CMISContext, CMISHelper>
 		implements FileCleaner, Initialisable, Disposable{
 
+	/**
+	 * Utility method to clean a CMIS context. Instanciate a 
+	 * CMISCleaner and calls {@link #clean(String)}.
+	 * @param directory
+	 */
+	public static void clean(CMISContext context, String directory){
+		CMISCleaner cleaner = new CMISCleaner(context);
+		try{
+			cleaner.initialise();
+			cleaner.clean(directory);
+		} finally {
+			cleaner.dispose();
+		}
+	}
+	
 	public CMISCleaner(CMISContext context) {
 		super(context, new CMISHelper(context));
 	}
@@ -60,7 +75,7 @@ public class CMISCleaner extends AbstractWrapperHelper<CMISContext, CMISHelper>
 	}
 
 	/**
-	 * Delete all the files from thre given directory.
+	 * Delete all the files from the given directory. <b>Deleted files are not archived.</b>
 	 * @param dirToClean
 	 */
 	public void deleteAll(String dirToClean){		

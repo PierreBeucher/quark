@@ -23,6 +23,21 @@ import com.jcraft.jsch.SftpException;
  */
 public class SftpCleaner extends AbstractWrapperHelper<SftpContext, SftpHelper> implements FileCleaner, Initialisable, Disposable{
 	
+	/**
+	 * Utility method to clean a SftpContext. Instanciate a new SftpCleaner
+	 * and call the {@link #clean(String)} method.
+	 * @param ctx
+	 */
+	public static void clean(SftpContext context, String directory){
+		SftpCleaner cleaner = new SftpCleaner(context);
+		try{
+			cleaner.initialise();
+			cleaner.clean(directory);
+		} finally {
+			cleaner.dispose();
+		}
+	}
+	
 	public SftpCleaner(SftpContext context) {
 		super(context, new SftpHelper(context));
 	}

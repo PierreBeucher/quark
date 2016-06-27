@@ -19,6 +19,21 @@ import com.github.pierrebeucher.quark.ftp.context.FtpContext;
 public class FtpCleaner extends AbstractWrapperHelper<FtpContext, FtpHelper> implements
 		FileCleaner, Initialisable, Disposable{
 	
+	/**
+	 * Utility method to clean an FtpContext. Instanciate a new FtpCleaner
+	 * and call the {@link #clean(String)} method.
+	 * @param ctx
+	 */
+	public static void clean(FtpContext context, String directory){
+		FtpCleaner cleaner = new FtpCleaner(context);
+		try{
+			cleaner.initialise();
+			cleaner.clean(directory);
+		} finally {
+			cleaner.dispose();
+		}
+	}
+	
 	public FtpCleaner(FtpContext context) {
 		super(context, new FtpHelper(context));
 	}

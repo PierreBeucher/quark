@@ -13,6 +13,22 @@ import com.github.pierrebeucher.quark.jdbc.helper.SpringJdbcHelper;
  */
 public class DeleteJdbcCleaner extends JdbcCleaner {
 
+	/**
+	 * Utility method to clean a Jdbc context. Instanciate a new
+	 * DeleteJdbcCleaner and calls {@link #clean(String)} method.
+	 * @param context
+	 * @param table
+	 */
+	public static void clean(JdbcContext context, String table){
+		DeleteJdbcCleaner cleaner = new DeleteJdbcCleaner(context);
+		try{
+			cleaner.initialise();
+			cleaner.clean(table);
+		} finally {
+			cleaner.dispose();
+		}
+	}
+	
 	public DeleteJdbcCleaner(SpringJdbcHelper h) {
 		this(h.getContext(), h);
 	}
@@ -30,7 +46,7 @@ public class DeleteJdbcCleaner extends JdbcCleaner {
 		logger.info("Cleaning {} on {}.", table, context);
 		int rows;
 		try {
-			rows = helper.getTemplate().update("DELETE FROM " + table);
+			rows = helper.getTemplate().update("DELETE FROM " + context.getDatabase() + "." + table);
 		} catch (DataAccessException e) {
 			throw new JdbcHelperException(e);
 		}
