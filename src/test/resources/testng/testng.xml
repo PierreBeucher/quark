@@ -19,6 +19,8 @@
 	<parameter name="db-port" value="3336" />
 	<parameter name="db-login" value="root" />
 	<parameter name="db-password" value="password" />
+	<parameter name="db-schema" value="quark_it_db" />
+	<parameter name="db-it-table" value="quark_it" />
 	
 	<parameter name="mantisbt-url" value="http://localhost:8081/api/soap/mantisconnect.php" />
 	<parameter name="mantisbt-username" value="administrator" />
@@ -54,6 +56,8 @@
 	<test name="JdbcHelperTest">
 		<classes>
 			<class name="com.github.pierrebeucher.quark.jdbc.helper.JdbcHelperIT"/>
+			<class name="com.github.pierrebeucher.quark.jdbc.helper.cleaner.DeleteJdbcCleanerIT"/>
+			<class name="com.github.pierrebeucher.quark.jdbc.helper.extractor.CsvJdbcExtractorIT"/>
 		</classes>
 	</test>
 	<test name="MantisBTHelperTest">

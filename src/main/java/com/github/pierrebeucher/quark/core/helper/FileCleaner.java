@@ -8,7 +8,7 @@ package com.github.pierrebeucher.quark.core.helper;
  * @author pierreb
  *  
  */
-public interface FileCleaner extends Cleaner {
+public interface FileCleaner extends SafeCleaner {
 	
 	/**
 	 * Default archive directory name used when cleaning a directory
