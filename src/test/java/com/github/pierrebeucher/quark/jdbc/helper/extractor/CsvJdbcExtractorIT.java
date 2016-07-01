@@ -63,7 +63,7 @@ public class CsvJdbcExtractorIT extends BaseJdbcHelperIT<CsvJdbcExtractor>{
 	 */
 	private void prepareDummyTable(String table){
 		JdbcTemplate jdbcTemplate = helper.getWrappedHelper().getTemplate();
-		jdbcTemplate.execute("drop table " + table);
+		jdbcTemplate.execute("drop table if exists " + table);
 		jdbcTemplate.execute("create table if not exists " + table + " (id INT NOT NULL AUTO_INCREMENT,"
 				+ " name VARCHAR(255),"
 				+ " PRIMARY KEY (id)"
