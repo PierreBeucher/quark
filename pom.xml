@@ -10,6 +10,52 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.source>7</maven.compiler.source>
 		<maven.compiler.target>7</maven.compiler.target>
+		<docker.plugin.version>0.15.9</docker.plugin.version>
+
+		<!-- true to skip IT Docker containers launch -->
+		<docker.skip>false</docker.skip>
+
+		<!-- IT config -->
+		<it.sftp-host>localhost</it.sftp-host>
+		<it.sftp-port>2022</it.sftp-port>
+		<it.sftp-login>quark</it.sftp-login>
+		<it.sftp-password>password</it.sftp-password>
+		<it.sftp-key>${project.basedir}/src/test/resources/ssh/id_rsa</it.sftp-key>
+		<it.sftp-key-public>${project.basedir}/src/test/resources/ssh/id_rsa.pub</it.sftp-key-public>
+		<it.sftp-key-passphrase>quark</it.sftp-key-passphrase>
+		<it.sftp-filepath>${project.basedir}/src/test/resources/files/static/file.xml</it.sftp-filepath>
+		<it.sftp-static-testdir>/files/static</it.sftp-static-testdir>
+		<it.sftp-dynamic-testdir>/files/dynamic</it.sftp-dynamic-testdir>
+
+		<it.file-utf-8>${project.basedir}/src/test/resources/data/file/file-utf-8.txt</it.file-utf-8>
+		<it.file-iso-8859-1>${project.basedir}/src/test/resources/data/file/file-iso-8859-1.txt</it.file-iso-8859-1>
+
+		<it.db-host>localhost</it.db-host>
+		<it.db-port>3336</it.db-port>
+		<it.db-login>root</it.db-login>
+		<it.db-password>password</it.db-password>
+		<it.db-schema>quark_it_db</it.db-schema>
+		<it.db-it-table>quark_it</it.db-it-table>
+
+		<!-- Port must match URL -->
+		<it.mantisbt-port>8085</it.mantisbt-port>
+		<it.mantisbt-url>http://localhost:8085/api/soap/mantisconnect.php</it.mantisbt-url>
+		<it.mantisbt-username>administrator</it.mantisbt-username>
+		<it.mantisbt-password>root</it.mantisbt-password>
+		<it.mantisbt-project>QuarkProject</it.mantisbt-project>
+		<it.mantisbt-project-clean-hard>QuarkProjectCleanHard</it.mantisbt-project-clean-hard>
+
+		<it.chemistry-user>admin</it.chemistry-user>
+		<it.chemistry-password>admin</it.chemistry-password>
+		<it.chemistry-ws-base-url>https://cmis.alfresco.com/alfresco/cmisws</it.chemistry-ws-base-url>
+		<it.chemistry-atompub-url>https://cmis.alfresco.com/api/-default-/public/cmis/versions/1.0/atom</it.chemistry-atompub-url>
+		<it.chemistry-repository-id>-default-</it.chemistry-repository-id>
+
+		<it.ftp-host>localhost</it.ftp-host>
+		<it.ftp-port>2121</it.ftp-port>
+		<it.ftp-login>bob</it.ftp-login>
+		<it.ftp-password>bob</it.ftp-password>
+
 	</properties>
 
 	<build>
@@ -51,18 +97,189 @@
 				</executions>
 				<configuration>
 					<trimStackTrace>false</trimStackTrace>  
-					<suiteXmlFiles>
-						<suiteXmlFile>src/test/resources/testng/testng.xml</suiteXmlFile>
-					</suiteXmlFiles>
+					<systemPropertyVariables>
+						<sftp-host>${it.sftp-host}</sftp-host>
+						<sftp-port>${it.sftp-port}</sftp-port>
+						<sftp-login>${it.sftp-login}</sftp-login>
+						<sftp-password>${it.sftp-password}</sftp-password>
+						<sftp-key>${it.sftp-key}</sftp-key>
+						<sftp-key-passphrase>${it.sftp-key-passphrase}</sftp-key-passphrase>
+						<sftp-filepath>${it.sftp-filepath}</sftp-filepath>
+						<sftp-static-testdir>${it.sftp-static-testdir}</sftp-static-testdir>
+						<sftp-dynamic-testdir>${it.sftp-dynamic-testdir}</sftp-dynamic-testdir>
+
+						<file-utf-8>${it.file-utf-8}</file-utf-8>
+						<file-iso-8859-1>${it.file-iso-8859-1}</file-iso-8859-1>
+
+						<db-host>${it.db-host}</db-host>
+						<db-port>${it.db-port}</db-port>
+						<db-login>${it.db-login}</db-login>
+						<db-password>${it.db-password}</db-password>
+						<db-schema>${it.db-schema}</db-schema>
+						<db-it-table>${it.db-it-table}</db-it-table>
+
+						<mantisbt-url>${it.mantisbt-url}</mantisbt-url>
+						<mantisbt-username>${it.mantisbt-username}</mantisbt-username>
+						<mantisbt-password>${it.mantisbt-password}</mantisbt-password>
+						<mantisbt-project>${it.mantisbt-project}</mantisbt-project>
+						<mantisbt-project-clean-hard>${it.mantisbt-project-clean-hard}</mantisbt-project-clean-hard>
+
+						<chemistry-user>${it.chemistry-user}</chemistry-user>
+						<chemistry-password>${it.chemistry-password}</chemistry-password>
+						<chemistry-ws-base-url>${it.chemistry-ws-base-url}</chemistry-ws-base-url>
+						<chemistry-atompub-url>${it.chemistry-atompub-url}</chemistry-atompub-url>
+						<chemistry-repository-id>${it.chemistry-repository-id}</chemistry-repository-id>
+
+						<ftp-host>${it.ftp-host}</ftp-host>
+						<ftp-port>${it.ftp-port}</ftp-port>
+						<ftp-login>${it.ftp-login}</ftp-login>
+						<ftp-password>${it.ftp-password}</ftp-password>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 
-			<!-- Maven Release Plugin use for release -->
+			<!-- Start/stop Integration Test containers -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>${docker.plugin.version}</version>
+
+				<configuration>
+					<skip>${docker.skip}</skip>
+					<images>
+						<image>
+							<name>atmoz/sftp</name>
+							<alias>it-sftp</alias>
+							<run>
+								<namingStrategy>alias</namingStrategy>
+								<ports>
+									<port>${it.sftp-port}:22</port>
+								</ports>
+								<cmd>${it.sftp-login}:${it.sftp-password}:1001</cmd>
+								<volumes>
+									<bind>
+										<volume>${project.basedir}/src/test/resources/files:/home/quark/files:rw</volume>
+										<volume>${it.sftp-key-public}:/home/quark/.ssh/keys/id_rsa.pub:ro</volume>
+									</bind>
+								</volumes>
+								<wait>
+									<log>Server listening on :: port .*</log>
+								</wait>
+							</run>   
+						</image>
+						<image>
+							<name>stilliard/pure-ftpd</name>
+							<alias>it-ftp</alias>
+							<run>
+								<namingStrategy>alias</namingStrategy>
+								<ports>
+									<port>${it.ftp-port}:21</port>
+									<port>30000:30000</port>
+									<port>30001:30001</port>
+									<port>30002:30002</port>
+									<port>30003:30003</port>
+									<port>30004:30004</port>
+									<port>30005:30005</port>
+									<port>30006:30006</port>
+									<port>30007:30007</port>
+									<port>30008:30008</port>
+									<port>30009:30009</port>
+								</ports>
+								<env>
+									<PUBLICHOST>localhost</PUBLICHOST>
+								</env>
+								<volumes>
+									<bind>
+										<volume>${project.basedir}/src/test/resources/ftp/pureftpd.passwd:/etc/pure-ftpd/pureftpd.passwd </volume>
+										<volume>${project.basedir}/src/test/resources/ftp/pureftpd.pdb:/etc/pure-ftpd/pureftpd.pdb</volume>
+									</bind>
+								</volumes>
+							</run>   
+						</image>
+						<image>
+							<name>mysql</name>
+							<alias>it-mysql</alias>
+							<run>
+								<namingStrategy>alias</namingStrategy>
+								<ports>
+									<port>${it.db-port}:3306</port>
+								</ports>
+								<env>
+									<MYSQL_ROOT_PASSWORD>${it.db-password}</MYSQL_ROOT_PASSWORD>
+									<MYSQL_DATABASE>${it.db-schema}</MYSQL_DATABASE>
+								</env>
+								<wait>
+									<log>socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL</log>
+									<time>60000</time>
+								</wait>
+							</run>   
+						</image>
+						<image>
+							<name>mysql</name>
+							<alias>it-mysql-mantisbt</alias>
+							<run>
+								<namingStrategy>alias</namingStrategy>
+								<ports>
+									<port>3337:3306</port>
+								</ports>
+								<volumes>
+									<bind>
+										<volume>${project.basedir}/src/test/resources/mantisbt/1.2.19/mantisbt-export.sql:/docker-entrypoint-initdb.d/mantisbt-export.sql:rw </volume>
+									</bind>
+								</volumes>
+								<env>
+									<MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
+									<MYSQL_DATABASE>bugtracker</MYSQL_DATABASE>
+									<MYSQL_USER>mantisbt</MYSQL_USER>
+									<MYSQL_PASSWORD>mantisbt</MYSQL_PASSWORD>
+								</env>
+								<wait>
+									<log>socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL</log>
+									<time>60000</time>
+								</wait>
+							</run>   
+						</image>
+						<image>
+							<name>vimagick/mantisbt</name>
+							<alias>it-mantisbt</alias>
+							<run>
+								<namingStrategy>alias</namingStrategy>
+								<ports>
+									<port>${it.mantisbt-port}:80</port>
+								</ports>
+								<links>
+									<link>it-mysql-mantisbt:mysql-mantisbt</link>
+								</links>
+								<volumes>
+									<bind>
+										<volume>${project.basedir}/src/test/resources/mantisbt/1.2.19/config_inc.php:/var/www/html/config_inc.php:rw</volume>
+									</bind>
+								</volumes>
+							</run>   
+						</image>
+						
+
+						
+					</images>
+				</configuration>
+				<executions>
+					<execution>
+						<id>docker-start</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>start</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>docker-stop</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 
@@ -142,9 +359,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<scm>
-		<developerConnection>scm:git:ssh://git@github.com/PierreBeucher/quark.git</developerConnection>
-		<url>https://github.com/PierreBeucher/quark.git</url>
-	</scm>
 </project>
