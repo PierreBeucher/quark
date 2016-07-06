@@ -370,6 +370,7 @@
 	</dependencies>
 
 	<scm>
+		<connection>scm:git:ssh://git@github.com/PierreBeucher/quark.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/PierreBeucher/quark.git</developerConnection>
 		<url>https://github.com/PierreBeucher/quark.git</url>
 	</scm>
