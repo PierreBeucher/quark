@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.pierrebeucher</groupId>
 	<artifactId>quark</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<name>Quark Framework</name>
 
 	<properties>
@@ -373,5 +373,6 @@
 		<connection>scm:git:ssh://git@github.com/PierreBeucher/quark.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/PierreBeucher/quark.git</developerConnection>
 		<url>https://github.com/PierreBeucher/quark.git</url>
-	</scm>
+	  <tag>v0.1.0</tag>
+  </scm>
 </project>
